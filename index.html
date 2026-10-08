@@ -168,7 +168,7 @@ body{background:linear-gradient(160deg,#e0e7ff 0%,#ecfeff 40%,#fdf4ff 100%) fixe
 .top .tbtn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff}
 .top .tbtn[aria-pressed="true"]{background:#fff;color:#1e3a8a}
 .badge.on{box-shadow:0 0 0 3px rgba(255,255,255,.35)} .badge.bad{box-shadow:0 0 0 3px rgba(255,255,255,.35)}
-.call .nm{background:var(--id,#475569);color:#fff;text-shadow:none;padding:2px 9px;border-radius:7px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.call .nm{background:#047857;color:#fff;text-shadow:none;padding:2px 9px;border-radius:7px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
 .call .bx{border-top:4px solid var(--id,#475569)}
 .call.warn .bx{border-top-color:#f59e0b} .call.bad .bx,.call.stop .bx{border-top-color:var(--bad)}
 .g2>.card,.sch{position:relative;overflow:hidden}
@@ -595,7 +595,7 @@ function renderLamp(){
 }
 (function(){ var r=null; try{ r=JSON.parse(sessionStorage.getItem('mois.auth')||localStorage.getItem('mois.auth')); }catch(e){}
   $('uName').textContent=(r&&r.u)||'User';
-  $('logoutBtn').addEventListener('click',function(){ try{ sessionStorage.removeItem('mois.auth'); localStorage.removeItem('mois.auth'); }catch(e){} location.href=location.pathname; }); })();
+  $('logoutBtn').addEventListener('click',function(){ try{ sessionStorage.removeItem('mois.auth'); localStorage.removeItem('mois.auth'); Object.keys(sessionStorage).filter(function(k){ return k.indexOf('mois.chat.')===0; }).forEach(function(k){ sessionStorage.removeItem(k); }); }catch(e){} location.href=location.pathname; }); })();
 poll(); setInterval(poll,10000); setInterval(renderLamp,1000);
 <\/script>
 </body>
@@ -886,7 +886,7 @@ body{background:linear-gradient(160deg,#e0e7ff 0%,#ecfeff 40%,#fdf4ff 100%) fixe
 .top .tbtn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff}
 .top .tbtn[aria-pressed="true"]{background:#fff;color:#1e3a8a}
 .badge.on{box-shadow:0 0 0 3px rgba(255,255,255,.35)} .badge.bad{box-shadow:0 0 0 3px rgba(255,255,255,.35)}
-.call .nm{background:var(--id,#475569);color:#fff;text-shadow:none;padding:2px 9px;border-radius:7px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.call .nm{background:#047857;color:#fff;text-shadow:none;padding:2px 9px;border-radius:7px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
 .call .bx{border-top:4px solid var(--id,#475569)}
 .call.warn .bx{border-top-color:#f59e0b} .call.bad .bx,.call.stop .bx{border-top-color:var(--bad)}
 .g2>.card,.sch{position:relative;overflow:hidden}
@@ -1679,7 +1679,9 @@ var TH={ mill:['#064e3b','#047857','#10b981','#ecfdf5','#a7f3d0'], proc:['#0c4a6
          vac:['#3b0764','#6d28d9','#a855f7','#f3e8ff','#e9d5ff'], stock:['#500724','#be185d','#ec4899','#fce7f3','#fbcfe8'],
          ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'] }[PAGE];
 var NAME='M.O.I.S ASSISTANT';
-var KEY='mois.chat.'+PAGE, SEEN='mois.chat.seen.'+PAGE, OPEN='mois.chat.open.'+PAGE;
+/* the conversation belongs to the signed-in user: keys carry the user name, and signing out clears them */
+var WHO='anon'; try{ var au=JSON.parse(sessionStorage.getItem('mois.auth')||localStorage.getItem('mois.auth')); if(au&&au.u) WHO=String(au.u).toLowerCase(); }catch(e){}
+var KEY='mois.chat.'+WHO+'.'+PAGE, SEEN='mois.chat.seen.'+WHO+'.'+PAGE, OPEN='mois.chat.open.'+WHO+'.'+PAGE;
 var store={ get:function(k,d){ try{ var v=sessionStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
             set:function(k,v){ try{ sessionStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
 var S={open:store.get(OPEN,false), tab:'brief', big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
@@ -2049,7 +2051,7 @@ body{background:linear-gradient(160deg,#e0e7ff 0%,#ecfeff 40%,#fdf4ff 100%) fixe
 .top .tbtn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff}
 .top .tbtn[aria-pressed="true"]{background:#fff;color:#1e3a8a}
 .badge.on{box-shadow:0 0 0 3px rgba(255,255,255,.35)} .badge.bad{box-shadow:0 0 0 3px rgba(255,255,255,.35)}
-.call .nm{background:var(--id,#475569);color:#fff;text-shadow:none;padding:2px 9px;border-radius:7px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.call .nm{background:#047857;color:#fff;text-shadow:none;padding:2px 9px;border-radius:7px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
 .call .bx{border-top:4px solid var(--id,#475569)}
 .call.warn .bx{border-top-color:#f59e0b} .call.bad .bx,.call.stop .bx{border-top-color:var(--bad)}
 .g2>.card,.sch{position:relative;overflow:hidden}
@@ -2710,7 +2712,9 @@ var TH={ mill:['#064e3b','#047857','#10b981','#ecfdf5','#a7f3d0'], proc:['#0c4a6
          vac:['#3b0764','#6d28d9','#a855f7','#f3e8ff','#e9d5ff'], stock:['#500724','#be185d','#ec4899','#fce7f3','#fbcfe8'],
          ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'] }[PAGE];
 var NAME='M.O.I.S ASSISTANT';
-var KEY='mois.chat.'+PAGE, SEEN='mois.chat.seen.'+PAGE, OPEN='mois.chat.open.'+PAGE;
+/* the conversation belongs to the signed-in user: keys carry the user name, and signing out clears them */
+var WHO='anon'; try{ var au=JSON.parse(sessionStorage.getItem('mois.auth')||localStorage.getItem('mois.auth')); if(au&&au.u) WHO=String(au.u).toLowerCase(); }catch(e){}
+var KEY='mois.chat.'+WHO+'.'+PAGE, SEEN='mois.chat.seen.'+WHO+'.'+PAGE, OPEN='mois.chat.open.'+WHO+'.'+PAGE;
 var store={ get:function(k,d){ try{ var v=sessionStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
             set:function(k,v){ try{ sessionStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
 var S={open:store.get(OPEN,false), tab:'brief', big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
@@ -3078,7 +3082,7 @@ body{background:linear-gradient(160deg,#e0e7ff 0%,#ecfeff 40%,#fdf4ff 100%) fixe
 .top .tbtn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff}
 .top .tbtn[aria-pressed="true"]{background:#fff;color:#1e3a8a}
 .badge.on{box-shadow:0 0 0 3px rgba(255,255,255,.35)} .badge.bad{box-shadow:0 0 0 3px rgba(255,255,255,.35)}
-.call .nm{background:var(--id,#475569);color:#fff;text-shadow:none;padding:2px 9px;border-radius:7px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.call .nm{background:#047857;color:#fff;text-shadow:none;padding:2px 9px;border-radius:7px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
 .call .bx{border-top:4px solid var(--id,#475569)}
 .call.warn .bx{border-top-color:#f59e0b} .call.bad .bx,.call.stop .bx{border-top-color:var(--bad)}
 .g2>.card,.sch{position:relative;overflow:hidden}
@@ -3459,7 +3463,9 @@ var TH={ mill:['#064e3b','#047857','#10b981','#ecfdf5','#a7f3d0'], proc:['#0c4a6
          vac:['#3b0764','#6d28d9','#a855f7','#f3e8ff','#e9d5ff'], stock:['#500724','#be185d','#ec4899','#fce7f3','#fbcfe8'],
          ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'] }[PAGE];
 var NAME='M.O.I.S ASSISTANT';
-var KEY='mois.chat.'+PAGE, SEEN='mois.chat.seen.'+PAGE, OPEN='mois.chat.open.'+PAGE;
+/* the conversation belongs to the signed-in user: keys carry the user name, and signing out clears them */
+var WHO='anon'; try{ var au=JSON.parse(sessionStorage.getItem('mois.auth')||localStorage.getItem('mois.auth')); if(au&&au.u) WHO=String(au.u).toLowerCase(); }catch(e){}
+var KEY='mois.chat.'+WHO+'.'+PAGE, SEEN='mois.chat.seen.'+WHO+'.'+PAGE, OPEN='mois.chat.open.'+WHO+'.'+PAGE;
 var store={ get:function(k,d){ try{ var v=sessionStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
             set:function(k,v){ try{ sessionStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
 var S={open:store.get(OPEN,false), tab:'brief', big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
@@ -3832,7 +3838,7 @@ body{background:linear-gradient(160deg,#e0e7ff 0%,#ecfeff 40%,#fdf4ff 100%) fixe
 .top .tbtn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff}
 .top .tbtn[aria-pressed="true"]{background:#fff;color:#1e3a8a}
 .badge.on{box-shadow:0 0 0 3px rgba(255,255,255,.35)} .badge.bad{box-shadow:0 0 0 3px rgba(255,255,255,.35)}
-.call .nm{background:var(--id,#475569);color:#fff;text-shadow:none;padding:2px 9px;border-radius:7px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.call .nm{background:#047857;color:#fff;text-shadow:none;padding:2px 9px;border-radius:7px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
 .call .bx{border-top:4px solid var(--id,#475569)}
 .call.warn .bx{border-top-color:#f59e0b} .call.bad .bx,.call.stop .bx{border-top-color:var(--bad)}
 .g2>.card,.sch{position:relative;overflow:hidden}
@@ -4889,7 +4895,9 @@ var TH={ mill:['#064e3b','#047857','#10b981','#ecfdf5','#a7f3d0'], proc:['#0c4a6
          vac:['#3b0764','#6d28d9','#a855f7','#f3e8ff','#e9d5ff'], stock:['#500724','#be185d','#ec4899','#fce7f3','#fbcfe8'],
          ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'] }[PAGE];
 var NAME='M.O.I.S ASSISTANT';
-var KEY='mois.chat.'+PAGE, SEEN='mois.chat.seen.'+PAGE, OPEN='mois.chat.open.'+PAGE;
+/* the conversation belongs to the signed-in user: keys carry the user name, and signing out clears them */
+var WHO='anon'; try{ var au=JSON.parse(sessionStorage.getItem('mois.auth')||localStorage.getItem('mois.auth')); if(au&&au.u) WHO=String(au.u).toLowerCase(); }catch(e){}
+var KEY='mois.chat.'+WHO+'.'+PAGE, SEEN='mois.chat.seen.'+WHO+'.'+PAGE, OPEN='mois.chat.open.'+WHO+'.'+PAGE;
 var store={ get:function(k,d){ try{ var v=sessionStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
             set:function(k,v){ try{ sessionStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
 var S={open:store.get(OPEN,false), tab:'brief', big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
