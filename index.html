@@ -2577,6 +2577,308 @@ function one(o){ css(); if(!o) return '';
 g.MoisQut={card:card, list:list, practice:practice, one:one, short:short};
 })(window);
 <\/script>
+<script>/* M.O.I.S assistant — a floating chat that belongs to ONE dashboard (?p=mill|proc|vac|stock|ops|spc).
+   Tab 0 "สรุป 24 ชม.": 24-hour brief from /api/chat/day — opens by itself the first time the user enters this dashboard in a session.
+   Tab 1 "ตอนนี้": instant explanation of what is wrong now (why / if ignored / what to do) — from /api/chat/brief, free.
+   Tab 2 "ถามผู้ช่วย": free chat through POST /api/chat (Claude API; the key stays on the collector server).
+   Colours follow the dashboard's own theme. Hidden in incident replay and when printing. */
+(function(){
+'use strict';
+var Q=new URLSearchParams(location.search), PAGE=Q.get('p');
+if(['mill','proc','vac','stock','ops','spc','recovery'].indexOf(PAGE)<0||Q.get('replay')) return;
+var REC=PAGE==='recovery';      /* Process Analytical: a report page — the bot reads the closed report day; no live 24-h brief, no auto-open */
+var API=Q.get('api')||(location.protocol.indexOf('http')===0?'':'http://localhost:8080');
+var TH={ mill:['#064e3b','#047857','#10b981','#ecfdf5','#a7f3d0'], proc:['#0c4a6e','#0369a1','#0891b2','#e0f2fe','#bae6fd'],
+         vac:['#3b0764','#6d28d9','#a855f7','#f3e8ff','#e9d5ff'], stock:['#500724','#be185d','#ec4899','#fce7f3','#fbcfe8'],
+         ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'],
+         recovery:['#0f1e3d','#1e3a8a','#c9a227','#eff6ff','#bfdbfe'] }[PAGE];
+var NAME=REC?'M.O.I.S ANALYST':'M.O.I.S ASSISTANT';
+/* the conversation belongs to the signed-in user: keys carry the user name, and signing out clears them */
+var WHO='anon'; try{ var au=JSON.parse(sessionStorage.getItem('mois.auth')||localStorage.getItem('mois.auth')); if(au&&au.u) WHO=String(au.u).toLowerCase(); }catch(e){}
+var KEY='mois.chat.'+WHO+'.'+PAGE, SEEN='mois.chat.seen.'+WHO+'.'+PAGE, OPEN='mois.chat.open.'+WHO+'.'+PAGE, DAYK='mois.chat.day.'+WHO+'.'+PAGE;
+var store={ get:function(k,d){ try{ var v=sessionStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
+            set:function(k,v){ try{ sessionStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
+var S={open:store.get(OPEN,false), tab:REC?'chat':'day', day:null, dayAnim:false, big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
+var esc=function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+
+/* ---------- styles ---------- */
+var st=document.createElement('style');
+st.textContent=[
+'.mc-root{--c1:'+TH[0]+';--c2:'+TH[1]+';--c3:'+TH[2]+';--cl:'+TH[3]+';--cb:'+TH[4]+';position:fixed;right:16px;bottom:16px;z-index:9000;font-family:inherit;font-size:14px;color:#0f172a}',
+'.mc-root *{box-sizing:border-box}',
+'.mc-launch{display:inline-flex;align-items:center;gap:9px;min-height:48px;padding:0 18px 0 14px;border:0;border-radius:99px;cursor:pointer;color:#fff;font:inherit;font-weight:700;background:linear-gradient(120deg,var(--c1),var(--c2) 60%,var(--c3));box-shadow:0 8px 22px rgba(15,23,42,.35),inset 0 1px 0 rgba(255,255,255,.3);position:relative}',
+'.mc-launch:hover{filter:brightness(1.08)} .mc-launch:focus-visible,.mc-root button:focus-visible,.mc-root textarea:focus-visible,.mc-root summary:focus-visible{outline:3px solid #fff;outline-offset:2px;box-shadow:0 0 0 5px var(--c2)}',
+'.mc-launch svg{width:22px;height:22px;flex:none}',
+'.mc-badge{position:absolute;top:-6px;right:-4px;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#dc2626;color:#fff;font-size:.75rem;font-weight:800;display:grid;place-items:center;border:2px solid #fff}',
+'.mc-badge.warn{background:#d97706} .mc-badge[hidden]{display:none}',
+'.mc-launch.pulse{animation:mcp 1.6s ease-in-out 3}@keyframes mcp{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}',
+'.mc-toast{position:fixed;right:16px;top:84px;z-index:9001;width:min(340px,calc(100vw - 32px));padding:11px 14px;border-radius:14px;background:#fff;border:1px solid var(--cb);border-left:5px solid #dc2626;box-shadow:0 12px 30px rgba(15,23,42,.28);cursor:pointer;text-align:left;font:inherit;color:#0f172a;line-height:1.45}',
+'.mc-toast.warn{border-left-color:#d97706} .mc-toast b{display:block;color:var(--c1);font-size:.8rem;margin-bottom:2px} .mc-toast[hidden]{display:none}',
+'.mc-panel{position:absolute;right:0;bottom:62px;width:min(400px,calc(100vw - 24px));height:min(600px,calc(100vh - 96px));display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:#fff;border:1px solid var(--cb);box-shadow:0 22px 60px rgba(15,23,42,.38)}',
+'.mc-panel.big{width:min(640px,calc(100vw - 24px));height:min(86vh,820px)} .mc-panel[hidden]{display:none}',
+'.mc-head{display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;color:#fff;background:linear-gradient(120deg,var(--c1),var(--c2) 60%,var(--c3))}',
+'.mc-head h2{margin:0;font-size:1rem;line-height:1.2;font-weight:800} .mc-head small{display:block;font-size:.72rem;opacity:.9;font-weight:500;margin-top:2px}',
+'.mc-head .t{flex:1;min-width:0} .mc-head button{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.14);color:#fff;cursor:pointer;display:grid;place-items:center;flex:none}',
+'.mc-head button:hover{background:rgba(255,255,255,.28)} .mc-head svg{width:18px;height:18px}',
+'.mc-tabs{display:flex;background:var(--cl);border-bottom:1px solid var(--cb)} .mc-tabs button{flex:1;min-height:42px;border:0;background:none;font:inherit;font-weight:700;color:#475569;cursor:pointer;border-bottom:3px solid transparent}',
+'.mc-tabs button[aria-selected="true"]{color:var(--c1);border-bottom-color:var(--c2);background:#fff} .mc-tabs .n{display:inline-block;min-width:20px;margin-left:6px;padding:0 6px;border-radius:99px;background:#dc2626;color:#fff;font-size:.72rem}',
+'.mc-tabs .n.warn{background:#d97706} .mc-tabs .n[hidden]{display:none}',
+/* each tab has its own colour + icon: brief = theme, now = red (live problems), ask = indigo (chat) */
+'.mc-tabs button{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:.88rem;--tc:var(--c2);--tl:var(--cl)} .mc-tabs svg{width:17px;height:17px;flex:none;opacity:.75}',
+'.mc-tabs .tb-now{--tc:#dc2626;--tl:#fef2f2} .mc-tabs .tb-ask{--tc:#4f46e5;--tl:#eef2ff}',
+'.mc-tabs button:hover{color:var(--tc);background:var(--tl)}',
+'.mc-tabs button[aria-selected="true"]{color:var(--tc);border-bottom-color:var(--tc);background:#fff;box-shadow:inset 0 3px 0 var(--tl)} .mc-tabs button[aria-selected="true"] svg{opacity:1}',
+'.mc-body#mcB1{background:linear-gradient(180deg,#fef2f2,#fff 120px)} .mc-body#mcB2{background:linear-gradient(180deg,#eef2ff,#fff 120px)}',
+'.mc-body{flex:1;overflow:auto;padding:12px 14px;background:linear-gradient(180deg,var(--cl),#fff 120px)} .mc-body[hidden]{display:none}',
+'.mc-card{border:1px solid var(--cb);border-left:5px solid #dc2626;border-radius:12px;background:#fff;margin-bottom:10px}.mc-card.warn{border-left-color:#d97706}',
+'.mc-card summary{cursor:pointer;padding:10px 12px;list-style:none;font-weight:700;line-height:1.4} .mc-card summary::-webkit-details-marker{display:none}',
+'.mc-card summary:before{content:"▸";display:inline-block;margin-right:6px;color:var(--c2);transition:transform .15s} .mc-card[open] summary:before{transform:rotate(90deg)}',
+'.mc-chip{display:inline-block;margin-right:6px;padding:1px 9px;border-radius:99px;font-size:.72rem;font-weight:800;background:#fee2e2;color:#991b1b;vertical-align:1px} .mc-chip.warn{background:#fef3c7;color:#92400e}',
+'.mc-sec{padding:0 12px 10px 28px;font-size:.88rem;line-height:1.55} .mc-sec h4{margin:8px 0 2px;font-size:.78rem;letter-spacing:.02em;color:var(--c1)} .mc-sec ul{margin:0;padding-left:18px}',
+'.mc-sec .ref{color:#64748b;font-size:.74rem;margin-top:6px} .mc-sec .ask{margin-top:8px}',
+'.mc-btn{min-height:36px;padding:0 14px;border-radius:10px;border:1px solid var(--c2);background:#fff;color:var(--c1);font:inherit;font-weight:700;cursor:pointer} .mc-btn:hover{background:var(--cl)}',
+'.mc-btn.pri{background:linear-gradient(120deg,var(--c1),var(--c2));color:#fff;border-color:var(--c1)} .mc-btn[disabled]{opacity:.55;cursor:not-allowed}',
+'.mc-ok{padding:18px 8px;text-align:center;color:#166534;font-weight:700}',
+'.mc-hint{font-size:.78rem;color:#64748b;margin:6px 2px}',
+'.mc-msg{max-width:92%;margin:0 0 10px;padding:9px 12px;border-radius:14px;line-height:1.55;font-size:.9rem;word-wrap:break-word;overflow-wrap:anywhere}',
+'.mc-msg.u{margin-left:auto;color:#fff;background:linear-gradient(120deg,var(--c1),var(--c2));border-bottom-right-radius:4px}',
+'.mc-msg.a{background:#fff;border:1px solid var(--cb);border-bottom-left-radius:4px} .mc-msg.e{background:#fef2f2;border:1px solid #fecaca;color:#7f1d1d}',
+'.mc-msg ul{margin:4px 0;padding-left:20px} .mc-msg strong{color:inherit}.mc-msg.a strong{color:var(--c1)}',
+'.mc-dots span{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:var(--c2);animation:mcd 1s infinite} .mc-dots span:nth-child(2){animation-delay:.15s}.mc-dots span:nth-child(3){animation-delay:.3s}@keyframes mcd{0%,80%,100%{opacity:.25}40%{opacity:1}}',
+'.mc-starters{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}.mc-starters button{padding:7px 11px;border-radius:99px;border:1px solid var(--cb);background:#fff;color:var(--c1);font:inherit;font-size:.82rem;cursor:pointer;text-align:left}.mc-starters button:hover{background:var(--cl)}',
+'.mc-form{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--cb);background:#fff} .mc-form[hidden]{display:none}',
+'.mc-form textarea{flex:1;resize:none;min-height:42px;max-height:110px;padding:9px 11px;border-radius:12px;border:1px solid var(--cb);font:inherit;font-size:.9rem;color:#0f172a}',
+'.mc-form button{align-self:flex-end;min-width:64px}',
+'.mc-foot{padding:6px 12px 8px;font-size:.7rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0;line-height:1.4}',
+'@media (max-width:560px){.mc-root{right:8px;bottom:8px}.mc-toast{right:8px;top:72px}.mc-panel,.mc-panel.big{position:fixed;left:8px;right:8px;bottom:68px;width:auto;height:min(78vh,640px)}.mc-launch span.l{display:none}.mc-launch{padding:0 14px}}',
+'.mc-caret{display:inline-block;width:2px;height:1.05em;margin-left:2px;background:var(--c1);vertical-align:-2px;animation:mcc 1s steps(2) infinite}@keyframes mcc{50%{opacity:0}}',
+/* 24-hour brief */
+'.mc-day .hi{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px} .mc-day .av{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(120deg,var(--c1),var(--c3));font-size:1.05rem}',
+'.mc-day .bub{background:#fff;border:1px solid var(--cb);border-radius:4px 14px 14px 14px;padding:9px 12px;line-height:1.5;font-size:.9rem} .mc-day .bub small{display:block;color:#64748b;font-size:.74rem;margin-top:2px}',
+'.mc-day .head{margin:0 0 10px;padding:10px 12px;border-radius:12px;font-weight:800;line-height:1.45;color:var(--c1);background:linear-gradient(120deg,var(--cl),#fff);border:1px solid var(--cb)}',
+'.mc-day .head.bad{color:#7f1d1d;background:linear-gradient(120deg,#fee2e2,#fff);border-color:#fecaca}',
+'.mc-day h4{margin:12px 0 6px;font-size:.8rem;letter-spacing:.02em;color:var(--c1)}',
+'.mc-per{margin:0 0 10px;padding:8px 12px;border-radius:12px;background:#fff;border:1px dashed var(--cb);font-size:.82rem;line-height:1.5}',
+'.mc-per div{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline} .mc-per span{color:#475569;min-width:118px} .mc-per b{color:#0f172a;font-weight:700}',
+'.mc-per em{font-style:normal;font-size:.72rem;font-weight:800;color:#fff;background:var(--c2);padding:0 7px;border-radius:99px}',
+'.mc-per .u{color:#64748b;font-size:.74rem;margin-top:2px}',
+'.mc-nums{display:grid;grid-template-columns:1fr 1fr;gap:8px} .mc-panel.big .mc-nums{grid-template-columns:repeat(3,1fr)}',
+'.mc-n{background:#fff;border:1px solid var(--cb);border-radius:12px;padding:8px 10px;min-width:0} .mc-n span{display:block;font-size:.74rem;color:#475569;line-height:1.3}',
+'.mc-n b{display:block;font-size:1.25rem;line-height:1.25;color:#0f172a} .mc-n b small{font-size:.72rem;color:#64748b;font-weight:600;margin-left:3px}',
+'.mc-n i{display:block;font-style:normal;font-size:.72rem;font-weight:700} .mc-n i.up{color:#15803d} .mc-n i.dn{color:#b91c1c} .mc-n i.eq{color:#64748b} .mc-n em{display:block;font-style:normal;font-size:.7rem;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+'.mc-pb{list-style:none;margin:0;padding:0} .mc-pb li{display:flex;gap:8px;align-items:flex-start;padding:7px 10px;margin-bottom:6px;border-radius:10px;background:#fff;border:1px solid var(--cb);font-size:.86rem;line-height:1.45}',
+'.mc-pb li:before{content:"";flex:none;width:9px;height:9px;margin-top:6px;border-radius:50%;background:#d97706} .mc-pb li.alarm:before{background:#dc2626;box-shadow:0 0 0 3px #fee2e2}',
+'.mc-todo{margin:0;padding-left:20px;font-size:.86rem;line-height:1.5}',
+'.mc-day .act{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}',
+'.mc-day.anim>*{opacity:0;animation:mcin .45s ease-out forwards} .mc-day.anim>*:nth-child(2){animation-delay:.25s}.mc-day.anim>*:nth-child(3){animation-delay:.5s}.mc-day.anim>*:nth-child(4){animation-delay:.75s}.mc-day.anim>*:nth-child(5){animation-delay:1s}.mc-day.anim>*:nth-child(6){animation-delay:1.25s}.mc-day.anim>*:nth-child(7){animation-delay:1.5s}.mc-day.anim>*:nth-child(n+8){animation-delay:1.75s}',
+'@keyframes mcin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}',
+'@media (prefers-reduced-motion:reduce){.mc-launch.pulse,.mc-dots span,.mc-caret,.mc-day.anim>*{animation:none;opacity:1}}',
+'@media print{.mc-root{display:none!important}}'
+].join('\n');
+document.head.appendChild(st);
+
+/* ---------- markup ---------- */
+var ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 4v2h10V8H7zm0 4v2h7v-2H7z"/></svg>';
+var root=document.createElement('div'); root.className='mc-root'; root.setAttribute('data-mc','1');
+root.innerHTML=
+ '<div class="mc-toast" id="mcToast" role="status" hidden></div>'+
+ '<section class="mc-panel" id="mcPanel" role="dialog" aria-label="'+esc(NAME)+'" hidden>'+
+  '<header class="mc-head"><div class="t"><h2>'+esc(NAME)+'</h2><small id="mcSub"></small></div>'+
+   '<button type="button" id="mcBig" aria-label="ขยายหน้าต่าง" title="ขยาย / ย่อขนาด"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>'+
+   '<button type="button" id="mcMin" aria-label="พับเก็บ" title="พับเก็บ"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M5 12h14"/></svg></button></header>'+
+  '<div class="mc-tabs" role="tablist">'+
+   '<button type="button" role="tab" id="mcT0" class="tb-day" aria-selected="true" aria-controls="mcB0"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 15l2.5 2.5L16 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>สรุป 24 ชม.</button>'+
+   '<button type="button" role="tab" id="mcT1" class="tb-now" aria-selected="false" aria-controls="mcB1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l3-7 4 14 3-7h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+(REC?'ประเด็นรายงาน':'ตอนนี้')+'<span class="n" id="mcN" hidden></span></button>'+
+   '<button type="button" role="tab" id="mcT2" class="tb-ask" aria-selected="false" aria-controls="mcB2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>ถามผู้ช่วย</button></div>'+
+  '<div class="mc-body" id="mcB0" role="tabpanel" aria-labelledby="mcT0"></div>'+
+  '<div class="mc-body" id="mcB1" role="tabpanel" aria-labelledby="mcT1" hidden></div>'+
+  '<div class="mc-body" id="mcB2" role="tabpanel" aria-labelledby="mcT2" aria-live="polite" hidden></div>'+
+  '<form class="mc-form" id="mcForm" hidden><textarea id="mcIn" rows="1" maxlength="1000" aria-label="พิมพ์คำถาม"></textarea><button class="mc-btn pri" id="mcSend" type="submit">ส่ง</button></form>'+
+  '<div class="mc-foot">ผู้ช่วยให้คำแนะนำเท่านั้น ไม่ใช่ระบบควบคุมหรือระบบความปลอดภัย · ยึดสัญญาณเตือนใน DCS และการตัดสินใจของวิศวกรเป็นหลัก · ตอบจากข้อมูลและคู่มือที่ระบบมี</div>'+
+ '</section>'+
+ '<button type="button" class="mc-launch" id="mcLaunch" aria-expanded="false" aria-controls="mcPanel">'+ICON+'<span class="l">'+esc(NAME)+'</span><span class="mc-badge" id="mcBadge" hidden></span></button>';
+document.body.appendChild(root);
+var $=function(id){ return document.getElementById(id); };
+
+/* ---------- rendering ---------- */
+function md(t){                                  // tiny, safe markdown: **bold**, "- " lists, line breaks
+  var out=[], list=false;
+  String(t).split('\n').forEach(function(line){
+    var m=/^\s*(?:[-*•]|\d+[.)])\s+(.*)$/.exec(line), x=esc(m?m[1]:line).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    if(m){ if(!list){ out.push('<ul>'); list=true; } out.push('<li>'+x+'</li>'); }
+    else{ if(list){ out.push('</ul>'); list=false; }
+      out.push(/^\s*(ที่มา|อ้างอิง)\s*[:：]/.test(line)?'<div style="font-size:.74rem;color:#64748b;margin-top:4px">'+x+'</div>':x?'<div>'+x+'</div>':'<div style="height:.4em"></div>'); }
+  });
+  if(list) out.push('</ul>'); return out.join('');
+}
+var fv=function(v,u){ return v==null?'':(Math.abs(v)>=100?Math.round(v):Math.round(v*10)/10)+' '+(u||''); };
+function renderBrief(){
+  var B=S.brief, el=$('mcB1'); if(!B){ el.innerHTML='<div class="mc-hint">กำลังโหลด…</div>'; return; }
+  var html='';
+  if(!B.items.length) html+='<div class="mc-ok">'+(REC?'รายงานวันล่าสุดไม่มีประเด็นที่ต้องแก้':'ตอนนี้ไม่มีรายการผิดปกติที่ต้องอธิบาย')+'</div><div class="mc-hint" style="text-align:center">ถามผู้ช่วยเรื่องอื่นได้ที่แท็บ "ถามผู้ช่วย"</div>';
+  B.items.forEach(function(i,k){
+    var w=i.level==='warn'?' warn':'';
+    html+='<details class="mc-card'+w+'"'+(k===0?' open':'')+'><summary><span class="mc-chip'+w+'">'+(i.level==='alarm'?(REC?'ไม่ผ่านเป้า':'ผิดปกติ'):'เฝ้าระวัง')+'</span>'+esc(i.title)+(i.value!=null&&i.dir!=='stop'&&i.dir!=='info'?' <span style="color:#64748b;font-weight:600">· '+esc(fv(i.value,i.unit))+'</span>':'')+'</summary><div class="mc-sec">'+
+      (i.why&&i.why.length?'<h4>'+(REC?'ข้อมูลจากรายงาน':'อาจเป็นเพราะ')+'</h4><ul>'+i.why.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
+      (i.if_ignored?'<h4>'+(REC?'ผลกระทบ':'ถ้าปล่อยไว้')+'</h4><div>'+esc(i.if_ignored)+'</div>':'')+
+      (i.do&&i.do.length?'<h4>'+(REC?'ข้อเสนอ':'ต้องทำอะไร')+'</h4><ul>'+i.do.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
+      (i.ref&&i.ref!=='—'?'<div class="ref">ที่มา: '+esc(i.ref)+'</div>':'')+
+      '<div class="ask"><button type="button" class="mc-btn" data-ask="'+k+'">ถามผู้ช่วยต่อเรื่องนี้</button></div></div></details>';
+  });
+  el.innerHTML=html;
+}
+/* 24-hour brief: shown automatically the first time the user opens this dashboard in a session */
+function nf(v){ return v==null?'–':(Math.abs(v)>=100?Math.round(v).toLocaleString('en-US'):(Math.round(v*10)/10).toLocaleString('en-US')); }
+function renderDay(){
+  var D=S.day, el=$('mcB0');
+  if(!D){ el.innerHTML='<div class="mc-day"><div class="hi"><span class="av" aria-hidden="true">✦</span><div class="bub">กำลังสรุป 24 ชั่วโมงที่ผ่านมา… <span class="mc-dots" aria-label="กำลังโหลด"><span></span><span></span><span></span></span></div></div></div>'; return; }
+  var hr=(new Date(Date.now()+7*3600e3)).getUTCHours(), hello=hr<12?'สวัสดีตอนเช้าครับ':hr<17?'สวัสดีตอนบ่ายครับ':'สวัสดีตอนเย็นครับ';
+  var h='<div class="hi"><span class="av" aria-hidden="true">✦</span><div class="bub">'+hello+' 👋 นี่คือสรุป <b>24 ชั่วโมงที่ผ่านมา</b> ของ'+esc((S.brief&&S.brief.title)||'หน้านี้')+(D.sim?'<small>ข้อมูลจำลอง (ข้อมูลจริงจาก PI ฤดูที่แล้ว)</small>':'')+'</div></div>';
+  var P=D.period, upd=new Date(Date.parse(D.generated)).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});
+  if(P) h+='<div class="mc-per"><div><span>🕒 ช่วงข้อมูลที่สรุป</span><b>'+esc(P.from)+' → '+esc(P.to)+' น.</b><em>'+P.hours+' ชม.</em></div>'
+    +'<div><span>↔ เทียบกับ</span><b>'+esc(P.prev_from)+' → '+esc(P.prev_to)+' น.</b></div>'
+    +'<div class="u">อัปเดตล่าสุด '+esc(upd)+' น. · ดึงจาก PI ใหม่ทุก 1 นาที</div></div>';
+  h+='<div class="head'+(D.problems.some(function(p){ return p.level==='alarm'; })||!D.has_data?' bad':'')+'">'+esc(D.headline)+'</div>';
+  if(D.numbers.length){
+    h+='<div><h4>📊 ตัวเลขสำคัญ <span style="font-weight:500;color:#64748b">▲▼ = เทียบกับช่วง 24 ชม.ก่อนหน้า</span></h4><div class="mc-nums">'+D.numbers.map(function(n){
+      var c=n.change, good=c==null||n.better==null?null:(n.better==='hi'?c>=0:c<=0);
+      var cls=c==null?'':Math.abs(c)<1?'eq':good===false?'dn':good?'up':'eq';
+      return '<div class="mc-n"><span>'+esc(n.label)+'</span><b>'+nf(n.value)+'<small>'+esc(n.unit)+'</small></b>'
+        +(c!=null?'<i class="'+cls+'">'+(c>0?'▲ +':c<0?'▼ ':'')+nf(c)+'% <span style="font-weight:500;color:#94a3b8">(เดิม '+nf(n.prev)+')</span></i>'
+          :n.prev!=null?'<i class="eq">24 ชม.ก่อน '+nf(n.prev)+'</i>':'')
+        +(n.note?'<em title="'+esc(n.note)+'">'+esc(n.note)+'</em>':'')+'</div>'; }).join('')+'</div></div>';
+  }
+  h+='<div><h4>⚠️ ปัญหา / อุปสรรค</h4>'+(D.problems.length?'<ul class="mc-pb">'+D.problems.map(function(p){ return '<li class="'+p.level+'">'+esc(p.text)+'</li>'; }).join('')+'</ul>'
+     :'<div class="mc-hint" style="margin:0">ไม่พบปัญหาเด่นในช่วงนี้ 👍</div>')+'</div>';
+  if(D.todo.length) h+='<div><h4>✅ ควรทำต่อ</h4><ol class="mc-todo">'+D.todo.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join('')+'</ol></div>';
+  h+='<div class="act"><button type="button" class="mc-btn pri" id="mcDayAsk">ให้ผู้ช่วยวิเคราะห์ต่อ</button><button type="button" class="mc-btn" id="mcDayNow">ดูสิ่งที่ผิดปกติตอนนี้</button></div>';
+  el.innerHTML='<div class="mc-day'+(S.dayAnim?' anim':'')+'">'+h+'</div>';
+  S.dayAnim=false; store.set(DAYK,dayOf(D));
+  $('mcDayAsk').addEventListener('click',function(){ ask('จากสรุป 24 ชั่วโมงที่ผ่านมา อะไรสำคัญที่สุด ปัญหาไหนควรแก้ก่อน และกะต่อไปควรระวังอะไร'); });
+  $('mcDayNow').addEventListener('click',function(){ setTab('brief'); });
+}
+function dayOf(d){ return d&&d.to?new Date(Date.parse(d.to)+7*3600e3).toISOString().slice(0,10):null; }   // PI date (ICT) the brief ends on
+function loadDay(){
+  return fetch(API+'/api/chat/day?page='+PAGE,{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(d){ S.day=d; if(S.open&&S.tab==='day') renderDay(); })
+    .catch(function(){ if(!S.day){ $('mcB0').innerHTML='<div class="mc-msg e">ติดต่อระบบเก็บข้อมูลไม่ได้ — ยังสรุป 24 ชม. ไม่ได้</div>'; } });
+}
+function renderChat(){
+  var el=$('mcB2'), h='';
+  if(S.chat&&!S.chat.enabled) h+='<div class="mc-msg e">ยังไม่ได้ต่อ API Key — การถามอิสระยังใช้ไม่ได้ (แท็บ "สถานการณ์ตอนนี้" ใช้ได้ตามปกติ) ใส่ <b>OPENAI_API_KEY</b> และ <b>CHAT_MODEL</b> ในไฟล์ collector/.env แล้วเปิดโปรแกรมใหม่</div>';
+  if(!S.hist.length){
+    h+='<div class="mc-msg a">สวัสดีครับ ผมคือ '+esc(NAME)+' ประจำหน้านี้ '+(REC?'ถามเรื่องรายงานในหน้านี้ได้เลย — ผมตอบจากรายงานประจำวันที่ปิดแล้ว (Scorecard · การสูญเสีย · แผนก · ต้นทุน) ถ้าไม่มีข้อมูลจะบอกตรงๆ':'ถามเรื่องในหน้านี้ได้เลย — ผมตอบจากข้อมูลสดและคู่มือที่ระบบมี ถ้าไม่มีข้อมูลจะบอกตรงๆ')+'</div><div class="mc-starters">'+
+       ((S.brief&&S.brief.starters)||[]).map(function(s,k){ return '<button type="button" data-st="'+k+'">'+esc(s)+'</button>'; }).join('')+'</div>';
+  }
+  S.hist.forEach(function(m){ h+='<div class="mc-msg '+(m.role==='user'?'u':m.err?'e':'a')+'">'+(m.role==='user'?esc(m.content).replace(/\n/g,'<br>'):md(m.content))+'</div>'; });
+  if(S.busy) h+='<div class="mc-msg a" id="mcLive">'+(S.shown?md(S.shown)+'<span class="mc-caret"></span>':'<span class="mc-dots" aria-label="กำลังคิด"><span></span><span></span><span></span></span>')+'</div>';
+  if(S.chat) h+='<div class="mc-hint" style="text-align:right">ถามวันนี้ '+S.chat.used+' / '+S.chat.limit+' ครั้ง</div>';
+  el.innerHTML=h; el.scrollTop=el.scrollHeight;
+  $('mcSend').disabled=S.busy;
+}
+function badge(){
+  var B=S.brief, n=B?B.items.length:0, b=$('mcBadge'), t=$('mcN'), alarm=B&&B.counts.alarm>0;
+  b.hidden=!n; b.textContent=n; b.className='mc-badge'+(alarm?'':' warn');
+  t.hidden=!n; t.textContent=n; t.className='n'+(alarm?'':' warn');
+  $('mcSub').textContent=B?B.title:'';
+  $('mcLaunch').setAttribute('aria-label',NAME+(n?' — มี '+n+' รายการที่ควรดู':''));
+}
+
+/* ---------- state ---------- */
+function setOpen(o,focus){
+  S.open=o; store.set(OPEN,o); $('mcPanel').hidden=!o; $('mcLaunch').setAttribute('aria-expanded',o);
+  if(o){ $('mcToast').hidden=true; setTab(S.tab); if(focus!==false) setTimeout(function(){ ($('mcIn').offsetParent?$('mcIn'):$('mcMin')).focus(); },30); }
+  else if(focus) $('mcLaunch').focus();
+}
+function setTab(t){
+  S.tab=t; $('mcT0').setAttribute('aria-selected',t==='day'); $('mcT1').setAttribute('aria-selected',t==='brief'); $('mcT2').setAttribute('aria-selected',t==='chat');
+  $('mcB0').hidden=t!=='day'; $('mcB1').hidden=t!=='brief'; $('mcB2').hidden=t!=='chat'; $('mcForm').hidden=t!=='chat';
+  if(t==='chat'){ renderChat(); setTimeout(function(){ $('mcIn').focus(); },20); } else if(t==='day') renderDay(); else renderBrief();
+}
+function ask(q){
+  q=(q||'').trim(); if(!q||S.busy) return;
+  S.hist.push({role:'user',content:q}); S.busy=true; setTab('chat'); persist();
+  var past=S.hist.slice(0,-1).filter(function(m){ return !m.err; }).map(function(m){ return {role:m.role,content:m.content}; });
+  var full='', fin=false, errMsg=null, tm=null;
+  S.shown='';
+  /* the reply is typed out piece by piece: network bursts are smoothed so it reads like someone typing */
+  function paint(){ var live=$('mcLive'); if(!live) return; var box=$('mcB2'), stick=box.scrollHeight-box.scrollTop-box.clientHeight<60;
+    live.innerHTML=md(S.shown)+'<span class="mc-caret"></span>'; if(stick) box.scrollTop=box.scrollHeight; }
+  function done(){
+    clearInterval(tm); S.busy=false; S.shown='';
+    S.hist.push(errMsg&&!full?{role:'assistant',content:errMsg,err:true}:{role:'assistant',content:full.trim()||'(ไม่มีคำตอบ)'});
+    persist(); renderChat(); }
+  function tick(){
+    var left=full.length-S.shown.length;
+    if(left>0){ var n=Math.max(1,Math.min(left,Math.ceil(left/25))); S.shown+=full.substr(S.shown.length,n); if(S.shown.length===n) renderChat(); else paint(); }
+    else if(fin) done(); }
+  tm=setInterval(tick,28);
+  fetch(API+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:PAGE,message:q,history:past,stream:true})})
+   .then(function(r){
+     if(!r.body||!r.body.getReader) return r.json().then(function(j){ if(j.chat) S.chat=j.chat; if(j.ok) full=j.answer; else errMsg=j.error||'ผิดพลาด'; });
+     var rd=r.body.getReader(), dec=new TextDecoder('utf-8'), buf='';
+     function line(l){ if(!l.trim()) return; var e; try{ e=JSON.parse(l); }catch(x){ return; }
+       if(e.d) full+=e.d; if(e.chat) S.chat=e.chat; if(e.error) errMsg=e.error; }
+     return (function pump(){ return rd.read().then(function(x){
+       if(x.done){ line(buf); return; }
+       buf+=dec.decode(x.value,{stream:true}); var p=buf.split('\n'); buf=p.pop(); p.forEach(line); return pump(); }); })();
+   })
+   .catch(function(){ if(!full) errMsg='ติดต่อระบบเก็บข้อมูลไม่ได้ — เปิด "PI Monitor (Live)" แล้วรอสักครู่'; })
+   .then(function(){ fin=true; });
+}
+function persist(){ store.set(KEY,S.hist.slice(-24)); }
+function askAbout(i){
+  ask('อธิบายเรื่องนี้ให้ละเอียดขึ้น: '+i.title+(i.value!=null&&i.dir!=='info'?' (ค่าตอนนี้ '+fv(i.value,i.unit)+')':'')+' — เพราะอะไร ถ้าไม่แก้จะเกิดอะไร และควรตรวจ/ทำอะไรตามลำดับ');
+}
+
+/* ---------- polling + instant notice ---------- */
+function poll(force){
+  if(document.hidden&&force!==true) return;
+  fetch(API+'/api/chat/brief?page='+PAGE,{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(B){
+    var first=!S.brief; S.brief=B; S.chat=B.chat; badge(); if(S.open&&S.tab==='brief') renderBrief();
+    else if(first&&S.open&&S.tab==='chat'&&!S.busy) renderChat();     /* starters arrive with the first brief */
+    var fresh=B.items.filter(function(i){ return S.seen.indexOf(i.sig)<0; });
+    if(fresh.length){
+      S.seen=S.seen.concat(fresh.map(function(i){ return i.sig; })).slice(-60); store.set(SEEN,S.seen);
+      if(!S.open){
+        var L=$('mcLaunch'); L.classList.remove('pulse'); void L.offsetWidth; L.classList.add('pulse');   /* no pop-up: just the badge + a short pulse on the button */
+      }
+    }
+  }).catch(function(){});
+}
+
+/* ---------- events ---------- */
+$('mcLaunch').addEventListener('click',function(){ setOpen(!S.open,true); });
+$('mcMin').addEventListener('click',function(){ setOpen(false,true); });
+$('mcBig').addEventListener('click',function(){ S.big=!S.big; $('mcPanel').classList.toggle('big',S.big); this.setAttribute('aria-label',S.big?'ย่อหน้าต่าง':'ขยายหน้าต่าง'); if(S.tab==='chat') renderChat(); });
+$('mcToast').addEventListener('click',function(){ setTab('brief'); setOpen(true,false); });
+$('mcT0').addEventListener('click',function(){ setTab('day'); loadDay(); });
+$('mcT1').addEventListener('click',function(){ setTab('brief'); });
+$('mcT2').addEventListener('click',function(){ setTab('chat'); });
+$('mcForm').addEventListener('submit',function(e){ e.preventDefault(); var v=$('mcIn').value; $('mcIn').value=''; $('mcIn').style.height=''; ask(v); });
+$('mcIn').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); $('mcForm').requestSubmit(); } });
+$('mcIn').addEventListener('input',function(){ this.style.height='auto'; this.style.height=Math.min(110,this.scrollHeight)+'px'; });
+root.addEventListener('click',function(e){
+  var a=e.target.closest('[data-ask]'); if(a&&S.brief){ askAbout(S.brief.items[+a.dataset.ask]); return; }
+  var s=e.target.closest('[data-st]'); if(s&&S.brief){ ask(S.brief.starters[+s.dataset.st]); }
+});
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&S.open&&root.contains(document.activeElement)){ setOpen(false,true); } });
+document.addEventListener('visibilitychange',function(){ if(!document.hidden) poll(); });
+
+badge(); renderBrief();
+if(REC){ $('mcT0').style.display='none'; $('mcB0').hidden=true; if(S.open) setOpen(true,false); }
+/* open on the 24-hour brief by itself the first time in this session, and again whenever the PI day is different from
+   the one the user last saw (next morning, or the simulator moved to another date); otherwise keep what the user chose */
+if(!REC) loadDay().then(function(){
+  var seen=store.get(DAYK,null);
+  if(!S.day||seen!==dayOf(S.day)){ S.tab='day'; S.dayAnim=true; setTimeout(function(){ setOpen(true,false); },400); }
+  else if(S.open) setOpen(true,false);
+});
+if(!REC) setInterval(loadDay,60000);
+poll(true); setInterval(poll,30000);
+window.MOISChat={open:function(){ setOpen(true,true); }, page:PAGE};
+})();
+<\/script>
 <script>/* M.O.I.S date fields: show every date as DD/MM/YYYY (the browser's own date field follows the PC language, e.g. MM/DD/YYYY).
    The real <input type="date|datetime-local|month|week"> stays on the page, invisible, on top of a label — so the native picker still opens
    and the page keeps reading input.value as before (yyyy-mm-dd). */
@@ -4703,18 +5005,20 @@ if(window.__replayStart) window.__replayStart();
 (function(){
 'use strict';
 var Q=new URLSearchParams(location.search), PAGE=Q.get('p');
-if(['mill','proc','vac','stock','ops','spc'].indexOf(PAGE)<0||Q.get('replay')) return;
+if(['mill','proc','vac','stock','ops','spc','recovery'].indexOf(PAGE)<0||Q.get('replay')) return;
+var REC=PAGE==='recovery';      /* Process Analytical: a report page — the bot reads the closed report day; no live 24-h brief, no auto-open */
 var API=Q.get('api')||(location.protocol.indexOf('http')===0?'':'http://localhost:8080');
 var TH={ mill:['#064e3b','#047857','#10b981','#ecfdf5','#a7f3d0'], proc:['#0c4a6e','#0369a1','#0891b2','#e0f2fe','#bae6fd'],
          vac:['#3b0764','#6d28d9','#a855f7','#f3e8ff','#e9d5ff'], stock:['#500724','#be185d','#ec4899','#fce7f3','#fbcfe8'],
-         ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'] }[PAGE];
-var NAME='M.O.I.S ASSISTANT';
+         ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'],
+         recovery:['#0f1e3d','#1e3a8a','#c9a227','#eff6ff','#bfdbfe'] }[PAGE];
+var NAME=REC?'M.O.I.S ANALYST':'M.O.I.S ASSISTANT';
 /* the conversation belongs to the signed-in user: keys carry the user name, and signing out clears them */
 var WHO='anon'; try{ var au=JSON.parse(sessionStorage.getItem('mois.auth')||localStorage.getItem('mois.auth')); if(au&&au.u) WHO=String(au.u).toLowerCase(); }catch(e){}
 var KEY='mois.chat.'+WHO+'.'+PAGE, SEEN='mois.chat.seen.'+WHO+'.'+PAGE, OPEN='mois.chat.open.'+WHO+'.'+PAGE, DAYK='mois.chat.day.'+WHO+'.'+PAGE;
 var store={ get:function(k,d){ try{ var v=sessionStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
             set:function(k,v){ try{ sessionStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
-var S={open:store.get(OPEN,false), tab:'day', day:null, dayAnim:false, big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
+var S={open:store.get(OPEN,false), tab:REC?'chat':'day', day:null, dayAnim:false, big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
 var esc=function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 
 /* ---------- styles ---------- */
@@ -4804,7 +5108,7 @@ root.innerHTML=
    '<button type="button" id="mcMin" aria-label="พับเก็บ" title="พับเก็บ"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M5 12h14"/></svg></button></header>'+
   '<div class="mc-tabs" role="tablist">'+
    '<button type="button" role="tab" id="mcT0" class="tb-day" aria-selected="true" aria-controls="mcB0"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 15l2.5 2.5L16 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>สรุป 24 ชม.</button>'+
-   '<button type="button" role="tab" id="mcT1" class="tb-now" aria-selected="false" aria-controls="mcB1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l3-7 4 14 3-7h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>ตอนนี้<span class="n" id="mcN" hidden></span></button>'+
+   '<button type="button" role="tab" id="mcT1" class="tb-now" aria-selected="false" aria-controls="mcB1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l3-7 4 14 3-7h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+(REC?'ประเด็นรายงาน':'ตอนนี้')+'<span class="n" id="mcN" hidden></span></button>'+
    '<button type="button" role="tab" id="mcT2" class="tb-ask" aria-selected="false" aria-controls="mcB2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>ถามผู้ช่วย</button></div>'+
   '<div class="mc-body" id="mcB0" role="tabpanel" aria-labelledby="mcT0"></div>'+
   '<div class="mc-body" id="mcB1" role="tabpanel" aria-labelledby="mcT1" hidden></div>'+
@@ -4831,13 +5135,13 @@ var fv=function(v,u){ return v==null?'':(Math.abs(v)>=100?Math.round(v):Math.rou
 function renderBrief(){
   var B=S.brief, el=$('mcB1'); if(!B){ el.innerHTML='<div class="mc-hint">กำลังโหลด…</div>'; return; }
   var html='';
-  if(!B.items.length) html+='<div class="mc-ok">ตอนนี้ไม่มีรายการผิดปกติที่ต้องอธิบาย</div><div class="mc-hint" style="text-align:center">ถามผู้ช่วยเรื่องอื่นได้ที่แท็บ "ถามผู้ช่วย"</div>';
+  if(!B.items.length) html+='<div class="mc-ok">'+(REC?'รายงานวันล่าสุดไม่มีประเด็นที่ต้องแก้':'ตอนนี้ไม่มีรายการผิดปกติที่ต้องอธิบาย')+'</div><div class="mc-hint" style="text-align:center">ถามผู้ช่วยเรื่องอื่นได้ที่แท็บ "ถามผู้ช่วย"</div>';
   B.items.forEach(function(i,k){
     var w=i.level==='warn'?' warn':'';
-    html+='<details class="mc-card'+w+'"'+(k===0?' open':'')+'><summary><span class="mc-chip'+w+'">'+(i.level==='alarm'?'ผิดปกติ':'เฝ้าระวัง')+'</span>'+esc(i.title)+(i.value!=null&&i.dir!=='stop'&&i.dir!=='info'?' <span style="color:#64748b;font-weight:600">· '+esc(fv(i.value,i.unit))+'</span>':'')+'</summary><div class="mc-sec">'+
-      (i.why&&i.why.length?'<h4>อาจเป็นเพราะ</h4><ul>'+i.why.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
-      (i.if_ignored?'<h4>ถ้าปล่อยไว้</h4><div>'+esc(i.if_ignored)+'</div>':'')+
-      (i.do&&i.do.length?'<h4>ต้องทำอะไร</h4><ul>'+i.do.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
+    html+='<details class="mc-card'+w+'"'+(k===0?' open':'')+'><summary><span class="mc-chip'+w+'">'+(i.level==='alarm'?(REC?'ไม่ผ่านเป้า':'ผิดปกติ'):'เฝ้าระวัง')+'</span>'+esc(i.title)+(i.value!=null&&i.dir!=='stop'&&i.dir!=='info'?' <span style="color:#64748b;font-weight:600">· '+esc(fv(i.value,i.unit))+'</span>':'')+'</summary><div class="mc-sec">'+
+      (i.why&&i.why.length?'<h4>'+(REC?'ข้อมูลจากรายงาน':'อาจเป็นเพราะ')+'</h4><ul>'+i.why.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
+      (i.if_ignored?'<h4>'+(REC?'ผลกระทบ':'ถ้าปล่อยไว้')+'</h4><div>'+esc(i.if_ignored)+'</div>':'')+
+      (i.do&&i.do.length?'<h4>'+(REC?'ข้อเสนอ':'ต้องทำอะไร')+'</h4><ul>'+i.do.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
       (i.ref&&i.ref!=='—'?'<div class="ref">ที่มา: '+esc(i.ref)+'</div>':'')+
       '<div class="ask"><button type="button" class="mc-btn" data-ask="'+k+'">ถามผู้ช่วยต่อเรื่องนี้</button></div></div></details>';
   });
@@ -4883,7 +5187,7 @@ function renderChat(){
   var el=$('mcB2'), h='';
   if(S.chat&&!S.chat.enabled) h+='<div class="mc-msg e">ยังไม่ได้ต่อ API Key — การถามอิสระยังใช้ไม่ได้ (แท็บ "สถานการณ์ตอนนี้" ใช้ได้ตามปกติ) ใส่ <b>OPENAI_API_KEY</b> และ <b>CHAT_MODEL</b> ในไฟล์ collector/.env แล้วเปิดโปรแกรมใหม่</div>';
   if(!S.hist.length){
-    h+='<div class="mc-msg a">สวัสดีครับ ผมคือ '+esc(NAME)+' ประจำหน้านี้ ถามเรื่องในหน้านี้ได้เลย — ผมตอบจากข้อมูลสดและคู่มือที่ระบบมี ถ้าไม่มีข้อมูลจะบอกตรงๆ</div><div class="mc-starters">'+
+    h+='<div class="mc-msg a">สวัสดีครับ ผมคือ '+esc(NAME)+' ประจำหน้านี้ '+(REC?'ถามเรื่องรายงานในหน้านี้ได้เลย — ผมตอบจากรายงานประจำวันที่ปิดแล้ว (Scorecard · การสูญเสีย · แผนก · ต้นทุน) ถ้าไม่มีข้อมูลจะบอกตรงๆ':'ถามเรื่องในหน้านี้ได้เลย — ผมตอบจากข้อมูลสดและคู่มือที่ระบบมี ถ้าไม่มีข้อมูลจะบอกตรงๆ')+'</div><div class="mc-starters">'+
        ((S.brief&&S.brief.starters)||[]).map(function(s,k){ return '<button type="button" data-st="'+k+'">'+esc(s)+'</button>'; }).join('')+'</div>';
   }
   S.hist.forEach(function(m){ h+='<div class="mc-msg '+(m.role==='user'?'u':m.err?'e':'a')+'">'+(m.role==='user'?esc(m.content).replace(/\n/g,'<br>'):md(m.content))+'</div>'; });
@@ -4951,7 +5255,8 @@ function askAbout(i){
 function poll(force){
   if(document.hidden&&force!==true) return;
   fetch(API+'/api/chat/brief?page='+PAGE,{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(B){
-    S.brief=B; S.chat=B.chat; badge(); if(S.open&&S.tab==='brief') renderBrief();
+    var first=!S.brief; S.brief=B; S.chat=B.chat; badge(); if(S.open&&S.tab==='brief') renderBrief();
+    else if(first&&S.open&&S.tab==='chat'&&!S.busy) renderChat();     /* starters arrive with the first brief */
     var fresh=B.items.filter(function(i){ return S.seen.indexOf(i.sig)<0; });
     if(fresh.length){
       S.seen=S.seen.concat(fresh.map(function(i){ return i.sig; })).slice(-60); store.set(SEEN,S.seen);
@@ -4981,14 +5286,15 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&S.open&&ro
 document.addEventListener('visibilitychange',function(){ if(!document.hidden) poll(); });
 
 badge(); renderBrief();
+if(REC){ $('mcT0').style.display='none'; $('mcB0').hidden=true; if(S.open) setOpen(true,false); }
 /* open on the 24-hour brief by itself the first time in this session, and again whenever the PI day is different from
    the one the user last saw (next morning, or the simulator moved to another date); otherwise keep what the user chose */
-loadDay().then(function(){
+if(!REC) loadDay().then(function(){
   var seen=store.get(DAYK,null);
   if(!S.day||seen!==dayOf(S.day)){ S.tab='day'; S.dayAnim=true; setTimeout(function(){ setOpen(true,false); },400); }
   else if(S.open) setOpen(true,false);
 });
-setInterval(loadDay,60000);
+if(!REC) setInterval(loadDay,60000);
 poll(true); setInterval(poll,30000);
 window.MOISChat={open:function(){ setOpen(true,true); }, page:PAGE};
 })();
@@ -6858,18 +7164,20 @@ load(); setInterval(load,30000);
 (function(){
 'use strict';
 var Q=new URLSearchParams(location.search), PAGE=Q.get('p');
-if(['mill','proc','vac','stock','ops','spc'].indexOf(PAGE)<0||Q.get('replay')) return;
+if(['mill','proc','vac','stock','ops','spc','recovery'].indexOf(PAGE)<0||Q.get('replay')) return;
+var REC=PAGE==='recovery';      /* Process Analytical: a report page — the bot reads the closed report day; no live 24-h brief, no auto-open */
 var API=Q.get('api')||(location.protocol.indexOf('http')===0?'':'http://localhost:8080');
 var TH={ mill:['#064e3b','#047857','#10b981','#ecfdf5','#a7f3d0'], proc:['#0c4a6e','#0369a1','#0891b2','#e0f2fe','#bae6fd'],
          vac:['#3b0764','#6d28d9','#a855f7','#f3e8ff','#e9d5ff'], stock:['#500724','#be185d','#ec4899','#fce7f3','#fbcfe8'],
-         ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'] }[PAGE];
-var NAME='M.O.I.S ASSISTANT';
+         ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'],
+         recovery:['#0f1e3d','#1e3a8a','#c9a227','#eff6ff','#bfdbfe'] }[PAGE];
+var NAME=REC?'M.O.I.S ANALYST':'M.O.I.S ASSISTANT';
 /* the conversation belongs to the signed-in user: keys carry the user name, and signing out clears them */
 var WHO='anon'; try{ var au=JSON.parse(sessionStorage.getItem('mois.auth')||localStorage.getItem('mois.auth')); if(au&&au.u) WHO=String(au.u).toLowerCase(); }catch(e){}
 var KEY='mois.chat.'+WHO+'.'+PAGE, SEEN='mois.chat.seen.'+WHO+'.'+PAGE, OPEN='mois.chat.open.'+WHO+'.'+PAGE, DAYK='mois.chat.day.'+WHO+'.'+PAGE;
 var store={ get:function(k,d){ try{ var v=sessionStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
             set:function(k,v){ try{ sessionStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
-var S={open:store.get(OPEN,false), tab:'day', day:null, dayAnim:false, big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
+var S={open:store.get(OPEN,false), tab:REC?'chat':'day', day:null, dayAnim:false, big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
 var esc=function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 
 /* ---------- styles ---------- */
@@ -6959,7 +7267,7 @@ root.innerHTML=
    '<button type="button" id="mcMin" aria-label="พับเก็บ" title="พับเก็บ"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M5 12h14"/></svg></button></header>'+
   '<div class="mc-tabs" role="tablist">'+
    '<button type="button" role="tab" id="mcT0" class="tb-day" aria-selected="true" aria-controls="mcB0"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 15l2.5 2.5L16 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>สรุป 24 ชม.</button>'+
-   '<button type="button" role="tab" id="mcT1" class="tb-now" aria-selected="false" aria-controls="mcB1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l3-7 4 14 3-7h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>ตอนนี้<span class="n" id="mcN" hidden></span></button>'+
+   '<button type="button" role="tab" id="mcT1" class="tb-now" aria-selected="false" aria-controls="mcB1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l3-7 4 14 3-7h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+(REC?'ประเด็นรายงาน':'ตอนนี้')+'<span class="n" id="mcN" hidden></span></button>'+
    '<button type="button" role="tab" id="mcT2" class="tb-ask" aria-selected="false" aria-controls="mcB2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>ถามผู้ช่วย</button></div>'+
   '<div class="mc-body" id="mcB0" role="tabpanel" aria-labelledby="mcT0"></div>'+
   '<div class="mc-body" id="mcB1" role="tabpanel" aria-labelledby="mcT1" hidden></div>'+
@@ -6986,13 +7294,13 @@ var fv=function(v,u){ return v==null?'':(Math.abs(v)>=100?Math.round(v):Math.rou
 function renderBrief(){
   var B=S.brief, el=$('mcB1'); if(!B){ el.innerHTML='<div class="mc-hint">กำลังโหลด…</div>'; return; }
   var html='';
-  if(!B.items.length) html+='<div class="mc-ok">ตอนนี้ไม่มีรายการผิดปกติที่ต้องอธิบาย</div><div class="mc-hint" style="text-align:center">ถามผู้ช่วยเรื่องอื่นได้ที่แท็บ "ถามผู้ช่วย"</div>';
+  if(!B.items.length) html+='<div class="mc-ok">'+(REC?'รายงานวันล่าสุดไม่มีประเด็นที่ต้องแก้':'ตอนนี้ไม่มีรายการผิดปกติที่ต้องอธิบาย')+'</div><div class="mc-hint" style="text-align:center">ถามผู้ช่วยเรื่องอื่นได้ที่แท็บ "ถามผู้ช่วย"</div>';
   B.items.forEach(function(i,k){
     var w=i.level==='warn'?' warn':'';
-    html+='<details class="mc-card'+w+'"'+(k===0?' open':'')+'><summary><span class="mc-chip'+w+'">'+(i.level==='alarm'?'ผิดปกติ':'เฝ้าระวัง')+'</span>'+esc(i.title)+(i.value!=null&&i.dir!=='stop'&&i.dir!=='info'?' <span style="color:#64748b;font-weight:600">· '+esc(fv(i.value,i.unit))+'</span>':'')+'</summary><div class="mc-sec">'+
-      (i.why&&i.why.length?'<h4>อาจเป็นเพราะ</h4><ul>'+i.why.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
-      (i.if_ignored?'<h4>ถ้าปล่อยไว้</h4><div>'+esc(i.if_ignored)+'</div>':'')+
-      (i.do&&i.do.length?'<h4>ต้องทำอะไร</h4><ul>'+i.do.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
+    html+='<details class="mc-card'+w+'"'+(k===0?' open':'')+'><summary><span class="mc-chip'+w+'">'+(i.level==='alarm'?(REC?'ไม่ผ่านเป้า':'ผิดปกติ'):'เฝ้าระวัง')+'</span>'+esc(i.title)+(i.value!=null&&i.dir!=='stop'&&i.dir!=='info'?' <span style="color:#64748b;font-weight:600">· '+esc(fv(i.value,i.unit))+'</span>':'')+'</summary><div class="mc-sec">'+
+      (i.why&&i.why.length?'<h4>'+(REC?'ข้อมูลจากรายงาน':'อาจเป็นเพราะ')+'</h4><ul>'+i.why.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
+      (i.if_ignored?'<h4>'+(REC?'ผลกระทบ':'ถ้าปล่อยไว้')+'</h4><div>'+esc(i.if_ignored)+'</div>':'')+
+      (i.do&&i.do.length?'<h4>'+(REC?'ข้อเสนอ':'ต้องทำอะไร')+'</h4><ul>'+i.do.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
       (i.ref&&i.ref!=='—'?'<div class="ref">ที่มา: '+esc(i.ref)+'</div>':'')+
       '<div class="ask"><button type="button" class="mc-btn" data-ask="'+k+'">ถามผู้ช่วยต่อเรื่องนี้</button></div></div></details>';
   });
@@ -7038,7 +7346,7 @@ function renderChat(){
   var el=$('mcB2'), h='';
   if(S.chat&&!S.chat.enabled) h+='<div class="mc-msg e">ยังไม่ได้ต่อ API Key — การถามอิสระยังใช้ไม่ได้ (แท็บ "สถานการณ์ตอนนี้" ใช้ได้ตามปกติ) ใส่ <b>OPENAI_API_KEY</b> และ <b>CHAT_MODEL</b> ในไฟล์ collector/.env แล้วเปิดโปรแกรมใหม่</div>';
   if(!S.hist.length){
-    h+='<div class="mc-msg a">สวัสดีครับ ผมคือ '+esc(NAME)+' ประจำหน้านี้ ถามเรื่องในหน้านี้ได้เลย — ผมตอบจากข้อมูลสดและคู่มือที่ระบบมี ถ้าไม่มีข้อมูลจะบอกตรงๆ</div><div class="mc-starters">'+
+    h+='<div class="mc-msg a">สวัสดีครับ ผมคือ '+esc(NAME)+' ประจำหน้านี้ '+(REC?'ถามเรื่องรายงานในหน้านี้ได้เลย — ผมตอบจากรายงานประจำวันที่ปิดแล้ว (Scorecard · การสูญเสีย · แผนก · ต้นทุน) ถ้าไม่มีข้อมูลจะบอกตรงๆ':'ถามเรื่องในหน้านี้ได้เลย — ผมตอบจากข้อมูลสดและคู่มือที่ระบบมี ถ้าไม่มีข้อมูลจะบอกตรงๆ')+'</div><div class="mc-starters">'+
        ((S.brief&&S.brief.starters)||[]).map(function(s,k){ return '<button type="button" data-st="'+k+'">'+esc(s)+'</button>'; }).join('')+'</div>';
   }
   S.hist.forEach(function(m){ h+='<div class="mc-msg '+(m.role==='user'?'u':m.err?'e':'a')+'">'+(m.role==='user'?esc(m.content).replace(/\n/g,'<br>'):md(m.content))+'</div>'; });
@@ -7106,7 +7414,8 @@ function askAbout(i){
 function poll(force){
   if(document.hidden&&force!==true) return;
   fetch(API+'/api/chat/brief?page='+PAGE,{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(B){
-    S.brief=B; S.chat=B.chat; badge(); if(S.open&&S.tab==='brief') renderBrief();
+    var first=!S.brief; S.brief=B; S.chat=B.chat; badge(); if(S.open&&S.tab==='brief') renderBrief();
+    else if(first&&S.open&&S.tab==='chat'&&!S.busy) renderChat();     /* starters arrive with the first brief */
     var fresh=B.items.filter(function(i){ return S.seen.indexOf(i.sig)<0; });
     if(fresh.length){
       S.seen=S.seen.concat(fresh.map(function(i){ return i.sig; })).slice(-60); store.set(SEEN,S.seen);
@@ -7136,14 +7445,15 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&S.open&&ro
 document.addEventListener('visibilitychange',function(){ if(!document.hidden) poll(); });
 
 badge(); renderBrief();
+if(REC){ $('mcT0').style.display='none'; $('mcB0').hidden=true; if(S.open) setOpen(true,false); }
 /* open on the 24-hour brief by itself the first time in this session, and again whenever the PI day is different from
    the one the user last saw (next morning, or the simulator moved to another date); otherwise keep what the user chose */
-loadDay().then(function(){
+if(!REC) loadDay().then(function(){
   var seen=store.get(DAYK,null);
   if(!S.day||seen!==dayOf(S.day)){ S.tab='day'; S.dayAnim=true; setTimeout(function(){ setOpen(true,false); },400); }
   else if(S.open) setOpen(true,false);
 });
-setInterval(loadDay,60000);
+if(!REC) setInterval(loadDay,60000);
 poll(true); setInterval(poll,30000);
 window.MOISChat={open:function(){ setOpen(true,true); }, page:PAGE};
 })();
@@ -19608,18 +19918,20 @@ if(window.__replayStart) window.__replayStart();
 (function(){
 'use strict';
 var Q=new URLSearchParams(location.search), PAGE=Q.get('p');
-if(['mill','proc','vac','stock','ops','spc'].indexOf(PAGE)<0||Q.get('replay')) return;
+if(['mill','proc','vac','stock','ops','spc','recovery'].indexOf(PAGE)<0||Q.get('replay')) return;
+var REC=PAGE==='recovery';      /* Process Analytical: a report page — the bot reads the closed report day; no live 24-h brief, no auto-open */
 var API=Q.get('api')||(location.protocol.indexOf('http')===0?'':'http://localhost:8080');
 var TH={ mill:['#064e3b','#047857','#10b981','#ecfdf5','#a7f3d0'], proc:['#0c4a6e','#0369a1','#0891b2','#e0f2fe','#bae6fd'],
          vac:['#3b0764','#6d28d9','#a855f7','#f3e8ff','#e9d5ff'], stock:['#500724','#be185d','#ec4899','#fce7f3','#fbcfe8'],
-         ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'] }[PAGE];
-var NAME='M.O.I.S ASSISTANT';
+         ops:['#1e1b4b','#3730a3','#6366f1','#eef2ff','#c7d2fe'], spc:['#042f2e','#0f766e','#14b8a6','#f0fdfa','#99f6e4'],
+         recovery:['#0f1e3d','#1e3a8a','#c9a227','#eff6ff','#bfdbfe'] }[PAGE];
+var NAME=REC?'M.O.I.S ANALYST':'M.O.I.S ASSISTANT';
 /* the conversation belongs to the signed-in user: keys carry the user name, and signing out clears them */
 var WHO='anon'; try{ var au=JSON.parse(sessionStorage.getItem('mois.auth')||localStorage.getItem('mois.auth')); if(au&&au.u) WHO=String(au.u).toLowerCase(); }catch(e){}
 var KEY='mois.chat.'+WHO+'.'+PAGE, SEEN='mois.chat.seen.'+WHO+'.'+PAGE, OPEN='mois.chat.open.'+WHO+'.'+PAGE, DAYK='mois.chat.day.'+WHO+'.'+PAGE;
 var store={ get:function(k,d){ try{ var v=sessionStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
             set:function(k,v){ try{ sessionStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
-var S={open:store.get(OPEN,false), tab:'day', day:null, dayAnim:false, big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
+var S={open:store.get(OPEN,false), tab:REC?'chat':'day', day:null, dayAnim:false, big:false, hist:store.get(KEY,[]), brief:null, busy:false, chat:null, seen:store.get(SEEN,[])};
 var esc=function(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 
 /* ---------- styles ---------- */
@@ -19709,7 +20021,7 @@ root.innerHTML=
    '<button type="button" id="mcMin" aria-label="พับเก็บ" title="พับเก็บ"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M5 12h14"/></svg></button></header>'+
   '<div class="mc-tabs" role="tablist">'+
    '<button type="button" role="tab" id="mcT0" class="tb-day" aria-selected="true" aria-controls="mcB0"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 15l2.5 2.5L16 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>สรุป 24 ชม.</button>'+
-   '<button type="button" role="tab" id="mcT1" class="tb-now" aria-selected="false" aria-controls="mcB1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l3-7 4 14 3-7h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>ตอนนี้<span class="n" id="mcN" hidden></span></button>'+
+   '<button type="button" role="tab" id="mcT1" class="tb-now" aria-selected="false" aria-controls="mcB1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l3-7 4 14 3-7h6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+(REC?'ประเด็นรายงาน':'ตอนนี้')+'<span class="n" id="mcN" hidden></span></button>'+
    '<button type="button" role="tab" id="mcT2" class="tb-ask" aria-selected="false" aria-controls="mcB2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>ถามผู้ช่วย</button></div>'+
   '<div class="mc-body" id="mcB0" role="tabpanel" aria-labelledby="mcT0"></div>'+
   '<div class="mc-body" id="mcB1" role="tabpanel" aria-labelledby="mcT1" hidden></div>'+
@@ -19736,13 +20048,13 @@ var fv=function(v,u){ return v==null?'':(Math.abs(v)>=100?Math.round(v):Math.rou
 function renderBrief(){
   var B=S.brief, el=$('mcB1'); if(!B){ el.innerHTML='<div class="mc-hint">กำลังโหลด…</div>'; return; }
   var html='';
-  if(!B.items.length) html+='<div class="mc-ok">ตอนนี้ไม่มีรายการผิดปกติที่ต้องอธิบาย</div><div class="mc-hint" style="text-align:center">ถามผู้ช่วยเรื่องอื่นได้ที่แท็บ "ถามผู้ช่วย"</div>';
+  if(!B.items.length) html+='<div class="mc-ok">'+(REC?'รายงานวันล่าสุดไม่มีประเด็นที่ต้องแก้':'ตอนนี้ไม่มีรายการผิดปกติที่ต้องอธิบาย')+'</div><div class="mc-hint" style="text-align:center">ถามผู้ช่วยเรื่องอื่นได้ที่แท็บ "ถามผู้ช่วย"</div>';
   B.items.forEach(function(i,k){
     var w=i.level==='warn'?' warn':'';
-    html+='<details class="mc-card'+w+'"'+(k===0?' open':'')+'><summary><span class="mc-chip'+w+'">'+(i.level==='alarm'?'ผิดปกติ':'เฝ้าระวัง')+'</span>'+esc(i.title)+(i.value!=null&&i.dir!=='stop'&&i.dir!=='info'?' <span style="color:#64748b;font-weight:600">· '+esc(fv(i.value,i.unit))+'</span>':'')+'</summary><div class="mc-sec">'+
-      (i.why&&i.why.length?'<h4>อาจเป็นเพราะ</h4><ul>'+i.why.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
-      (i.if_ignored?'<h4>ถ้าปล่อยไว้</h4><div>'+esc(i.if_ignored)+'</div>':'')+
-      (i.do&&i.do.length?'<h4>ต้องทำอะไร</h4><ul>'+i.do.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
+    html+='<details class="mc-card'+w+'"'+(k===0?' open':'')+'><summary><span class="mc-chip'+w+'">'+(i.level==='alarm'?(REC?'ไม่ผ่านเป้า':'ผิดปกติ'):'เฝ้าระวัง')+'</span>'+esc(i.title)+(i.value!=null&&i.dir!=='stop'&&i.dir!=='info'?' <span style="color:#64748b;font-weight:600">· '+esc(fv(i.value,i.unit))+'</span>':'')+'</summary><div class="mc-sec">'+
+      (i.why&&i.why.length?'<h4>'+(REC?'ข้อมูลจากรายงาน':'อาจเป็นเพราะ')+'</h4><ul>'+i.why.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
+      (i.if_ignored?'<h4>'+(REC?'ผลกระทบ':'ถ้าปล่อยไว้')+'</h4><div>'+esc(i.if_ignored)+'</div>':'')+
+      (i.do&&i.do.length?'<h4>'+(REC?'ข้อเสนอ':'ต้องทำอะไร')+'</h4><ul>'+i.do.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
       (i.ref&&i.ref!=='—'?'<div class="ref">ที่มา: '+esc(i.ref)+'</div>':'')+
       '<div class="ask"><button type="button" class="mc-btn" data-ask="'+k+'">ถามผู้ช่วยต่อเรื่องนี้</button></div></div></details>';
   });
@@ -19788,7 +20100,7 @@ function renderChat(){
   var el=$('mcB2'), h='';
   if(S.chat&&!S.chat.enabled) h+='<div class="mc-msg e">ยังไม่ได้ต่อ API Key — การถามอิสระยังใช้ไม่ได้ (แท็บ "สถานการณ์ตอนนี้" ใช้ได้ตามปกติ) ใส่ <b>OPENAI_API_KEY</b> และ <b>CHAT_MODEL</b> ในไฟล์ collector/.env แล้วเปิดโปรแกรมใหม่</div>';
   if(!S.hist.length){
-    h+='<div class="mc-msg a">สวัสดีครับ ผมคือ '+esc(NAME)+' ประจำหน้านี้ ถามเรื่องในหน้านี้ได้เลย — ผมตอบจากข้อมูลสดและคู่มือที่ระบบมี ถ้าไม่มีข้อมูลจะบอกตรงๆ</div><div class="mc-starters">'+
+    h+='<div class="mc-msg a">สวัสดีครับ ผมคือ '+esc(NAME)+' ประจำหน้านี้ '+(REC?'ถามเรื่องรายงานในหน้านี้ได้เลย — ผมตอบจากรายงานประจำวันที่ปิดแล้ว (Scorecard · การสูญเสีย · แผนก · ต้นทุน) ถ้าไม่มีข้อมูลจะบอกตรงๆ':'ถามเรื่องในหน้านี้ได้เลย — ผมตอบจากข้อมูลสดและคู่มือที่ระบบมี ถ้าไม่มีข้อมูลจะบอกตรงๆ')+'</div><div class="mc-starters">'+
        ((S.brief&&S.brief.starters)||[]).map(function(s,k){ return '<button type="button" data-st="'+k+'">'+esc(s)+'</button>'; }).join('')+'</div>';
   }
   S.hist.forEach(function(m){ h+='<div class="mc-msg '+(m.role==='user'?'u':m.err?'e':'a')+'">'+(m.role==='user'?esc(m.content).replace(/\n/g,'<br>'):md(m.content))+'</div>'; });
@@ -19856,7 +20168,8 @@ function askAbout(i){
 function poll(force){
   if(document.hidden&&force!==true) return;
   fetch(API+'/api/chat/brief?page='+PAGE,{cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(B){
-    S.brief=B; S.chat=B.chat; badge(); if(S.open&&S.tab==='brief') renderBrief();
+    var first=!S.brief; S.brief=B; S.chat=B.chat; badge(); if(S.open&&S.tab==='brief') renderBrief();
+    else if(first&&S.open&&S.tab==='chat'&&!S.busy) renderChat();     /* starters arrive with the first brief */
     var fresh=B.items.filter(function(i){ return S.seen.indexOf(i.sig)<0; });
     if(fresh.length){
       S.seen=S.seen.concat(fresh.map(function(i){ return i.sig; })).slice(-60); store.set(SEEN,S.seen);
@@ -19886,14 +20199,15 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&S.open&&ro
 document.addEventListener('visibilitychange',function(){ if(!document.hidden) poll(); });
 
 badge(); renderBrief();
+if(REC){ $('mcT0').style.display='none'; $('mcB0').hidden=true; if(S.open) setOpen(true,false); }
 /* open on the 24-hour brief by itself the first time in this session, and again whenever the PI day is different from
    the one the user last saw (next morning, or the simulator moved to another date); otherwise keep what the user chose */
-loadDay().then(function(){
+if(!REC) loadDay().then(function(){
   var seen=store.get(DAYK,null);
   if(!S.day||seen!==dayOf(S.day)){ S.tab='day'; S.dayAnim=true; setTimeout(function(){ setOpen(true,false); },400); }
   else if(S.open) setOpen(true,false);
 });
-setInterval(loadDay,60000);
+if(!REC) setInterval(loadDay,60000);
 poll(true); setInterval(poll,30000);
 window.MOISChat={open:function(){ setOpen(true,true); }, page:PAGE};
 })();
