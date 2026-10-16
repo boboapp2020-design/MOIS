@@ -2270,14 +2270,14 @@ body{background:radial-gradient(1000px 520px at 100% 0%,rgba(251,146,60,.14),tra
 .pa-h{margin:10px 2px 0;font-size:1.15rem;color:var(--navy);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .pa-h small{font-size:.8rem;font-weight:500;color:#64748b}
 .pa-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
-.pa-strip .st{position:relative;display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;gap:4px 10px;align-items:center;text-align:left;padding:12px 14px;border-radius:16px;border:1.5px solid var(--rule);background:#fff;cursor:pointer;font:inherit;transition:transform .15s,box-shadow .15s,border-color .15s}
+.pa-strip .st{position:relative;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:4px 10px;align-items:center;text-align:left;padding:12px 14px;border-radius:16px;border:1.5px solid var(--rule);background:#fff;cursor:pointer;font:inherit;transition:transform .15s,box-shadow .15s,border-color .15s}
 .pa-strip .st:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(20,40,75,.10)}
 .pa-strip .st.on{border-color:var(--navy);box-shadow:0 0 0 3px rgba(20,40,75,.08),0 10px 22px rgba(20,40,75,.10)}
 .pa-strip .st.on::after{content:"";position:absolute;left:50%;bottom:-8px;width:14px;height:14px;background:#fff;border-right:1.5px solid var(--navy);border-bottom:1.5px solid var(--navy);transform:translateX(-50%) rotate(45deg)}
 .pa-strip .ic{font-size:1.3rem;grid-row:1/3} .pa-strip .nm b{display:block;font-size:.9rem;color:var(--navy)} .pa-strip .nm small{font-size:.68rem;color:#94a3b8}
 .pa-strip .sc{text-align:right} .pa-strip .sc b{font-size:1.25rem;font-variant-numeric:tabular-nums;color:var(--navy)} .pa-strip .sc small{font-size:.64rem;color:#94a3b8}
 .pa-strip .ok .sc b{color:var(--okc)} .pa-strip .warn .sc b{color:var(--warnc)} .pa-strip .bad .sc b{color:var(--badc)}
-.pa-strip .ws{grid-column:2/4;font-size:.7rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pa-strip .ws{grid-column:1/3;font-size:.7rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pa-strip .bad .ws{color:var(--badc)} .pa-strip .warn .ws{color:var(--warnc)}
 .pa-dept{border-radius:22px;background:#fff;border:1.5px solid var(--navy);box-shadow:0 18px 40px rgba(20,40,75,.08);padding:18px 20px 20px;display:grid;gap:16px}
 .pa-dh{display:flex;gap:12px;align-items:center} .pa-dh .ic{font-size:1.7rem} .pa-dh h3{margin:0;font-size:1.15rem;color:var(--navy)} .pa-dh h3 small{font-weight:500;color:#94a3b8;font-size:.8rem}
@@ -3097,12 +3097,12 @@ function deptsHTML(E){
   const D=E.depts||[]; if(!D.find(d=>d.id===STN)) STN=(D[0]||{}).id;
   const sc=s=>s==null?'':s>=80?'ok':s>=55?'warn':'bad';
   const strip=`<div class="pa-strip" role="tablist" aria-label="หน่วยงาน">${D.map(d=>`<button type="button" role="tab" class="st ${sc(d.score)} ${d.id===STN?'on':''}" data-stn="${d.id}" aria-selected="${d.id===STN}">
-      <span class="ic">${d.icon}</span><span class="nm"><b>${esc(d.name)}</b><small>${esc(d.en)}</small></span>
+      <span class="nm"><b>${esc(d.name)}</b><small>${esc(d.en)}</small></span>
       <span class="sc">${d.score!=null?`<b>${d.score}</b><small>/100</small>`:'<small>–</small>'}</span>
       <span class="ws">${d.worst?`${d.worst.status==='bad'?'●':'◐'} ${esc(d.worst.name)}`:'✓ ทุกค่าตามเป้า'}</span></button>`).join('')}</div>`;
   const s=D.find(d=>d.id===STN);
   const panel=!s?'':`<div class="pa-dept" role="tabpanel">
-    <div class="pa-dh"><span class="ic">${s.icon}</span><div><h3>${esc(s.name)} <small>${esc(s.en)}</small></h3><p>${s.judged} ค่าที่มีเป้า · ${s.score!=null?`คะแนน ${s.score}/100`:'ยังไม่มีค่าที่มีเป้า'}${s.down_h!=null?` · หยุดเครื่อง 7 วัน ${N(s.down_h,1)} ชม.`:''}</p></div></div>
+    <div class="pa-dh"><div><h3>${esc(s.name)} <small>${esc(s.en)}</small></h3><p>${s.judged} ค่าที่มีเป้า · ${s.score!=null?`คะแนน ${s.score}/100`:'ยังไม่มีค่าที่มีเป้า'}${s.down_h!=null?` · หยุดเครื่อง 7 วัน ${N(s.down_h,1)} ชม.`:''}</p></div></div>
     <div class="pa-dg"><div class="pa-mt"><table><thead><tr><th>ค่า</th><th>รายวัน</th><th>สะสม</th><th>เป้า</th><th></th></tr></thead><tbody>${s.metrics.map(x=>`<tr class="${x.status||''}">
         <td>${esc(x.label)}${x.unit&&x.unit!=='%'?` <small>${esc(x.unit)}</small>`:x.unit==='%'?' <small>%</small>':''}${x.qut?` <span class="qc" title="ช่วงแนะนำ QUT">QUT ${esc(x.qut)}</span>`:''}</td>
         <td>${N(x.today,x.dec)}</td><td><b>${N(x.todate,x.dec)}</b></td><td>${tgtTxt(x)}</td><td>${x.status?`<span class="pill">${STW[x.status]}</span>`:''}</td></tr>`).join('')}</tbody></table>
