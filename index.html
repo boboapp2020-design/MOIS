@@ -271,7 +271,7 @@ body.entering .hs.card,body.entering .tools,body.entering .pclk,body.entering .c
 <\/script>
 <script>
 (function(){
-  var CFG={"w":1672,"h":941,"alt":"M.O.I.S — เลือกระบบ: Process Monitoring · Process Monitoring Plus · Process Analytical","stats":[{"at":[104,350],"c":"#22c55e","api":"/api/milling","items":[{"k":"a","l":"อ้อยวันนี้ (ตัน)"},{"k":"b","l":"หีบ (ตัน/ชม.)"}],"pick":"j=>({a:Math.round(j.totals.cane_t).toLocaleString('en-US'),b:Math.round(j.totals.crush_tph)})"},{"at":[617,350],"c":"#f59e0b","api":"/api/summary","items":[{"k":"a","l":"จุดวัดมีสัญญาณ"},{"k":"b","l":"เฝ้าระวัง"},{"k":"c","l":"ผิดปกติ"}],"pick":"j=>{let g=0,t=0,w=0,a=0;Object.values(j.pages||{}).forEach(x=>{g+=x.good||0;t+=x.tags||0;w+=x.warn||0;a+=x.alarm||0});return{a:g+'/'+t,b:w,c:a}}"},{"at":[1111,350],"c":"#3b82f6","api":"/api/recovery","items":[{"k":"a","l":"Recovery (%)"},{"k":"b","l":"CCS"}],"pick":"j=>j.exec&&j.exec.has_data?{a:j.exec.head.recov.todate.toFixed(2),b:j.exec.head.ccs.todate.toFixed(2)}:{}"}],"verBox":[1490,903,1630,903],"spots":[{"box":[84,256,586,776],"r":26,"c":"#22c55e","card":true,"href":"?p=pm","btn":[524,716,37],"label":"Process Monitoring — ติดตามสถานะการเดินเครื่อง"},{"box":[597,254,1079,776],"r":26,"c":"#f59e0b","card":true,"href":"?p=hub","btn":[1016,712,37],"label":"Process Monitoring Plus — ติดตาม วิเคราะห์ และเพิ่มประสิทธิภาพ"},{"box":[1091,254,1599,778],"r":26,"c":"#3b82f6","card":true,"href":"?p=recovery","btn":[1540,718,37],"label":"Process Analytical — วิเคราะห์ข้อมูลประสิทธิภาพและคุณภาพการผลิต"},{"box":[1243,32,1494,94],"r":14,"c":"#93c5fd","user":true,"label":"ผู้ใช้ — ออกจากระบบ"},{"box":[1513,32,1633,94],"r":14,"clock":true,"label":"เวลาโรงงาน"}],"ver":"1.1.0","built":"2026-10-16"}, $=function(id){ return document.getElementById(id); };
+  var CFG={"w":1672,"h":941,"alt":"M.O.I.S — เลือกระบบ: Process Monitoring · Process Monitoring Plus · Process Analytical","stats":[{"at":[104,350],"c":"#22c55e","api":"/api/milling","items":[{"k":"a","l":"อ้อยวันนี้ (ตัน)"},{"k":"b","l":"หีบ (ตัน/ชม.)"}],"pick":"j=>({a:Math.round(j.totals.cane_t).toLocaleString('en-US'),b:Math.round(j.totals.crush_tph)})"},{"at":[617,350],"c":"#f59e0b","api":"/api/summary","items":[{"k":"a","l":"จุดวัดมีสัญญาณ"},{"k":"b","l":"เฝ้าระวัง"},{"k":"c","l":"ผิดปกติ"}],"pick":"j=>{let g=0,t=0,w=0,a=0;Object.values(j.pages||{}).forEach(x=>{g+=x.good||0;t+=x.tags||0;w+=x.warn||0;a+=x.alarm||0});return{a:g+'/'+t,b:w,c:a}}"},{"at":[1111,350],"c":"#3b82f6","api":"/api/recovery","items":[{"k":"a","l":"Recovery (%)"},{"k":"b","l":"CCS"}],"pick":"j=>j.exec&&j.exec.has_data?{a:j.exec.head.recov.todate.toFixed(2),b:j.exec.head.ccs.todate.toFixed(2)}:{}"}],"verBox":[1490,903,1630,903],"spots":[{"box":[84,256,586,776],"r":26,"c":"#22c55e","card":true,"href":"?p=pm","btn":[524,716,37],"label":"Process Monitoring — ติดตามสถานะการเดินเครื่อง"},{"box":[597,254,1079,776],"r":26,"c":"#f59e0b","card":true,"href":"?p=hub","btn":[1016,712,37],"label":"Process Monitoring Plus — ติดตาม วิเคราะห์ และเพิ่มประสิทธิภาพ"},{"box":[1091,254,1599,778],"r":26,"c":"#3b82f6","card":true,"href":"?p=recovery","btn":[1540,718,37],"label":"Process Analytical — วิเคราะห์ข้อมูลประสิทธิภาพและคุณภาพการผลิต"},{"box":[1243,32,1494,94],"r":14,"c":"#93c5fd","user":true,"label":"ผู้ใช้ — ออกจากระบบ"},{"box":[1513,32,1633,94],"r":14,"clock":true,"label":"เวลาโรงงาน"}],"ver":"1.1.0","built":"2026-10-17"}, $=function(id){ return document.getElementById(id); };
   try{ if(sessionStorage.getItem('mois.morph')){ sessionStorage.removeItem('mois.morph'); document.body.classList.add('entering'); setTimeout(function(){ document.body.classList.remove('entering'); },2200); } }catch(e){}
   var W=CFG.w, H=CFG.h, st=$('stage'), img=$('plate');
   document.documentElement.style.setProperty('--ar',W+'/'+H); document.documentElement.style.setProperty('--w',W);
@@ -611,7 +611,7 @@ body.entering .hs.card,body.entering .tools,body.entering .pclk,body.entering .c
 <\/script>
 <script>
 (function(){
-  var CFG={"w":1671,"h":941,"alt":"Process Monitoring — Milling · Evaporation · Vacuum Pan · Centrifugation","spots":[{"box":[57,365,415,860],"r":24,"c":"#16a34a","card":true,"href":"?p=milling","btn":[237,812,33],"label":"01 Milling — โรงหีบอ้อย · รายงานการหีบสกัด"},{"box":[458,365,815,860],"r":24,"c":"#2563eb","card":true,"href":"?p=evap","btn":[637,812,33],"label":"02 Evaporation — หม้อต้มระเหยน้ำ"},{"box":[858,365,1215,860],"r":24,"c":"#ea580c","card":true,"href":"?p=pan","btn":[1037,812,33],"label":"03 Vacuum Pan — หม้อต้มเคี่ยว"},{"box":[1258,365,1617,860],"r":24,"c":"#6d28d9","card":true,"href":"?p=centri","btn":[1437,812,33],"label":"04 Centrifugation — เครื่องปั่นแยกผลึก"},{"box":[1238,12,1660,94],"tools":true,"href":"./","label":"เมนูหลัก · ผู้ใช้"}],"ver":"1.1.0","built":"2026-10-16"}, $=function(id){ return document.getElementById(id); };
+  var CFG={"w":1671,"h":941,"alt":"Process Monitoring — Milling · Evaporation · Vacuum Pan · Centrifugation","spots":[{"box":[57,365,415,860],"r":24,"c":"#16a34a","card":true,"href":"?p=milling","btn":[237,812,33],"label":"01 Milling — โรงหีบอ้อย · รายงานการหีบสกัด"},{"box":[458,365,815,860],"r":24,"c":"#2563eb","card":true,"href":"?p=evap","btn":[637,812,33],"label":"02 Evaporation — หม้อต้มระเหยน้ำ"},{"box":[858,365,1215,860],"r":24,"c":"#ea580c","card":true,"href":"?p=pan","btn":[1037,812,33],"label":"03 Vacuum Pan — หม้อต้มเคี่ยว"},{"box":[1258,365,1617,860],"r":24,"c":"#6d28d9","card":true,"href":"?p=centri","btn":[1437,812,33],"label":"04 Centrifugation — เครื่องปั่นแยกผลึก"},{"box":[1238,12,1660,94],"tools":true,"href":"./","label":"เมนูหลัก · ผู้ใช้"}],"ver":"1.1.0","built":"2026-10-17"}, $=function(id){ return document.getElementById(id); };
   try{ if(sessionStorage.getItem('mois.morph')){ sessionStorage.removeItem('mois.morph'); document.body.classList.add('entering'); setTimeout(function(){ document.body.classList.remove('entering'); },2200); } }catch(e){}
   var W=CFG.w, H=CFG.h, st=$('stage'), img=$('plate');
   document.documentElement.style.setProperty('--ar',W+'/'+H); document.documentElement.style.setProperty('--w',W);
@@ -1557,7 +1557,7 @@ const C=(s,c,n,u='',d=2,dir='hi',o={})=>({s,c,n,u,d,dir,...o});
 const PROG={prog:true};
 const CATS=[
  {id:'ov',t:'ภาพรวม',i:'📊',tc:'#e11d48',cards:[C('daily','cane','อ้อยเข้าหีบ','ตัน',0,'hi',PROG),C('daily','totsugar','น้ำตาลรวม','ตัน',1,'hi',PROG),C('daily','ccs','C.C.S. ของโรงงาน','',2),
-   C('daily','pctccs','% Yield CCS','%',2),C('daily','recov','Overall Recovery','%',2),C('daily','edl','ขายไฟ EDL','kWh',0,'hi',PROG),C('stop','overalleff','ประสิทธิภาพเวลา','%',1),C('daily','avgsteam','ไอน้ำ / ตันอ้อย','kg',0,'lo')],
+   C('daily','pctccs','% Yield CCS','%',2),C('daily','recov','Overall Recovery','%',2),C('daily','edl','ขายไฟ EDL','kWh',0,'hi',PROG),C('stop','overalleff','ประสิทธิภาพเวลา','%',1,'hi',{ts:'daily',tg:'timeeff_target'}),C('daily','avgsteam','ไอน้ำ / ตันอ้อย','kg',0,'lo')],
   charts:[{k:'gauges',w:1},{k:'ins',t:'💡 ประเด็นสำคัญวันนี้',sub:'เทียบเป้าในรายงานและค่าเฉลี่ย 7 วัน'},
    {k:'bars',t:'อ้อยเข้าหีบรายวัน',sub:'ตัน/วัน',keys:['daily.cane_today'],avg:true},
    {k:'line',t:'CCS และ Overall Recovery',sub:'รายวัน',keys:['daily.ccs_today','daily.recov_today'],names:['CCS','Recovery %'],dual:true}]},
@@ -1575,11 +1575,11 @@ const CATS=[
   charts:[{k:'stack',t:'การสูญเสียรายวัน (% pol ในอ้อย)',keys:['daily.loss_bag_today','daily.loss_fc_today','daily.loss_fm_today','daily.loss_undet_today'],names:['Bagasse','Filter cake','Final mol.','Undetermined'],w:1},
    {k:'line',t:'Overall Recovery · BHR',keys:['daily.recov_today','daily.bhr_today'],names:['Recovery %','BHR %'],tkey:'daily.recov_target'},
    {k:'hbar',t:'การสูญเสียสะสม เทียบเป้า',rows:[['loss_bag','Bagasse'],['loss_fc','Filter cake'],['loss_fm','Final molasses'],['loss_undet','Undetermined'],['loss','รวม']]}]},
- {id:'pq',t:'คุณภาพกระบวนการ',i:'🧪',tc:'#7c3aed',cards:[C('daily','fej_purity!','Purity น้ำอ้อยคั้นแรก','%',2,'hi',{tg:'purity_target'}),C('daily','mj_purity!','Purity น้ำอ้อยรวม','%',2,'hi',{tg:'purity_target'}),C('daily','cj_purity!','Purity น้ำใส','%',2,'hi',{tg:'purity_target'}),
-   C('daily','rs_purity!','Purity น้ำเชื่อมดิบ','%',2,'hi',{tg:'purity_target'}),C('daily','rs_brix!','Brix น้ำเชื่อม','%',2),C('daily','extpol','Extraction % Pol','%',2),C('daily','polbag','Pol % ชาน','%',2,'lo'),
+ {id:'pq',t:'คุณภาพกระบวนการ',i:'🧪',tc:'#7c3aed',cards:[C('daily','fej_purity!','Purity น้ำอ้อยคั้นแรก','%',2),C('daily','mj_purity!','Purity น้ำอ้อยรวม','%',2),C('daily','cj_purity!','Purity น้ำใส','%',2),
+   C('daily','rs_purity!','Purity น้ำเชื่อมดิบ','%',2),C('daily','rs_brix!','Brix น้ำเชื่อม','%',2,'hi',{tg:'rs_brix_target'}),C('daily','extpol','Extraction % Pol','%',2),C('daily','polbag','Pol % ชาน','%',2,'lo'),
    C('daily','moistbag','ความชื้น % ชาน','%',2,'lo'),C('daily','imbfiber','Imbibition % Fibre','%',1),C('daily','prepidx','Preparation Index','%',2),C('daily','turbidity','Turbidity น้ำใส','',2,'lo',{tk:'turbidity'}),
-   C('daily','me','Mill Efficiency','%',2),C('daily','fmext','First Mill Extraction','% pol',2),
-   C('daily','puritydrop','Purity Drop (MJ→CJ)','',2,'lo'),C('daily','tcph','อัตราหีบ','ตัน/ชม.',0),C('daily','bagcane','ชาน % อ้อย','%',2),
+   C('daily','me','Mechanical Efficiency (โรงงาน)','%',2),C('daily','fmext','First Mill Extraction','% pol',2),
+   C('daily','puritydrop','Purity Drop (MJ→CJ)','',2,'lo'),C('daily','tcph','อัตราหีบ','ตัน/ชม.',0),C('daily','bagcane','ชาน % อ้อย','%',2,'hi',{info:true}),
    C('daily','ph_first','pH น้ำอ้อยคั้นแรก','',2),C('daily','ph_mixed','pH น้ำอ้อยรวม','',2),C('daily','ph_limed','pH น้ำอ้อยใส่ปูน','',2),C('daily','ph_clar','pH น้ำใส','',2),
    C('daily','ph_mud','pH กากตะกอน','',2),C('daily','ph_syrup','pH น้ำเชื่อม','',2),C('daily','ph_sacchar','pH Lime saccharate','',2)],
   charts:[{k:'line',t:'Purity ตามจุด',keys:['daily.fej_purity','daily.mj_purity','daily.cj_purity','daily.rs_purity'],names:['คั้นแรก','น้ำอ้อยรวม','น้ำใส','น้ำเชื่อม']},
@@ -1612,7 +1612,7 @@ const CATS=[
    {k:'line',t:'Floc ทำใส (ppm on cane)',keys:['daily.chem_clar_floc_ppm_today'],names:['ppm'],color:'#7c3aed'},
    {k:'profile',t:'pH น้ำตามจุด (วันที่เลือก)',src:'water',keys:['ws_ph_rw_today','ws_ph_sw_today','ws_ph_fw1_today','ws_ph_fw2_today','ws_ph_bw1_today','ws_ph_bw2_today','ws_ph_bw3_today','ws_ph_ct_today'],names:['Raw','Soft','Feed 1','Feed 2','Boiler 1','Boiler 2','Boiler 3','Cooling']},
    {k:'profile',t:'TDS น้ำตามจุด (วันที่เลือก, ppm)',src:'water',keys:['ws_tds_rw_today','ws_tds_sw_today','ws_tds_fw1_today','ws_tds_fw2_today','ws_tds_bw1_today','ws_tds_bw2_today','ws_tds_bw3_today','ws_tds_ct_today'],names:['Raw','Soft','Feed 1','Feed 2','Boiler 1','Boiler 2','Boiler 3','Cooling']}]},
- {id:'st',t:'การหยุดหีบ',i:'⏱',tc:'#ea580c',cards:[C('stop','overalleff','ประสิทธิภาพเวลารวม','%',1),C('stop','mecheff','ประสิทธิภาพเครื่องจักร','%',1),C('stop','crush','ชั่วโมงหีบจริง','ชม.',2,'hi',PROG),
+ {id:'st',t:'การหยุดหีบ',i:'⏱',tc:'#ea580c',cards:[C('stop','overalleff','ประสิทธิภาพเวลารวม','%',1,'hi',{ts:'daily',tg:'timeeff_target'}),C('stop','mecheff','ประสิทธิภาพเครื่องจักร','%',1),C('stop','crush','ชั่วโมงหีบจริง','ชม.',2,'hi',PROG),
    C('stop','stopprod','หยุดเพราะโรงงาน','ชม.',2,'lo'),C('stop','nocane','หยุดเพราะอ้อยขาด','ชม.',2,'lo'),C('stop','sched','หยุดตามแผน','ชม.',2,'lo'),C('stop','lostpct','เวลาสูญเสีย','%',2,'lo')],
   charts:[{k:'stack',t:'ชั่วโมงหยุดรายวัน แยกแผนก',keys:['stop.milling_today','stop.boiler_today','stop.power_today','stop.evap_today','stop.vacuum_today','stop.centri_today','stop.otherstop_today','stop.nocane_today'],names:['ลูกหีบ','หม้อไอน้ำ','ไฟฟ้า','หม้อต้ม','หม้อเคี่ยว','หม้อปั่น','อื่น ๆ','อ้อยขาด'],w:1},
    {k:'line',t:'ประสิทธิภาพเวลารวม',keys:['stop.overalleff_today'],names:['%'],color:'#ea580c',zero:true},
@@ -1638,9 +1638,10 @@ const NZ=/(brix|purity)(!|)$|^me(!|)$/;      // a 0 here = no report / no strike
 function cardVals(c){ const d=(R.data[c.s]||{}), base=c.c.replace('!',''), nz=v=>v===0&&NZ.test(c.c)?null:v;
   const Qr=(R.qut||{})[base], qt=Qr?tparse(Qr.range,c.dir):null; if(qt) qt.qut=true;
   if(c.c.endsWith('!')) return {v:nz(d[base]),td:null,t:c.tg?tparse(d[c.tg],c.dir):qt,q:Qr};
-  return {v:nz(d[c.tk||base+'_today']),td:nz(d[base+'_todate']),t:tparse(d[c.tg||base+'_target'],c.dir)||qt,q:Qr}; }
-const tfmt=(t,dec)=>!t?'':t.dir==='in'?t.lo+'–'+t.hi:(/</.test(t.raw)?'< ':/>/.test(t.raw)?'> ':'')+N(t.v,Math.abs(t.v)>=1000?0:dec);
-const cstat=(c,x)=>c.prog?null:status(x.td!=null?x.td:x.v,x.t);
+  const dt=c.ts?(R.data[c.ts]||{}):d;      // target printed in another report tab (time efficiency: DailyReport)
+  return {v:nz(d[c.tk||base+'_today']),td:nz(d[base+'_todate']),t:tparse(dt[c.tg||base+'_target'],c.dir)||qt,q:Qr}; }
+const tfmt=(t,dec)=>!t?'':t.dir==='in'?t.lo+'–'+t.hi:(/</.test(t.raw)?'< ':/>/.test(t.raw)?'> ':'')+N(t.v,Math.abs(t.v)>=1000?0:Math.max(dec,Math.min(2,(String(t.v).split('.')[1]||'').length)));   // keep the report's own decimals (93.97)
+const cstat=(c,x)=>c.prog||c.info?null:status(x.td!=null?x.td:x.v,x.t);
 
 /* ---------- small charts (SVG) */
 function rng(days){ const n=days.length, k=RANGE?Math.max(0,n-RANGE):0; return [k,n]; }
@@ -3024,7 +3025,7 @@ function exBrief(){ const E=EX; if(!E||!E.has_data) return;
     +row('น้ำตาลที่ผลิต',N(h.sugar.todate),'ตัน',`<b>${N(pct(h.sugar.todate,h.sugar.target),0)}%</b> ของเป้า ${N(h.sugar.target)} ตัน`,'info')
     +row('Yield % CCS',N(h.sugar.pctccs_todate,1),'%',`เป้า <b>≥ ${N(h.sugar.pctccs_target,0)}</b> · ${gapTxt(h.sugar.pctccs_todate,h.sugar.pctccs_target,'hi',1,' จุด')}`,cmp(h.sugar.pctccs_todate,h.sugar.pctccs_target,'hi'));
   const c2=k('recov','Overall Recovery','%',2)+k('extpol','Extraction % Pol','%',2)+k('bhr','Boiling House Recovery','%',2)
-    +row('เวลาเดินเครื่อง',N(h.time.todate,1),'%',`มาตรฐาน <b>≥ ${N(h.time.world,0)}</b> · โรงงานหยุด ${N(h.time.stop_todate,1)} ชม.`,cmp(h.time.todate,h.time.world,'hi'));
+    +row('เวลาเดินเครื่อง',N(h.time.todate,1),'%',`${h.time.target!=null?'เป้า':'มาตรฐาน'} <b>≥ ${N(h.time.target!=null?h.time.target:h.time.world,h.time.target!=null?2:0)}</b> · โรงงานหยุด ${N(h.time.stop_todate,1)} ชม.`,cmp(h.time.todate,h.time.world,'hi'));
   const c3=row('มูลค่าผลผลิต',MB(C.value_thb).replace(' บาท',''),'',`น้ำตาล · กากน้ำตาล · ไฟขาย · <b>${N(U.value_tc)}</b> บาท/ตันอ้อย`,'info')
     +row('มูลค่าที่เสียไปเทียบเป้า',MB(C.lost_thb).replace(' บาท',''),'',`<em>${N(U.lost_ts)}</em> บาท/ตันน้ำตาล · Recovery · เวลาหยุด · ไอน้ำ`,(C.lost_thb||0)>0?'bad':'ok')
     +row('ต้นทุนเคมีและน้ำ',N(U.opex_tc,1),'บาท/ตันอ้อย',`รวม <b>${MB(C.opex_thb)}</b> · เคมี ${N(U.chem_ts,0)} บาท/ตันน้ำตาล`,'info');
@@ -3139,7 +3140,7 @@ function renderExec(E){
         ${fig('Overall Recovery',N(rec.todate,2),'%',`เป้า ${N(rec.target,2)}% · รายวัน ${N(rec.today,2)}%`,pctOf(rec.todate,rec.target),gap!=null&&gap<0?'bad':'ok')}
         ${fig('น้ำตาลที่ผลิต',N(su.todate),'ตัน',`${N(pctOf(su.todate,su.target),0)}% ของเป้า ${N(su.target)} ตัน`,pctOf(su.todate,su.target),'info')}
         ${fig('อ้อยเข้าหีบ',N(ca.todate),'ตัน',`${N(pctOf(ca.todate,ca.target),0)}% ของแผน · เฉลี่ย ${N(ca.avg)} ตัน/วัน`,pctOf(ca.todate,ca.target),'info')}
-        ${fig('เวลาเดินเครื่อง',N(ti.todate,1),'%',`โรงงานหยุดสะสม ${N(ti.stop_todate,1)} ชม.`,ti.todate,ti.todate!=null&&ti.todate<ti.world?'warn':'ok')}
+        ${fig('เวลาเดินเครื่อง',N(ti.todate,1),'%',`เป้า ${N(ti.target!=null?ti.target:ti.world,ti.target!=null?2:0)}% · โรงงานหยุดสะสม ${N(ti.stop_todate,1)} ชม.`,ti.todate,ti.todate!=null&&ti.todate<(ti.target!=null?ti.target:ti.world)?'warn':'ok')}
       </div></div>
     <aside class="pa-dec"><h3>สิ่งที่ต้องตัดสินใจ</h3>${acts.length?acts.map((a,i)=>`<div class="d ${a.sev}"><span class="n">${i+1}</span><div><b>${esc(a.title)}</b>${a.thb?`<em>≈ ${MB(a.thb)}</em>`:''}</div></div>`).join(''):'<p class="ok">✓ ไม่มีประเด็นเร่งด่วน</p>'}
       ${b.headline?`<details class="pa-memo"><summary>บันทึกสรุปฉบับเต็ม</summary><div class="cols"><div><h4>จุดเด่น</h4><ul>${(b.good||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div><h4>ข้อกังวล</h4><ul>${(b.bad||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div><h4>แนวโน้มทั้งฤดู</h4><ul>${(b.outlook||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div><button type="button" class="cp" id="cpNote">📋 คัดลอกข้อความ</button></details>`:''}
