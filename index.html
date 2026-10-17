@@ -11856,7 +11856,7 @@ var each=function(sel,fn){ Array.prototype.forEach.call(document.querySelectorAl
 var D=null, busy=false, dirty=false;
 if(Q.get('dbg')) document.body.classList.add('dbg');
 var WORD={ok:'ดี',warn:'เฝ้าระวัง',bad:'ต้องแก้',na:'รอข้อมูล'};
-var BAND_TXT={extraction:'≥ 96.5%',reduced_ext:'≥ 96.5%',pol_bg:'≤ 2.0%',moist_bg:'≤ 50%',imb_pct_fibre:'250–350% (ดีสุด ~280)',mj_pct_cane:'100–115%',chute:'60–92%',mj_level:'10–90%',rate_pct:'≥ 90% ของ 333 ตัน/ชม.',ccs:'≥ 11'};
+var BAND_TXT={extraction:'≥ 97%',reduced_ext:'≥ 96.5%',pol_bg:'≤ 1.61%',moist_bg:'≤ 50%',imb_pct_fibre:'250–350% (ดีสุด ~280)',mj_pct_cane:'100–115%',chute:'60–92%',mj_level:'10–90%',rate_pct:'≥ 90% ของ 297 ตัน/ชม.',ccs:'≥ 13.8'};
 function g(key,v){ if(v==null||!D||!D.bands[key]) return 'na'; var b=D.bands[key];
   if((b[0]==null||v>=b[0])&&(b[1]==null||v<=b[1])) return 'ok'; if((b[2]==null||v>=b[2])&&(b[3]==null||v<=b[3])) return 'warn'; return 'bad'; }
 
@@ -11893,10 +11893,10 @@ function renderSummary(){
   var EST=(C.estimate&&C.estimate.keys)||[], ESTK={extraction:['pol_cane','pol_bg','moist_bg'],pol_bg:['pol_bg'],ccs:['ccs']}, ED=C.estimate&&C.estimate.day?C.estimate.day.slice(8)+'/'+C.estimate.day.slice(5,7):'';
   var k=function(n,v,u,key,t){ var st=S[key]||g(key,null), es=(ESTK[key]||[]).some(function(x){ return EST.indexOf(x)>=0; }); return '<div class="k '+st+'"><span class="kchip">'+WORD[st]+'</span><span class="n">'+n+(es?'<span class="est" title="ยังไม่มีค่าแล็บของวันนี้ — ประมาณจากรายงานประจำวัน '+ED+' แล้วจะแทนด้วยค่าจริงเมื่อบันทึก">ประมาณ · '+ED+'</span>':'')+'</span><span class="v">'+v+'<small>'+u+'</small></span><span class="t">'+t+'</span></div>'; };
   var kdone=(KSEEN?MoisWatch($('kg'),'.k .v'):function(){});
-  $('kg').innerHTML=k('Extraction % Pol',fmt(C.extraction,2),'%','extraction','เป้า ≥ 96.5% · Reduced '+fmt(C.reduced_ext,2)+'%')
-    +k('Pol % Bagasse',fmt(C.pol_bg,2),'%','pol_bg','เป้า ≤ 2.0% · เสีย Pol '+fmt(C.pol_lost_t,1)+' ตัน')
+  $('kg').innerHTML=k('Extraction % Pol',fmt(C.extraction,2),'%','extraction','เป้า ≥ 97% · Reduced '+fmt(C.reduced_ext,2)+'%')
+    +k('Pol % Bagasse',fmt(C.pol_bg,2),'%','pol_bg','เป้า ≤ 1.61% · เสีย Pol '+fmt(C.pol_lost_t,1)+' ตัน')
     +k('Imbibition % Fibre',fmt(C.imb_pct_fibre,0),'%','imb_pct_fibre','เป้า 250–350% · ไฟเบอร์ '+fmt(C.fibre,1)+'%'+(C.fibre_src==='assumed'?' (สมมติ)':''))
-    +k('CCS สะสม',fmt(C.ccs_cum,2),'%','ccs','เป้า ≥ 11 · น้ำตาล ≈ '+fmt(C.sugar_potential_t,0)+' ตัน');
+    +k('CCS สะสม',fmt(C.ccs_cum,2),'%','ccs','เป้า ≥ 13.8 · น้ำตาล ≈ '+fmt(C.sugar_potential_t,0)+' ตัน');
   if(!KSEEN){ KSEEN=true; setTimeout(function(){ MoisReveal($('rep'),'#kg .k,#mini>div'); },0); } else kdone();      // first draw: cards fade up one by one · refresh: changed values flash
   var m=function(i,n,v){ return '<div><i>'+i+'</i><p style="margin:0"><span>'+n+'</span><b>'+v+'</b></p></div>'; };
   $('mini').innerHTML=m('🚛','อ้อยเข้าหีบ',fmt(T.cane_t,0)+' ตัน · '+fmt(T.trucks,0)+' คัน')+m('⚙️','อัตราหีบ',fmt(T.crush_tph,0)+' ตัน/ชม.')
@@ -11975,7 +11975,7 @@ function renderFlow(){
   var chNow=NW.chute!=null?Math.max(0,NW.chute):null;
   h+=fc('chute',{t:'Level Chute<br>ลูกหีบชุดที่ 1',cls:'sm',v:chNow!=null?fmt(chNow,0)+u('%'):L.chute!=null?fmt(L.chute,0)+u('%'):'–',
     s:chNow!=null&&chNow<1?'ยังไม่มีอ้อยใน Chute':(L.chute!=null?'เฉลี่ย '+fmt(L.chute,0)+'% · ':'')+'เป้า 60–92',st:g('chute',L.chute),tip:'ระดับอ้อยใน Chute ลูกหีบ 1 ล่าสุดจาก PI (MLLIC-A001)'+(nowT?' ณ '+nowT+' น.':'')});
-  h+=fc('polbg',{item:'pol_bg',t:'Pol % BG',cls:'sm',v:C.pol_bg!=null?fmt(C.pol_bg,2)+u('%'):null,s:'กรอก '+E.pol_bg+'/3 · เป้า ≤ 2.0',st:g('pol_bg',C.pol_bg),go:'f_rounds'});
+  h+=fc('polbg',{item:'pol_bg',t:'Pol % BG',cls:'sm',v:C.pol_bg!=null?fmt(C.pol_bg,2)+u('%'):null,s:'กรอก '+E.pol_bg+'/3 · เป้า ≤ 1.61',st:g('pol_bg',C.pol_bg),go:'f_rounds'});
   h+=fc('moist',{item:'moist_bg',t:'Moisture BG',cls:'sm',v:C.moist_bg!=null?fmt(C.moist_bg,1)+u('%'):null,s:'เป้า ≤ 50%',st:g('moist_bg',C.moist_bg),go:'f_once'});
   h+=fc('curve',{item:'brix_curve',t:'Brix Curve น้ำอ้อยชุดที่ 1-5',cls:'cu',v:cv(curveLast),s:curveLast?(curveLast.inversions.length?'⚠ Brix ไม่ลดที่ชุด '+curveLast.inversions.join(', '):'✓ ลดลงต่อเนื่อง')+' · '+curveLast.name+' · กรอก '+curves.length+'/3':'',st:curveLast?(curveLast.inversions.length?'bad':'ok'):'na',go:'f_rounds'});
   h+=fc('qa',{item:'brix_juice',t:'Brix น้ำอ้อยชุดที่ 1-5',cls:'cu',v:cv(qa),s:qa?(qa.inversions.length?'⚠ ไม่ลดที่ชุด '+qa.inversions.join(', '):'✓ ลดลงต่อเนื่อง'):'',st:qa?(qa.inversions.length?'warn':'ok'):'na',go:'f_qa'});
@@ -11999,13 +11999,13 @@ function renderFlow(){
   $('flowCards').innerHTML=h; f.classList.toggle('idle',!today); f.classList.toggle('run',run); f.classList.toggle('imbrun',run&&(L.imb_m3||0)>0.5);
   if(!$('flowAnim').firstChild) buildAnim();
   each('#flow .fc.in',function(b){ b.addEventListener('click',function(){ exitFS(); goForm(b.dataset.go); }); });
-  ambState={run:run,load:Math.max(.3,Math.min(1.3,(T.crush_tph||0)/(D.target_tph||333))),water:run&&(L.imb_m3||0)>0.5}; if(AMB) AMB.update(ambState);
+  ambState={run:run,load:Math.max(.3,Math.min(1.3,(T.crush_tph||0)/(D.target_tph||297))),water:run&&(L.imb_m3||0)>0.5}; if(AMB) AMB.update(ambState);
   renderFlowAlerts();
 }
 
 function setTabs(day){ if(!day) return; var a=document.getElementById('tb1'), b=document.getElementById('tb2'), c=document.getElementById('tb3'); if(a) a.href='?p=milling&day='+day; var tbE=document.getElementById('tbE'); if(tbE) tbE.href='?p=millentry&day='+day; if(b) b.href='?p=millhist&to='+day; if(c) c.href='?p=millshift&day='+day; }
 /* ---------------- flow: out-of-spec alerts + full screen ---------------- */
-var FTARGET={cane:'เป้า ≥ 333 ตัน/ชม.',ccs:'เป้า ≥ 11',polcane:'',imbpct:'เป้า 250–350% ไฟเบอร์',imb:'',mj:'น้ำอ้อยรวม 100–115% อ้อย · ถัง 10–90%',chute:'เป้า 60–92%',polbg:'เป้า ≤ 2.0%',moist:'เป้า ≤ 50%',curve:'Brix ต้องลดลงทุกชุด',qa:'Brix ต้องลดลงทุกชุด'};
+var FTARGET={cane:'เป้า ≥ 297 ตัน/ชม.',ccs:'เป้า ≥ 13.8',polcane:'',imbpct:'เป้า 250–350% ไฟเบอร์',imb:'',mj:'น้ำอ้อยรวม 100–115% อ้อย · ถัง 10–90%',chute:'เป้า 60–92%',polbg:'เป้า ≤ 1.61%',moist:'เป้า ≤ 50%',curve:'Brix ต้องลดลงทุกชุด',qa:'Brix ต้องลดลงทุกชุด'};
 var fPrev=null, fDay=null, fToastT=0, fSnd=false; try{ fSnd=localStorage.getItem('mois.flow.snd')==='1'; }catch(e){}
 function beep(bad){ try{ var A=window.AudioContext||window.webkitAudioContext; if(!A) return; var c=beep.c||(beep.c=new A()), t=c.currentTime;
   [[bad?880:660,0],[bad?660:520,.18],[bad?880:660,.36]].forEach(function(n){ var o=c.createOscillator(), g=c.createGain(); o.type='square'; o.frequency.value=n[0]; g.gain.setValueAtTime(.0001,t+n[1]); g.gain.exponentialRampToValueAtTime(.12,t+n[1]+.02); g.gain.exponentialRampToValueAtTime(.0001,t+n[1]+.15); o.connect(g); g.connect(c.destination); o.start(t+n[1]); o.stop(t+n[1]+.16); }); }catch(e){} }
@@ -12179,7 +12179,7 @@ function renderForms(){
       :'<div class="lockbox open"><span class="lk">🔓</span><div><b>ครั้งที่ '+k+' ปลดล็อกอยู่</b><small>แก้ไขแล้วกด ตกลง — บันทึกเสร็จระบบจะล็อกกลับให้เอง</small></div><button type="button" class="unlock" id="relockBtn">🔒 ล็อกกลับ</button></div>';
   var blockBox=!blk?'':'<div class="blockbox"><span class="lk">⛔</span><div><b>กรอกครั้งที่ '+k+' ไม่ได้ — ครั้งที่ '+pm.map(function(x){ return x.k; }).join(', ')+' ยังบันทึกไม่ครบ</b><small>ต้องบันทึกรอบก่อนหน้าให้ครบก่อน · ครั้งที่ '+pm[0].k+' ยังขาด: '+pm[0].miss.join(', ')+'</small></div><button type="button" class="unlock" id="goPrev" data-k="'+pm[0].k+'">← กลับไปกรอกครั้งที่ '+pm[0].k+'</button></div>';
   var bd=lockBox+blockBox+'<div class="sb"><h4><i>1</i>CCS และ Pol % Bagasse</h4><div class="fgrid f2">'
-      +fld('ccs',k,0,{t:'CCS',u:'%',hint:'เป้า ≥ 11',lock:lk,dis:blk})+fld('pol_bg',k,0,{t:'Pol % Bagasse',u:'%',hint:'เป้า ≤ 2.0',lock:lk,dis:blk})+'</div></div>'
+      +fld('ccs',k,0,{t:'CCS',u:'%',hint:'เป้า ≥ 13.8',lock:lk,dis:blk})+fld('pol_bg',k,0,{t:'Pol % Bagasse',u:'%',hint:'เป้า ≤ 1.61',lock:lk,dis:blk})+'</div></div>'
     +'<div class="sb"><h4><i>2</i>Brix Curve น้ำอ้อยลูกหีบชุดที่ 1–5 <span class="ckp" data-ck="brix_curve">'+(lk?curvePill('brix_curve',k):'<span class="pill na">ผล: –</span>')+'</span></h4>'+brix5('brix_curve',k,lk,blk)+'</div>'
     +(lk||blk?'':sbar('f_rounds',can));
   h+=sec('f_rounds','es-r','A','บันทึกวันละ 3 ครั้ง · ครั้งที่ '+k+' ('+rr.label+' น.)','เลือกครั้งที่ที่ต้องการด้านล่าง · หน่วยงาน Mill',
