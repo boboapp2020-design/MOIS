@@ -3059,7 +3059,7 @@ function render(){
 }
 /* ---- executive view: headline KPIs · money lost vs target · where the sugar goes · what to act on · trend · Tier-1 scorecard */
 const N=(v,d=0)=>v==null?'–':Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
-const MB=v=>v==null?'–':(Math.abs(v)>=1e6?N(v/1e6,1)+' ล้านบาท':N(v/1e3,0)+' พันบาท');
+const MB=v=>v==null?'–':(Math.abs(v)>=1e6?N(v/1e6,1)+' ล้านบาท':N(v,0)+' บาท');
 function spark(vals,tgt){ const v=vals.filter(x=>x!=null); if(v.length<2) return '';
   const lo=Math.min(...v,tgt??Infinity), hi=Math.max(...v,tgt??-Infinity), W=100, H=30, sx=i=>i/(vals.length-1)*W, sy=x=>H-2-(x-lo)/((hi-lo)||1)*(H-4);
   const d=vals.map((x,i)=>x==null?'':`${i&&vals[i-1]!=null?'L':'M'}${sx(i).toFixed(1)} ${sy(x).toFixed(1)}`).join('');
