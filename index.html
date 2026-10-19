@@ -273,7 +273,7 @@ body.entering .hs.card,body.entering .tools,body.entering .pclk,body.entering .c
 <\/script>
 <script>
 (function(){
-  var CFG={"w":1672,"h":941,"alt":"M.O.I.S — เลือกระบบ: Process Monitoring · Process Monitoring Plus · Process Analytical","stats":[{"at":[104,350],"c":"#22c55e","api":"/api/milling","items":[{"k":"a","l":"อ้อยวันนี้ (ตัน)"},{"k":"b","l":"หีบ (ตัน/ชม.)"}],"pick":"j=>({a:Math.round(j.totals.cane_t).toLocaleString('en-US'),b:Math.round(j.totals.crush_tph)})"},{"at":[617,350],"c":"#f59e0b","api":"/api/summary","items":[{"k":"a","l":"จุดวัดมีสัญญาณ"},{"k":"b","l":"เฝ้าระวัง"},{"k":"c","l":"ผิดปกติ"}],"pick":"j=>{let g=0,t=0,w=0,a=0;Object.values(j.pages||{}).forEach(x=>{g+=x.good||0;t+=x.tags||0;w+=x.warn||0;a+=x.alarm||0});return{a:g+'/'+t,b:w,c:a}}"},{"at":[1111,350],"c":"#3b82f6","api":"/api/recovery","items":[{"k":"a","l":"Recovery (%)"},{"k":"b","l":"CCS"}],"pick":"j=>j.exec&&j.exec.has_data?{a:j.exec.head.recov.todate.toFixed(2),b:j.exec.head.ccs.todate.toFixed(2)}:{}"}],"verBox":[1490,903,1630,903],"spots":[{"box":[84,256,586,776],"r":26,"c":"#22c55e","card":true,"href":"?p=pm","btn":[524,716,37],"label":"Process Monitoring — ติดตามสถานะการเดินเครื่อง"},{"box":[597,254,1079,776],"r":26,"c":"#f59e0b","card":true,"href":"?p=hub","btn":[1016,712,37],"label":"Process Monitoring Plus — ติดตาม วิเคราะห์ และเพิ่มประสิทธิภาพ"},{"box":[1091,254,1599,778],"r":26,"c":"#3b82f6","card":true,"href":"?p=recovery","btn":[1540,718,37],"label":"Process Analytical — วิเคราะห์ข้อมูลประสิทธิภาพและคุณภาพการผลิต"},{"box":[1243,32,1494,94],"r":14,"c":"#93c5fd","user":true,"label":"ผู้ใช้ — ออกจากระบบ"},{"box":[1513,32,1633,94],"r":14,"clock":true,"label":"เวลาโรงงาน"}],"ver":"1.1.0","built":"2026-10-17"}, $=function(id){ return document.getElementById(id); };
+  var CFG={"w":1672,"h":941,"alt":"M.O.I.S — เลือกระบบ: Process Monitoring · Process Monitoring Plus · Process Analytical","stats":[{"at":[104,350],"c":"#22c55e","api":"/api/milling","items":[{"k":"a","l":"อ้อยวันนี้ (ตัน)"},{"k":"b","l":"หีบ (ตัน/ชม.)"}],"pick":"j=>({a:Math.round(j.totals.cane_t).toLocaleString('en-US'),b:Math.round(j.totals.crush_tph)})"},{"at":[617,350],"c":"#f59e0b","api":"/api/summary","items":[{"k":"a","l":"จุดวัดมีสัญญาณ"},{"k":"b","l":"เฝ้าระวัง"},{"k":"c","l":"ผิดปกติ"}],"pick":"j=>{let g=0,t=0,w=0,a=0;Object.values(j.pages||{}).forEach(x=>{g+=x.good||0;t+=x.tags||0;w+=x.warn||0;a+=x.alarm||0});return{a:g+'/'+t,b:w,c:a}}"},{"at":[1111,350],"c":"#3b82f6","api":"/api/recovery","items":[{"k":"a","l":"Recovery (%)"},{"k":"b","l":"CCS"}],"pick":"j=>j.exec&&j.exec.has_data?{a:j.exec.head.recov.todate.toFixed(2),b:j.exec.head.ccs.todate.toFixed(2)}:{}"}],"verBox":[1490,903,1630,903],"spots":[{"box":[84,256,586,776],"r":26,"c":"#22c55e","card":true,"href":"?p=pm","btn":[524,716,37],"label":"Process Monitoring — ติดตามสถานะการเดินเครื่อง"},{"box":[597,254,1079,776],"r":26,"c":"#f59e0b","card":true,"href":"?p=hub","btn":[1016,712,37],"label":"Process Monitoring Plus — ติดตาม วิเคราะห์ และเพิ่มประสิทธิภาพ"},{"box":[1091,254,1599,778],"r":26,"c":"#3b82f6","card":true,"href":"?p=recovery","btn":[1540,718,37],"label":"Process Analytical — วิเคราะห์ข้อมูลประสิทธิภาพและคุณภาพการผลิต"},{"box":[1243,32,1494,94],"r":14,"c":"#93c5fd","user":true,"label":"ผู้ใช้ — ออกจากระบบ"},{"box":[1513,32,1633,94],"r":14,"clock":true,"label":"เวลาโรงงาน"}],"ver":"1.1.0","built":"2026-10-19"}, $=function(id){ return document.getElementById(id); };
   try{ if(sessionStorage.getItem('mois.morph')){ sessionStorage.removeItem('mois.morph'); document.body.classList.add('entering'); setTimeout(function(){ document.body.classList.remove('entering'); },2200); } }catch(e){}
   var W=CFG.w, H=CFG.h, st=$('stage'), img=$('plate');
   document.documentElement.style.setProperty('--ar',W+'/'+H); document.documentElement.style.setProperty('--w',W);
@@ -615,7 +615,7 @@ body.entering .hs.card,body.entering .tools,body.entering .pclk,body.entering .c
 <\/script>
 <script>
 (function(){
-  var CFG={"w":1671,"h":941,"alt":"Process Monitoring — Milling · Evaporation · Vacuum Pan · Centrifugation","spots":[{"box":[57,365,415,860],"r":24,"c":"#16a34a","card":true,"href":"?p=milling","btn":[237,812,33],"label":"01 Milling — โรงหีบอ้อย · รายงานการหีบสกัด"},{"box":[458,365,815,860],"r":24,"c":"#2563eb","card":true,"href":"?p=evap","btn":[637,812,33],"label":"02 Evaporation — หม้อต้มระเหยน้ำ"},{"box":[858,365,1215,860],"r":24,"c":"#ea580c","card":true,"href":"?p=pan","btn":[1037,812,33],"label":"03 Vacuum Pan — หม้อต้มเคี่ยว"},{"box":[1258,365,1617,860],"r":24,"c":"#6d28d9","card":true,"href":"?p=centri","btn":[1437,812,33],"label":"04 Centrifugation — เครื่องปั่นแยกผลึก"},{"box":[1238,12,1660,94],"tools":true,"href":"./","label":"เมนูหลัก · ผู้ใช้"}],"ver":"1.1.0","built":"2026-10-17"}, $=function(id){ return document.getElementById(id); };
+  var CFG={"w":1671,"h":941,"alt":"Process Monitoring — Milling · Evaporation · Vacuum Pan · Centrifugation","spots":[{"box":[57,365,415,860],"r":24,"c":"#16a34a","card":true,"href":"?p=milling","btn":[237,812,33],"label":"01 Milling — โรงหีบอ้อย · รายงานการหีบสกัด"},{"box":[458,365,815,860],"r":24,"c":"#2563eb","card":true,"href":"?p=evap","btn":[637,812,33],"label":"02 Evaporation — หม้อต้มระเหยน้ำ"},{"box":[858,365,1215,860],"r":24,"c":"#ea580c","card":true,"href":"?p=pan","btn":[1037,812,33],"label":"03 Vacuum Pan — หม้อต้มเคี่ยว"},{"box":[1258,365,1617,860],"r":24,"c":"#6d28d9","card":true,"href":"?p=centri","btn":[1437,812,33],"label":"04 Centrifugation — เครื่องปั่นแยกผลึก"},{"box":[1238,12,1660,94],"tools":true,"href":"./","label":"เมนูหลัก · ผู้ใช้"}],"ver":"1.1.0","built":"2026-10-19"}, $=function(id){ return document.getElementById(id); };
   try{ if(sessionStorage.getItem('mois.morph')){ sessionStorage.removeItem('mois.morph'); document.body.classList.add('entering'); setTimeout(function(){ document.body.classList.remove('entering'); },2200); } }catch(e){}
   var W=CFG.w, H=CFG.h, st=$('stage'), img=$('plate');
   document.documentElement.style.setProperty('--ar',W+'/'+H); document.documentElement.style.setProperty('--w',W);
@@ -1188,27 +1188,66 @@ button{font:inherit}
 .tabs .n{font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:999px;background:#fee2e2;color:#b91c1c}
 .tabs button.on .n{background:rgba(255,255,255,.25);color:#fff}
 
-/* KPI cards */
-.kg{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin:0 0 16px}
-.kp{--a:#64748b;position:relative;display:flex;flex-direction:column;gap:2px;padding:16px 18px 14px;border-radius:20px;cursor:pointer;text-align:left;font:inherit;color:inherit;
-  background:#fff;border:1px solid #edf1f6;box-shadow:0 1px 2px rgba(15,23,42,.04),0 8px 24px rgba(15,23,42,.06);transition:transform .2s,box-shadow .2s,border-color .2s;overflow:hidden}
-.kp::after{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--a),color-mix(in srgb,var(--a) 35%,#fff))}
-.kp:hover,.kp:focus-visible{transform:translateY(-3px);outline:none;border-color:color-mix(in srgb,var(--a) 35%,#fff);box-shadow:0 18px 36px color-mix(in srgb,var(--a) 18%,transparent)}
-.kp.ok{--a:#16a34a} .kp.warn{--a:#d97706} .kp.bad{--a:#dc2626} .kp.info{--a:#3b82f6}
-.kp .hd{display:flex;align-items:flex-start;gap:8px}
-.kp .n{flex:1;font-size:.84rem;font-weight:600;color:#475569;line-height:1.35}
-.kp .st{flex:none;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--a) 12%,#fff);color:var(--a)}
-.kp .v{display:flex;align-items:baseline;gap:6px;margin:6px 0 4px}
-.kp .v b{font-size:2rem;font-weight:800;line-height:1;color:#0f172a;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.kp .v span{font-size:.8rem;color:var(--muted)}
-.kp .s{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.76rem;color:#64748b} .kp .s b{color:#0f172a;font-weight:700}
-.kp .pb{position:relative;height:6px;border-radius:99px;background:#f1f5f9;margin:10px 0 0}
-.kp .pb i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,color-mix(in srgb,var(--a) 45%,#fff),var(--a))}
+/* category summary strip */
+.sum{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center;margin:2px 0 16px;padding:16px 20px;border-radius:22px;
+  background:linear-gradient(180deg,#ffffff,#f8fafd);border:1px solid #fff;box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(15,23,42,.05),0 14px 32px -12px rgba(30,64,175,.22)}
+.sum .ring{position:relative;width:86px;height:86px;flex:none}
+.sum .ring svg{width:100%;height:100%;transform:rotate(-90deg);filter:drop-shadow(0 4px 8px rgba(15,23,42,.12))}
+.sum .ring b{position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-size:1.25rem;font-weight:800;line-height:1;color:#0f172a}
+.sum .ring b small{display:block;font-size:.62rem;font-weight:600;color:var(--muted);margin-top:3px}
+.sum h2{margin:0 0 8px;font-size:1.02rem;color:#0b2a5c;display:flex;align-items:center;gap:8px}
+.sum .cnt{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}
+.sum .cnt span{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:.8rem;font-weight:700;background:#f1f5f9;color:#475569;box-shadow:inset 0 -1px 0 rgba(15,23,42,.06)}
+.sum .cnt i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.sum .cnt .ok{background:#ecfdf3;color:#15803d} .sum .cnt .warn{background:#fffbeb;color:#b45309} .sum .cnt .bad{background:#fef2f2;color:#b91c1c}
+.sum .off{display:flex;flex-wrap:wrap;gap:6px;font-size:.8rem;color:#475569}
+.sum .off button{border:0;cursor:pointer;padding:3px 10px;border-radius:8px;font-size:.78rem;font-weight:600;background:#fff;color:#b91c1c;box-shadow:0 1px 2px rgba(15,23,42,.08),0 0 0 1px #fecaca}
+.sum .off button.w{color:#b45309;box-shadow:0 1px 2px rgba(15,23,42,.08),0 0 0 1px #fde68a}
+.sum .off button:hover{transform:translateY(-1px)}
+/* sections (sub-groups in process order) */
+.sec{margin:0 0 18px;padding:14px 14px 16px;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.45));border:1px solid rgba(255,255,255,.9);
+  box-shadow:inset 0 1px 0 #fff,0 10px 30px -18px rgba(30,64,175,.35)}
+.sec>h3{display:flex;align-items:center;gap:10px;margin:0 4px 12px;font-size:.95rem;color:#0b2a5c}
+.sec>h3 .ic{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:.95rem;background:linear-gradient(145deg,#fff,#eef2f8);box-shadow:inset 0 1px 0 #fff,0 2px 6px rgba(15,23,42,.12)}
+.sec>h3 small{font-weight:500;color:var(--muted);font-size:.76rem}
+.sec>h3 .bd{margin-left:auto;display:flex;gap:6px}
+.sec>h3 .bd span{font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px}
+.sec>h3 .bd .bad{background:#fef2f2;color:#b91c1c} .sec>h3 .bd .warn{background:#fffbeb;color:#b45309} .sec>h3 .bd .ok{background:#ecfdf3;color:#15803d}
+/* KPI cards — raised, uniform, status on the left edge */
+.kg{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:12px}
+.kp{--a:#94a3b8;position:relative;display:grid;grid-template-rows:auto auto 1fr auto;gap:2px;min-height:150px;padding:14px 16px 12px 18px;border-radius:18px;cursor:pointer;text-align:left;font:inherit;color:inherit;border:0;
+  background:linear-gradient(180deg,#ffffff 0%,#fbfcfe 100%);
+  box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(15,23,42,.05),0 1px 2px rgba(15,23,42,.06),0 8px 18px -6px rgba(15,23,42,.14);
+  transition:transform .18s,box-shadow .18s;overflow:hidden}
+.kp::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:4px;border-radius:0 4px 4px 0;background:var(--a);box-shadow:0 0 10px color-mix(in srgb,var(--a) 55%,transparent)}
+.kp:hover,.kp:focus-visible{transform:translateY(-3px);outline:none;box-shadow:inset 0 1px 0 #fff,0 0 0 1px color-mix(in srgb,var(--a) 40%,transparent),0 4px 8px rgba(15,23,42,.06),0 22px 34px -10px color-mix(in srgb,var(--a) 38%,rgba(15,23,42,.2))}
+.kp:active{transform:translateY(-1px)}
+.kp.ok{--a:#16a34a} .kp.warn{--a:#d97706} .kp.bad{--a:#dc2626} .kp.info{--a:#94a3b8}
+.kp .hd{display:flex;align-items:flex-start;gap:8px;min-height:2.3em}
+.kp .n{flex:1;font-size:.8rem;font-weight:600;color:#475569;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kp .st{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:.66rem;font-weight:700;padding:3px 8px;border-radius:999px;background:color-mix(in srgb,var(--a) 11%,#fff);color:var(--a)}
+.kp .st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.kp .v{display:flex;align-items:flex-end;gap:8px;margin:2px 0 0}
+.kp .v b{font-size:1.75rem;font-weight:800;line-height:1.05;color:#0f172a;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kp .v span{font-size:.74rem;color:var(--muted);padding-bottom:3px;white-space:nowrap}
+.kp .v .sp{margin-left:auto;width:64px;height:26px;flex:none;opacity:.9}
+.kp .s{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-self:end;margin-top:8px;padding-top:8px;border-top:1px dashed #e8edf3}
+.kp .s span{display:flex;flex-direction:column;font-size:.66rem;color:#94a3b8;font-weight:600;min-width:0}
+.kp .s b{font-size:.86rem;color:#0f172a;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kp .s .qref b{color:#6d28d9}
+.kp .pb{position:relative;height:5px;border-radius:99px;background:#eef2f7;margin:9px 0 0;box-shadow:inset 0 1px 1px rgba(15,23,42,.08)}
+.kp .pb i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,color-mix(in srgb,var(--a) 40%,#fff),var(--a))}
 .kp .pb em{position:absolute;top:-3px;bottom:-3px;width:2px;background:#0f172a;border-radius:2px}
-.kp .go{position:absolute;right:12px;bottom:10px;font-size:.7rem;font-weight:700;color:var(--a);opacity:0;transform:translateX(-4px);transition:all .2s}
-.kp:hover .go,.kp:focus-visible .go{opacity:1;transform:none}
-
-.kp .qref{color:#7c3aed} .kp .qref b{color:#6d28d9}
+.kp .go{display:none}
+.kp.flash{animation:kpFlash 1.2s ease-out}
+@keyframes kpFlash{0%,40%{box-shadow:0 0 0 3px var(--a),0 12px 30px -8px var(--a)}}
+/* loss rows (Balance & Recovery chart) */
+.hbr{--a:#94a3b8;padding:8px 12px;margin:0 0 8px;border-radius:12px;background:#fff;box-shadow:0 0 0 1px rgba(15,23,42,.05),0 2px 6px -2px rgba(15,23,42,.1)}
+.hbr.ok{--a:#16a34a} .hbr.warn{--a:#d97706} .hbr.bad{--a:#dc2626}
+.hbr .n{font-size:.82rem;font-weight:600;color:#334155}
+.hbr .pb{position:relative;height:6px;border-radius:99px;background:#eef2f7;margin:7px 0 0}
+.hbr .pb i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,color-mix(in srgb,var(--a) 40%,#fff),var(--a))}
+.hbr .pb em{position:absolute;top:-3px;bottom:-3px;width:2px;background:#0f172a;border-radius:2px}
 .md .mq{margin:0 22px 8px;padding:10px 14px;border-radius:14px;background:#f5f3ff;border:1px solid #ddd6fe;font-size:.84rem;color:#3b0764;line-height:1.55}
 .md .mq b{color:#5b21b6} .md .mq div{margin-top:4px;color:#334155}
 /* pop-up chart */
@@ -1234,8 +1273,8 @@ button{font:inherit}
 .md .mf .seg{margin-left:auto}
 @media (max-width:640px){ .md .ms{grid-template-columns:1fr 1fr} .md .mc .ch{height:240px} }
 /* chart panels */
-.cg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 14px}
-.pn{padding:14px 16px 10px;border-radius:22px;background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid #fff;box-shadow:0 12px 30px rgba(30,64,175,.09);min-width:0}
+.cg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 14px} .cgh{display:flex;align-items:center;gap:10px;margin:22px 4px 10px;font-size:.95rem;color:#0b2a5c} .cgh::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#cbd5e1,transparent)}
+.pn{padding:16px 18px 12px;border-radius:22px;background:linear-gradient(180deg,#ffffff,#fafcfe);border:0;box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(15,23,42,.05),0 1px 2px rgba(15,23,42,.05),0 14px 30px -14px rgba(30,64,175,.28);min-width:0}
 .pn.w{grid-column:1/-1}
 .pn h3{margin:0 0 6px;font-size:1rem;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px} .pn h3 small{font-weight:500;color:var(--muted);font-size:.78rem}
 .ch{width:100%;height:230px;position:relative}
@@ -1250,16 +1289,18 @@ button{font:inherit}
 .gauge svg{width:100%;max-width:220px;height:auto}
 .gauge .gl{font-size:.82rem;font-weight:700;color:#334155;margin-top:-6px} .gauge .gs{font-size:.74rem;color:var(--muted)}
 .ins{display:grid;gap:8px}
-.ins div{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;padding:9px 12px;border-radius:14px;background:#fff;border:1px solid #f1f5f9;font-size:.85rem;line-height:1.45}
+.ins div{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;padding:9px 12px;border-radius:14px;background:#fff;border:0;box-shadow:0 0 0 1px rgba(15,23,42,.05),0 2px 6px -2px rgba(15,23,42,.1);font-size:.85rem;line-height:1.45}
 .ins i{font-style:normal;font-size:1rem}
 .ins b{color:#0f172a}
-.ins .bad{border-color:#fecaca;background:#fff7f7} .ins .good{border-color:#bbf7d0;background:#f6fef9}
+.ins .bad{background:#fff7f7;box-shadow:0 0 0 1px #fecaca,0 2px 6px -2px rgba(220,38,38,.15)} .ins .good{background:#f6fef9;box-shadow:0 0 0 1px #bbf7d0,0 2px 6px -2px rgba(22,163,74,.15)}
 .cz{display:grid;gap:6px;font-size:.84rem} .cz div{padding:7px 10px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa}
 .empty{padding:40px;text-align:center;color:var(--muted);border-radius:22px;background:rgba(255,255,255,.8)}
 .note{margin:14px 0 0;font-size:.78rem;color:#64748b;text-align:center}
 @media (max-width:1200px){ .tabs{grid-template-columns:repeat(4,minmax(0,1fr))} }
 @media (max-width:1000px){ .cg{grid-template-columns:1fr} .gauges{grid-template-columns:1fr 1fr 1fr} }
-@media (max-width:640px){ .tabs{grid-template-columns:repeat(2,minmax(0,1fr))} .ttl{margin-top:6px} .ctl{margin-left:0} .kg{grid-template-columns:1fr 1fr} .gauges{grid-template-columns:1fr} .chip .tx small,.back span,.clock small{display:none} .chip{width:auto;max-width:42vw} }
+@media (max-width:640px){ .sum{grid-template-columns:1fr} .sum .ring{margin:0 auto} .sec{padding:10px} .sec>h3 small{display:none}
+  .tabs{display:flex;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch} .tabs button{flex:none;scroll-snap-align:start}      /* one swipeable row of tabs */
+  .kp{padding:12px 12px 10px 15px;min-height:0} .kp .st{width:16px;height:16px;padding:0;justify-content:center;font-size:0} .kp .st::before{width:8px;height:8px} .kp .v b{font-size:1.45rem} .ttl{margin-top:6px} .ctl{margin-left:0} .kg{grid-template-columns:1fr 1fr} .kp .v .sp{display:none} .gauges{grid-template-columns:1fr} .chip .tx small,.back span,.clock small{display:none} .chip{width:auto;max-width:42vw} }
 @media print{ .tools,.ctl,.tabs{display:none!important} }
 .seg .dmy{border:0;background:none;min-height:0;padding:0 6px;font-weight:700;color:#0f172a;font-size:1rem}
 #mdQ .qw{margin:4px 0 6px;color:#475569;font-size:.84rem;line-height:1.5} #mdQ .qh{margin-top:6px;font-weight:700;font-size:.84rem}
@@ -1627,6 +1668,16 @@ const CATS=[
    {k:'causes',t:'เหตุการณ์หยุดเครื่องของวัน'}]},
 ];
 
+/* sub-groups of each category, in process order: [title, icon, columns]; a card not listed falls into "อื่น ๆ" */
+const SECS={
+ ov:[['ผลผลิตสะสมทั้งฤดู','🏭',['cane','totsugar','edl']],['ประสิทธิภาพการผลิต','⚙️',['ccs','pctccs','recov','overalleff','avgsteam']]],
+ cs:[['อ้อยที่เข้าหีบ','🌾',['pol','fiber','burnt','soil','pct96']],['น้ำตาล VHP','🍚',['vhp','vhp_pol','vhp_moist','vhp_colour']]],
+ br:[['Recovery','🎯',['recov','bhr']],['การสูญเสีย (% pol อ้อย)','📉',['loss','loss_bag','loss_fc','loss_fm','loss_undet']],['กากตะกอน (Filter cake)','🧱',['fc_pol','fc','fc_pctcane','fc_moist']],['กากน้ำตาลสุดท้าย','🛢️',['fm_purity','fm_pctcane','fm_brix','fm_tsai']]],
+ pq:[['ลูกหีบ · การสกัด','⚙️',['extpol','polbag','moistbag','imbfiber','prepidx','fmext','me','tcph','bagcane']],['น้ำอ้อย · น้ำเชื่อม','💧',['fej_purity!','mj_purity!','cj_purity!','rs_purity!','rs_brix!','puritydrop','turbidity']],['pH ตามจุด','🧪',['ph_first','ph_mixed','ph_limed','ph_clar','ph_mud','ph_syrup','ph_sacchar']]],
+ pn:[['Massecuite','🍯',['dcrm_brix','dcrm_purity','vhpm_brix','vhpm_purity','bm_brix','bm_purity','cm_brix','cm_purity']],['Seed · Magma','🔬',['aseed_brix','aseed_purity','bseed_brix','bseed_purity','cseed_brix','cseed_purity','bmagma_brix','bmagma_purity','cmagma_brix','cmagma_purity']],['Molasses','🛢️',['bmol2_purity','cmol3_purity','cmol3_brix']],['น้ำตาล B / C','🍚',['bsugar_pol','bsugar_colour','csugar_pol','csugar_colour']]],
+ en:[['ไอน้ำ · ชานอ้อย','♨️',['avgsteam','steam','kgsteambag','bag_surplus_pct']],['ไฟฟ้า','⚡',['kwhtc','netkwh','edl','mwgen','mwproc']]],
+ wc:[['เคมีทำใส','🧪',['chem_clar_lime_ppm','chem_clar_floc_ppm']],['น้ำที่ใช้','🚰',['rawwater','waterused']],['น้ำหม้อไอน้ำ','🔥',['ws_ph_bw1','ws_tds_bw1','ws_ph_fw1','ws_hard_fw1']]],
+ st:[['ประสิทธิภาพเวลา','⏱',['overalleff','mecheff','crush']],['ชั่วโมงหยุด','⛔',['stopprod','nocane','sched','lostpct']]]};
 /* every series the charts and sparklines need */
 const tk=c=>c.tk||(c.c.endsWith('!')?c.c.slice(0,-1):c.c+'_today');
 const KEYS=[...new Set(CATS.flatMap(g=>g.cards.flatMap(c=>[c.s+'.'+tk(c)].concat(c.c.endsWith('!')?[]:[c.s+'.'+c.c+'_todate',c.s+'.'+c.c+'_target'])).concat(g.charts.flatMap(x=>(x.keys&&!['profile'].includes(x.k)?x.keys.map(k=>k.includes('.')?k:'daily.'+k):[])).concat(g.charts.filter(x=>x.tkey).map(x=>x.tkey)))))];
@@ -1653,7 +1704,7 @@ const cstat=(c,x)=>c.prog||c.info?null:status(x.td!=null?x.td:x.v,x.t);
 
 /* ---------- small charts (SVG) */
 function rng(days){ const n=days.length, k=RANGE?Math.max(0,n-RANGE):0; return [k,n]; }
-function spark(key,t){ const s=(R.series[key]||[]); const [a,b]=rng(R.days); const v=s.slice(a,b); const f=v.filter(x=>x!=null); if(f.length<2) return '';
+function spark(key,t,z){ const s=(R.series[key]||[]); const [a,b]=rng(R.days); const v=s.slice(a,b).map(x=>z&&x===0?null:x);      /* z: a 0 = no report that day */ const f=v.filter(x=>x!=null); if(f.length<2) return '';
   let lo=Math.min(...f), hi=Math.max(...f); if(t&&t.v!=null){ lo=Math.min(lo,t.v); hi=Math.max(hi,t.v); } const W=100,H=26,sx=i=>i/(v.length-1)*W, sy=x=>H-2-(x-lo)/((hi-lo)||1)*(H-4);
   const d=v.map((x,i)=>x==null?'':`${i&&v[i-1]!=null?'L':'M'}${sx(i).toFixed(1)} ${sy(x).toFixed(1)}`).join('');
   return `<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${t&&t.v!=null?`<line x1="0" x2="${W}" y1="${sy(t.v)}" y2="${sy(t.v)}" stroke="#94a3b8" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>`:''}<path d="${d}" fill="none" stroke="var(--a)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>`; }
@@ -1724,16 +1775,20 @@ function insights(){ const out=[]; const all=CATS.flatMap(g=>g.cards.map(c=>({c,
 /* ---------- render */
 function renderTabs(){ $('tabs').innerHTML=CATS.map(g=>{ const nb=g.cards.filter(c=>{ const x=cardVals(c); return cstat(c,x)==='bad'; }).length;
     return `<button type="button" data-c="${g.id}" class="${g.id===CAT?'on':''}" style="--tc:${g.tc}"><i>${g.i}</i>${esc(g.t)}${nb?`<span class="n">${nb}</span>`:''}</button>`; }).join('');
-  $('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{ CAT=b.dataset.c; history.replaceState(null,'','#'+CAT); render(); }); }
+  $('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{ CAT=b.dataset.c; history.replaceState(null,'','#'+CAT); render(); });
+  const on=$('tabs').querySelector('.on'); if(on&&$('tabs').scrollWidth>$('tabs').clientWidth) $('tabs').scrollLeft=on.offsetLeft-12; }
 const CARDS={};
 function card(c){ const x=cardVals(c), cur=x.td!=null?x.td:x.v, st=cstat(c,x)||'info', id=c.s+'.'+c.c; CARDS[id]=c;
-  let pb='', extra='';
-  if(c.prog&&x.t&&x.t.v&&cur!=null){ const p=cur/x.t.v*100; pb=`<div class="pb"><i style="width:${Math.max(2,Math.min(100,p))}%"></i></div>`; extra=`<span><b>${N(p,1)}%</b> ของเป้าฤดู</span>`; }
+  let pb='', tg='';
+  if(c.prog&&x.t&&x.t.v&&cur!=null){ const p=cur/x.t.v*100; pb=`<div class="pb" title="${N(p,1)}% ของเป้าฤดู"><i style="width:${Math.max(2,Math.min(100,p))}%"></i></div>`; tg=`<span>เป้าฤดู <b>${tfmt(x.t,c.d)}</b></span>`; }
   else if(x.t&&x.t.v!=null&&cur!=null){ const max=Math.max(Math.abs(cur),Math.abs(x.t.v))*1.15||1; pb=`<div class="pb"><i style="width:${Math.max(2,Math.min(100,cur/max*100))}%"></i><em style="left:${x.t.v/max*100}%"></em></div>`; }
-  return `<button type="button" class="kp ${st}" data-k="${esc(id)}" aria-label="${esc(c.n)} — ดูกราฟ">
+  if(!tg) tg=x.t?`<span>${x.t.qut?'เป้า (QUT)':'เป้า'} <b>${tfmt(x.t,c.d)}</b></span>`:x.q&&x.q.range?`<span class="qref">QUT <b>${esc(x.q.range.replace('-','–'))}</b></span>`:'<span>เป้า <b style="color:#cbd5e1">–</b></span>';
+  const p2=c.prog&&x.t&&x.t.v&&cur!=null?`<span>ทำได้ <b>${N(cur/x.t.v*100,1)}%</b></span>`:x.td!=null?`<span>สะสม <b>${N(x.td,c.d)}</b></span>`:(()=>{ const [a0,b0]=rng(R.days), f=(R.series[c.s+'.'+tk(c)]||[]).slice(a0,b0).filter(v=>v!=null&&!(v===0&&NZ.test(c.c)));   // no to-date column: the period average instead
+    return `<span>เฉลี่ย ${RANGE?RANGE+' วัน':'ทั้งฤดู'} <b>${f.length?N(f.reduce((s0,v)=>s0+v,0)/f.length,c.d):'–'}</b></span>`; })();
+  return `<button type="button" class="kp ${st}" data-k="${esc(id)}" aria-label="${esc(c.n)} — ดูกราฟ" title="${esc(c.n)} · กดดูกราฟ">
     <div class="hd"><span class="n">${esc(c.n)}</span>${st!=='info'?`<span class="st" title="สถานะของค่าสะสมเทียบเป้า">${SL[st]}</span>`:''}</div>
-    <div class="v"><b>${N(x.v,c.d)}</b><span>${esc(c.u)}${x.v==null?'':' · วันนี้'}</span></div>
-    <div class="s">${x.td!=null?`<span>สะสม <b>${N(x.td,c.d)}</b></span>`:''}${x.t?`<span>${c.prog?'เป้าฤดู':x.t.qut?'เป้า (QUT)':'เป้า'} <b>${tfmt(x.t,c.d)}</b></span>`:''}${x.q&&x.q.range&&!(x.t&&x.t.qut)?`<span class="qref">QUT <b>${esc(x.q.range.replace('-','–'))}</b></span>`:''}${extra}</div>${pb}<span class="go">ดูกราฟ →</span></button>`; }
+    <div class="v"><b>${N(x.v,c.d)}</b><span>${esc(c.u)}${x.v==null?'':(c.u?' · ':'')+'วันนี้'}</span>${spark(c.s+'.'+tk(c),c.prog?null:x.t,NZ.test(c.c))}</div>
+    <div></div><div class="s">${p2}${tg}</div>${pb}</button>`; }
 
 /* ---------- pop-up: today · to-date · target over time */
 function qutState(x){ const v=x.v!=null?x.v:x.td;
@@ -1783,23 +1838,37 @@ let COUNTED='';
 function render(){
   renderTabs();
   const g=CATS.find(x=>x.id===CAT)||CATS[0], v=$('view');
-  let html=`<div class="kg">${g.cards.map(card).join('')}</div><div class="cg">`;
+  const st=g.cards.map(c=>({c,s:cstat(c,cardVals(c))})), cnt={ok:0,warn:0,bad:0,none:0}; st.forEach(o=>cnt[o.s||'none']++);
+  const judged=cnt.ok+cnt.warn+cnt.bad, pct=judged?cnt.ok/judged:0, C2=2*Math.PI*36;
+  const seg=(n,off,col)=>n?`<circle cx="43" cy="43" r="36" fill="none" stroke="${col}" stroke-width="10" stroke-dasharray="${(n/judged*C2).toFixed(2)} ${C2.toFixed(2)}" stroke-dashoffset="${(-off/judged*C2).toFixed(2)}"/>`:'';
+  const off=st.filter(o=>o.s==='bad'||o.s==='warn').sort((a,b)=>(a.s==='bad'?0:1)-(b.s==='bad'?0:1));
+  let html=`<section class="sum"><div class="ring"><svg viewBox="0 0 86 86"><circle cx="43" cy="43" r="36" fill="none" stroke="#eef2f7" stroke-width="10"/>${judged?seg(cnt.ok,0,'#16a34a')+seg(cnt.warn,cnt.ok,'#f59e0b')+seg(cnt.bad,cnt.ok+cnt.warn,'#dc2626'):''}</svg><b>${judged?N(pct*100,0)+'%':'–'}<small>ตามเป้า</small></b></div>
+    <div><h2>${g.i} ${esc(g.t)} <small style="font-weight:500;color:var(--muted);font-size:.78rem">· ${g.cards.length} รายการ · สถานะตัดสินจากค่าสะสมเทียบเป้า</small></h2>
+    <div class="cnt"><span class="ok"><i></i>ตามเป้า ${cnt.ok}</span><span class="warn"><i></i>เฝ้าระวัง ${cnt.warn}</span><span class="bad"><i></i>นอกเป้า ${cnt.bad}</span>${cnt.none?`<span><i></i>ไม่มีเป้า ${cnt.none}</span>`:''}</div>
+    <div class="off">${off.length?'ต้องดู: '+off.slice(0,8).map(o=>`<button type="button" class="${o.s==='bad'?'':'w'}" data-jump="${esc(o.c.s+'.'+o.c.c)}">${esc(o.c.n)}</button>`).join('')+(off.length>8?` +${off.length-8}`:''):'<span style="color:#15803d;font-weight:600">✓ ทุกค่าที่มีเป้าอยู่ในเป้า</span>'}</div></div></section>`;
+  const used=new Set(), secs=(SECS[g.id]||[]).map(([t,ic,keys])=>{ const cs=keys.map(k=>g.cards.find(c=>c.c===k)).filter(Boolean); cs.forEach(c=>used.add(c)); return [t,ic,cs]; }).filter(x=>x[2].length);
+  const rest=g.cards.filter(c=>!used.has(c)); if(rest.length) secs.push(['อื่น ๆ','•',rest]);
+  secs.forEach(([t,ic,cs])=>{ const b=cs.filter(c=>cstat(c,cardVals(c))==='bad').length, w=cs.filter(c=>cstat(c,cardVals(c))==='warn').length;
+    html+=`<section class="sec"><h3><span class="ic" aria-hidden="true">${ic}</span>${esc(t)} <small>${cs.length} รายการ</small><span class="bd">${b?`<span class="bad">นอกเป้า ${b}</span>`:''}${w?`<span class="warn">เฝ้าระวัง ${w}</span>`:''}${!b&&!w&&cs.some(c=>cstat(c,cardVals(c))==='ok')?'<span class="ok">ตามเป้า</span>':''}</span></h3><div class="kg">${cs.map(card).join('')}</div></section>`; });
+  html+=`<h3 class="cgh">📈 กราฟและแนวโน้ม</h3><div class="cg">`;
   g.charts.forEach((c,i)=>{ html+=`<div class="pn ${c.w?'w':''}">`;
     if(c.k==='gauges'){ const d=R.data.daily||{}, tc=+String(d.cane_target||'').replace(/,/g,''), ts=+String(d.totsugar_target||'').replace(/,/g,''), te=+String(d.edl_target||'').replace(/,/g,'');
       html+=`<h3>🎯 ความคืบหน้าทั้งฤดู <small>สะสมเทียบเป้าฤดู · ฤดูหีบวันที่ ${N(d.reportNo)}</small></h3><div class="gauges">${gauge(d.cane_todate,tc,'อ้อยเข้าหีบ',`${N(d.cane_todate)} / ${N(tc)} ตัน`,'#16a34a')}${gauge(d.totsugar_todate,ts,'น้ำตาลรวม',`${N(d.totsugar_todate)} / ${N(ts)} ตัน`,'#2563eb')}${gauge(d.edl_todate,te,'ขายไฟ EDL',`${N((d.edl_todate||0)/1000)} / ${N(te/1000)} MWh`,'#f59e0b')}</div>`; }
     else if(c.k==='ins') html+=`<h3>${esc(c.t)} <small>${esc(c.sub||'')}</small></h3><div class="ins">${insights().map(o=>`<div class="${o.cls}"><i>${o.i}</i><span>${o.t}</span></div>`).join('')}</div>`;
     else if(c.k==='hbar'){ const d=R.data.daily||{}; const rows=c.rows.map(([k,n])=>({n,v:d[k+'_todate'],t:tparse(d[k+'_target'],'lo')})); const mx=Math.max(...rows.map(r=>Math.max(r.v||0,r.t&&r.t.v||0)))*1.1||1;
-      html+=`<h3>${esc(c.t)} <small>% pol ในอ้อย · เส้นดำ = เป้า</small></h3>${rows.map(r=>{ const st=status(r.v,r.t)||'info'; return `<div class="kp ${st}" style="padding:8px 12px;margin:0 0 8px;box-shadow:none"><div class="n" style="padding-right:0;display:flex;justify-content:space-between">${esc(r.n)}<span>${N(r.v,2)}% <small style="color:#64748b;font-weight:500">/ ${r.t?tfmt(r.t,2):'–'}</small></span></div><div class="pb"><i style="width:${Math.max(1,(r.v||0)/mx*100)}%"></i>${r.t&&r.t.v!=null?`<em style="left:${r.t.v/mx*100}%"></em>`:''}</div></div>`; }).join('')}`; }
+      html+=`<h3>${esc(c.t)} <small>% pol ในอ้อย · เส้นดำ = เป้า</small></h3>${rows.map(r=>{ const st=status(r.v,r.t)||'info'; return `<div class="hbr ${st}"><div class="n" style="display:flex;justify-content:space-between">${esc(r.n)}<span>${N(r.v,2)}% <small style="color:#64748b;font-weight:500">/ ${r.t?tfmt(r.t,2):'–'}</small></span></div><div class="pb"><i style="width:${Math.max(1,(r.v||0)/mx*100)}%"></i>${r.t&&r.t.v!=null?`<em style="left:${r.t.v/mx*100}%"></em>`:''}</div></div>`; }).join('')}`; }
     else if(c.k==='profile'){ const d=R.data[c.src||'daily']||{}; const vals=c.keys.map(k=>d[k.includes('_')?k:k+'_today']); const mx=Math.max(...vals.filter(v=>v!=null),0)*1.15||1;
       html+=`<h3>${esc(c.t)}</h3><div class="ch" style="height:auto">${vals.map((v,j)=>`<div style="display:grid;grid-template-columns:90px 1fr 70px;gap:8px;align-items:center;margin:0 0 7px;font-size:.84rem"><span>${esc(c.names[j])}</span><div style="height:12px;border-radius:99px;background:#eef2f7;overflow:hidden"><i style="display:block;height:100%;width:${v!=null?Math.max(1,v/mx*100):0}%;border-radius:99px;background:linear-gradient(90deg,${PAL[j%PAL.length]}99,${PAL[j%PAL.length]})"></i></div><b style="text-align:right">${N(v,2)}</b></div>`).join('')}</div>`; }
     else if(c.k==='causes'){ const cz=((R.data.stop||{}).causesJson||[]).filter(z=>(z.d||'').trim()||(z.r||'').trim());
       html+=`<h3>${esc(c.t)} <small>${thd(R.day)}</small></h3>`+(cz.length?`<div class="cz">${cz.map(z=>`<div><b>${esc((z.t||'').trim())}</b> · ${esc((z.d||'').trim())} — ${esc((z.r||'').trim())}</div>`).join('')}</div>`:'<p style="color:#15803d;font-weight:600">✓ ไม่มีการหยุดเครื่องในวันนี้</p>'); }
     else html+=`<h3>${esc(c.t)} <small>${esc(c.sub||'')}</small></h3><div class="ch" id="ch${i}"></div>${legend(c)}`;
     html+='</div>'; });
-  const done=MoisWatch(v,'.kg .v b');
+  const done=MoisWatch(v,'.kp .v b');
   v.innerHTML=html+'</div>';
-  const ck=R.day+'|'+CAT; if(ck!==COUNTED){ COUNTED=ck; MoisReveal(v,'.kg>*,.cg>*'); MoisCount(v,'.kg .v b,.kg .s b'); } else done();      // arrival, another day or another category — not the 60-s refresh
+  const ck=R.day+'|'+CAT; if(ck!==COUNTED){ COUNTED=ck; MoisReveal(v,'.sum,.sec,.cg>*'); MoisCount(v,'.kp .v b,.kp .s b'); } else done();      // arrival, another day or another category — not the 60-s refresh
   v.querySelectorAll('.kp[data-k]').forEach(b=>b.onclick=()=>openCard(b.dataset.k));
+  v.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>{ const el=v.querySelector('.kp[data-k="'+b.dataset.jump+'"]'); if(!el) return;      // summary chip → scroll to the card and flash it
+    el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); });
   if(MD) drawModal();
   g.charts.forEach((c,i)=>{ const el=$('ch'+i); if(!el) return; if(c.k==='line') lineChart(el,c); else if(c.k==='bars'||c.k==='stack') barChart(el,c); });
   $('asof').textContent=`รายงานวันที่ ${thd(R.day)}${R.is_latest?' (ล่าสุด)':''} · ฤดูหีบวันที่ ${N((R.data.daily||{}).reportNo)} · Week ${N((R.data.daily||{}).week)} · Period ${N((R.data.daily||{}).period)} · เวลาจำลอง ${new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'}).format(new Date(R.now_pi)).replace(',','')} น.`;
