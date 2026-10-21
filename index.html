@@ -273,7 +273,7 @@ body.entering .hs.card,body.entering .tools,body.entering .pclk,body.entering .c
 <\/script>
 <script>
 (function(){
-  var CFG={"w":1672,"h":941,"alt":"M.O.I.S — เลือกระบบ: Process Monitoring · Process Monitoring Plus · Process Analytical","stats":[{"at":[104,350],"c":"#22c55e","api":"/api/milling","items":[{"k":"a","l":"อ้อยวันนี้ (ตัน)"},{"k":"b","l":"หีบ (ตัน/ชม.)"}],"pick":"j=>({a:Math.round(j.totals.cane_t).toLocaleString('en-US'),b:Math.round(j.totals.crush_tph)})"},{"at":[617,350],"c":"#f59e0b","api":"/api/summary","items":[{"k":"a","l":"จุดวัดมีสัญญาณ"},{"k":"b","l":"เฝ้าระวัง"},{"k":"c","l":"ผิดปกติ"}],"pick":"j=>{let g=0,t=0,w=0,a=0;Object.values(j.pages||{}).forEach(x=>{g+=x.good||0;t+=x.tags||0;w+=x.warn||0;a+=x.alarm||0});return{a:g+'/'+t,b:w,c:a}}"},{"at":[1111,350],"c":"#3b82f6","api":"/api/recovery","items":[{"k":"a","l":"Recovery (%)"},{"k":"b","l":"CCS"}],"pick":"j=>j.exec&&j.exec.has_data?{a:j.exec.head.recov.todate.toFixed(2),b:j.exec.head.ccs.todate.toFixed(2)}:{}"}],"verBox":[1490,903,1630,903],"spots":[{"box":[84,256,586,776],"r":26,"c":"#22c55e","card":true,"href":"?p=pm","btn":[524,716,37],"label":"Process Monitoring — ติดตามสถานะการเดินเครื่อง"},{"box":[597,254,1079,776],"r":26,"c":"#f59e0b","card":true,"href":"?p=hub","btn":[1016,712,37],"label":"Process Monitoring Plus — ติดตาม วิเคราะห์ และเพิ่มประสิทธิภาพ"},{"box":[1091,254,1599,778],"r":26,"c":"#3b82f6","card":true,"href":"?p=recovery","btn":[1540,718,37],"label":"Process Analytical — วิเคราะห์ข้อมูลประสิทธิภาพและคุณภาพการผลิต"},{"box":[1243,32,1494,94],"r":14,"c":"#93c5fd","user":true,"label":"ผู้ใช้ — ออกจากระบบ"},{"box":[1513,32,1633,94],"r":14,"clock":true,"label":"เวลาโรงงาน"}],"ver":"1.1.0","built":"2026-10-19"}, $=function(id){ return document.getElementById(id); };
+  var CFG={"w":1672,"h":941,"alt":"M.O.I.S — เลือกระบบ: Process Monitoring · Process Monitoring Plus · Process Analytical","stats":[{"at":[104,350],"c":"#22c55e","api":"/api/milling","items":[{"k":"a","l":"อ้อยวันนี้ (ตัน)"},{"k":"b","l":"หีบ (ตัน/ชม.)"}],"pick":"j=>({a:Math.round(j.totals.cane_t).toLocaleString('en-US'),b:Math.round(j.totals.crush_tph)})"},{"at":[617,350],"c":"#f59e0b","api":"/api/summary","items":[{"k":"a","l":"จุดวัดมีสัญญาณ"},{"k":"b","l":"เฝ้าระวัง"},{"k":"c","l":"ผิดปกติ"}],"pick":"j=>{let g=0,t=0,w=0,a=0;Object.values(j.pages||{}).forEach(x=>{g+=x.good||0;t+=x.tags||0;w+=x.warn||0;a+=x.alarm||0});return{a:g+'/'+t,b:w,c:a}}"},{"at":[1111,350],"c":"#3b82f6","api":"/api/recovery","items":[{"k":"a","l":"Recovery (%)"},{"k":"b","l":"CCS"}],"pick":"j=>j.exec&&j.exec.has_data?{a:j.exec.head.recov.todate.toFixed(2),b:j.exec.head.ccs.todate.toFixed(2)}:{}"}],"verBox":[1490,903,1630,903],"spots":[{"box":[84,256,586,776],"r":26,"c":"#22c55e","card":true,"href":"?p=pm","btn":[524,716,37],"label":"Process Monitoring — ติดตามสถานะการเดินเครื่อง"},{"box":[597,254,1079,776],"r":26,"c":"#f59e0b","card":true,"href":"?p=hub","btn":[1016,712,37],"label":"Process Monitoring Plus — ติดตาม วิเคราะห์ และเพิ่มประสิทธิภาพ"},{"box":[1091,254,1599,778],"r":26,"c":"#3b82f6","card":true,"href":"?p=recovery","btn":[1540,718,37],"label":"Process Analytical — วิเคราะห์ข้อมูลประสิทธิภาพและคุณภาพการผลิต"},{"box":[1243,32,1494,94],"r":14,"c":"#93c5fd","user":true,"label":"ผู้ใช้ — ออกจากระบบ"},{"box":[1513,32,1633,94],"r":14,"clock":true,"label":"เวลาโรงงาน"}],"ver":"1.1.0","built":"2026-10-21"}, $=function(id){ return document.getElementById(id); };
   try{ if(sessionStorage.getItem('mois.morph')){ sessionStorage.removeItem('mois.morph'); document.body.classList.add('entering'); setTimeout(function(){ document.body.classList.remove('entering'); },2200); } }catch(e){}
   var W=CFG.w, H=CFG.h, st=$('stage'), img=$('plate');
   document.documentElement.style.setProperty('--ar',W+'/'+H); document.documentElement.style.setProperty('--w',W);
@@ -615,7 +615,7 @@ body.entering .hs.card,body.entering .tools,body.entering .pclk,body.entering .c
 <\/script>
 <script>
 (function(){
-  var CFG={"w":1671,"h":941,"alt":"Process Monitoring — Milling · Evaporation · Vacuum Pan · Centrifugation","spots":[{"box":[57,365,415,860],"r":24,"c":"#16a34a","card":true,"href":"?p=milling","btn":[237,812,33],"label":"01 Milling — โรงหีบอ้อย · รายงานการหีบสกัด"},{"box":[458,365,815,860],"r":24,"c":"#2563eb","card":true,"href":"?p=evap","btn":[637,812,33],"label":"02 Evaporation — หม้อต้มระเหยน้ำ"},{"box":[858,365,1215,860],"r":24,"c":"#ea580c","card":true,"href":"?p=pan","btn":[1037,812,33],"label":"03 Vacuum Pan — หม้อต้มเคี่ยว"},{"box":[1258,365,1617,860],"r":24,"c":"#6d28d9","card":true,"href":"?p=centri","btn":[1437,812,33],"label":"04 Centrifugation — เครื่องปั่นแยกผลึก"},{"box":[1238,12,1660,94],"tools":true,"href":"./","label":"เมนูหลัก · ผู้ใช้"}],"ver":"1.1.0","built":"2026-10-19"}, $=function(id){ return document.getElementById(id); };
+  var CFG={"w":1671,"h":941,"alt":"Process Monitoring — Milling · Evaporation · Vacuum Pan · Centrifugation","spots":[{"box":[57,365,415,860],"r":24,"c":"#16a34a","card":true,"href":"?p=milling","btn":[237,812,33],"label":"01 Milling — โรงหีบอ้อย · รายงานการหีบสกัด"},{"box":[458,365,815,860],"r":24,"c":"#2563eb","card":true,"href":"?p=evap","btn":[637,812,33],"label":"02 Evaporation — หม้อต้มระเหยน้ำ"},{"box":[858,365,1215,860],"r":24,"c":"#ea580c","card":true,"href":"?p=pan","btn":[1037,812,33],"label":"03 Vacuum Pan — หม้อต้มเคี่ยว"},{"box":[1258,365,1617,860],"r":24,"c":"#6d28d9","card":true,"href":"?p=centri","btn":[1437,812,33],"label":"04 Centrifugation — เครื่องปั่นแยกผลึก"},{"box":[1238,12,1660,94],"tools":true,"href":"./","label":"เมนูหลัก · ผู้ใช้"}],"ver":"1.1.0","built":"2026-10-21"}, $=function(id){ return document.getElementById(id); };
   try{ if(sessionStorage.getItem('mois.morph')){ sessionStorage.removeItem('mois.morph'); document.body.classList.add('entering'); setTimeout(function(){ document.body.classList.remove('entering'); },2200); } }catch(e){}
   var W=CFG.w, H=CFG.h, st=$('stage'), img=$('plate');
   document.documentElement.style.setProperty('--ar',W+'/'+H); document.documentElement.style.setProperty('--w',W);
@@ -18186,6 +18186,44 @@ svg .steam{stroke:var(--steam);fill:none;stroke-width:2;stroke-dasharray:5 4}
 svg .ar{fill:var(--ink)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 /* deep-dive + lab */
+/* simulator */
+#sim{--stage:var(--c4);--stage-s:var(--c4s)}
+.sim-hero{background:linear-gradient(120deg,#1f5c3c 0%,#14808a 45%,#9a6414 100%)}
+.presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px}
+.presets .btn.ghost{color:var(--on-photo);border-color:rgba(255,255,255,.65)}
+.presets .btn.ghost:hover{background:rgba(255,255,255,.15)}
+.sim{display:grid;grid-template-columns:300px minmax(0,1fr);gap:20px;align-items:start}
+.sim-ctl{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto;display:flex;flex-direction:column;gap:12px;padding-right:4px}
+.sg{border:1px solid var(--line);border-left:4px solid var(--tc);border-radius:8px;background:var(--surface);padding:6px 12px 10px;margin:0;min-width:0}
+.sg legend{font:600 14px var(--f-display);color:var(--tc);padding:0 4px}
+.sr{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.sr label{display:flex;align-items:baseline;gap:6px;font-size:13px}
+.sr label span{flex:1;min-width:0}
+.sr output{font:600 14px var(--f-mono);color:var(--tc);font-variant-numeric:tabular-nums}
+.sr em{font-style:normal;font-size:11px;color:var(--muted);font-family:var(--f-mono);min-width:44px}
+.sr input[type=range]{width:100%;accent-color:var(--tc);margin:2px 0}
+.sr small{font-size:11.5px;color:var(--muted);line-height:1.35}
+.sim-out{min-width:0;display:flex;flex-direction:column;gap:6px}
+.sim-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,135px),1fr));gap:10px}
+.big{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column}
+.big span{font-size:12.5px;color:var(--muted)}.big b{font:700 26px var(--f-display);font-variant-numeric:tabular-nums;line-height:1.2}.big em{font-style:normal;font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.big.up{border-color:var(--c1);background:var(--c1s)}.big.up b{color:var(--c1)}.big.down{border-color:var(--alert);background:var(--c5s)}.big.down b{color:var(--alert)}
+.sim-fig{margin:10px 0 4px}.sim-fig svg{min-width:520px}.sim-fig .t-m{font-size:12.5px}.sim-fig .t-s{font-size:12px}.sim-fig .t-h{font-size:15px}
+.sim-h{font:600 15px var(--f-display);color:var(--c4);margin:14px 0 6px}
+.polbar{display:flex;height:22px;border-radius:6px;overflow:hidden;background:var(--line)}
+.polbar i{display:block;height:100%;transition:width .25s}
+@media (prefers-reduced-motion:reduce){.polbar i{transition:none}}
+.pollegend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;margin-top:6px}
+.pollegend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.kp{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;border-left:4px solid var(--muted)}
+.kp.ok{border-left-color:var(--c1)}.kp.no{border-left-color:var(--alert);background:color-mix(in srgb,var(--alert) 7%,var(--surface))}
+.kl{font-size:12.5px;color:var(--muted);line-height:1.3}.kv{font:600 19px var(--f-mono);font-variant-numeric:tabular-nums}.kv em{font-style:normal;font-size:11px;color:var(--muted);margin-left:4px}
+.kt{font-size:11.5px;color:var(--muted)}.kp.ok .kt{color:var(--c1)}.kp.no .kt{color:var(--alert)}
+.dl{display:block;font-size:11px;font-family:var(--f-mono);color:var(--c3)}
+.sim-how{margin-top:12px}
+@media (max-width:880px){.sim{grid-template-columns:minmax(0,1fr)}.sim-ctl{position:static;max-height:none}}
+
 [hidden]{display:none!important}
 .deep-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:34px 0 0;padding:12px 14px;border-radius:8px;background:var(--stage-s);font-size:14px;color:var(--ink)}
 .deep-tag{font-family:var(--f-display);font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;background:var(--stage);color:var(--on-photo);padding:2px 10px;border-radius:3px}
@@ -18323,7 +18361,7 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:v
     <h4><i style="background:var(--c3)"></i>3 ระเหย</h4><ol><li><a href="#evap"><span>09</span>Evaporation</a></li><li><a href="#condenser"><span>10</span>Barometric condenser</a></li><li><a href="#d-vac"><span>3A</span>แก้ปัญหาสุญญากาศต่ำ</a></li></ol>
     <h4><i style="background:var(--c4)"></i>4 ตกผลึก</h4><ol><li><a href="#cryst"><span>11</span>Crystallisation</a></li><li><a href="#numbers"><span>12</span>Crystal numbers</a></li><li><a href="#circ"><span>13</span>Circulation</a></li><li><a href="#magma"><span>14</span>Magma wash</a></li><li><a href="#panctl"><span>15</span>Batch pan control</a></li><li><a href="#cvp"><span>16</span>CVP</a></li><li><a href="#d-cryst-ts"><span>4A</span>แก้ปัญหา C mass / MA</a></li></ol>
     <h4><i style="background:var(--c5)"></i>5 ปั่นแยก</h4><ol><li><a href="#batchfugal"><span>17</span>Batch fugals</a></li><li><a href="#contfugal"><span>18</span>Continuous fugals</a></li><li><a href="#d-fugal-ts"><span>5A</span>แก้ปัญหา pol / purity rise</a></li></ol>
-    <h4>สรุปและฝึก</h4><ol><li><a href="#targets"><span>★</span>ค่าควบคุมรวม · SOP</a></li><li><a href="#lab"><span>∑</span>ฝึกคำนวณ (40 สูตร)</a></li></ol>
+    <h4>สรุปและฝึก</h4><ol><li><a href="#targets"><span>★</span>ค่าควบคุมรวม · SOP</a></li><li><a href="#sim"><span>⇄</span>จำลองสมดุลมวลทั้งโรงงาน</a></li><li><a href="#lab"><span>∑</span>ฝึกคำนวณ (40 สูตร)</a></li></ol>
   </div>
 </nav>
 
@@ -19236,9 +19274,54 @@ M/m = (L_end / L_start)³ × (CC_start / CC_end)
 <div class="chips"><span class="chip">ML001 ตรวจการทำงานชุดหีบ</span><span class="chip">ML003 แบริ่งทองเหลือง</span><span class="chip">ML007 Mill setting</span><span class="chip">ML010 Shredder</span><span class="chip">ML011 มีดฟันอ้อย</span><span class="chip">ML018 Diffuser</span><span class="chip">ML019 Hydraulic top cap</span><span class="chip">ML023 Rotary screen</span><span class="chip">ML033 S-Curve ควบคุมการหีบ</span><span class="chip">ML034 Level chute shredder/mill</span><span class="chip">ML037 Planetary gear</span><span class="chip">ML042 ควบคุมพารามิเตอร์การหีบ</span><span class="chip">ML046 Steam turbine</span><span class="chip">VP001 CVP</span><span class="chip">VP002 ตรวจรั่ว condenser/pan</span><span class="chip">VP004 Slurry seed</span></div>
 </section>
 
+
+<section class="stage" id="sim">
+<div class="lab-hero sim-hero">
+  <div class="k">06 · MASS &amp; SOLIDS BALANCE</div>
+  <h2>จำลองสมดุลมวลทั้งโรงงาน</h2>
+  <p>ปรับค่าที่แถบเลื่อนด้านซ้าย ผลจะส่งต่อกันทุกขั้น อ้อย → ลูกหีบ → ทำใส → ระเหย → เคี่ยวและปั่น แล้วเทียบกับเป้าใน Daily report ทันที ตัวเลขเริ่มต้นเป็นโรงงานตัวอย่าง 1,000 ตันอ้อยต่อชั่วโมง</p>
+  <div class="presets" role="group" aria-label="สถานการณ์ตัวอย่าง">
+    <span>ลองสถานการณ์:</span>
+    <button type="button" class="btn ghost sm" data-preset="base">ค่าเริ่มต้น</button>
+    <button type="button" class="btn ghost sm" data-preset="mill">ลูกหีบสกัดไม่ดี</button>
+    <button type="button" class="btn ghost sm" data-preset="cane">อ้อยคุณภาพต่ำ</button>
+    <button type="button" class="btn ghost sm" data-preset="imb">พรมน้ำมากเกิน</button>
+    <button type="button" class="btn ghost sm" data-preset="mol">กากน้ำตาลไม่ exhausted</button>
+    <button type="button" class="btn ghost sm" data-preset="best">ปรับปรุงทุกจุด</button>
+  </div>
+</div>
+<div class="sim">
+  <div class="sim-ctl" id="sim-ctl"></div>
+  <div class="sim-out">
+    <div class="sim-sum" id="sim-sum"></div>
+    <figure class="fig sim-fig"><div class="sv"><svg id="sim-flow" viewBox="0 0 640 480" role="img" aria-label="ผังสมดุลมวลทั้งโรงงาน"></svg></div>
+      <figcaption><b>ผังสมดุลมวล</b> ตัวเลขในกล่องคือ t/h · °Bx · purity ของแต่ละสาย อัปเดตทันทีเมื่อปรับค่า</figcaption></figure>
+    <h5 class="sim-h">Pol ในอ้อย 100% ไปอยู่ที่ไหน</h5>
+    <div class="polbar" id="sim-polbar"></div>
+    <div class="pollegend" id="sim-pollegend"></div>
+    <h5 class="sim-h">เทียบเป้า Daily report</h5>
+    <div class="kpis" id="sim-kpi"></div>
+    <details class="cf sim-how"><summary>ความสัมพันธ์ที่ใช้ในแบบจำลอง</summary>
+      <ol class="steps">
+        <li><b>อ้อย:</b> Brix % cane = Pol % cane ÷ purity น้ำอ้อย · non-sucrose = brix − pol</li>
+        <li><b>ชาน:</b> brix % ชาน = pol % ชาน ÷ purity น้ำในชาน · fiber % ชาน = 100 − ความชื้น − brix · ชาน (t/h) = fiber ในอ้อย ÷ fiber % ชาน</li>
+        <li><b>Extraction</b> = (pol อ้อย − pol ชาน) ÷ pol อ้อย · <b>Mixed juice</b> = อ้อย + น้ำพรม − ชาน</li>
+        <li><b>Filter cake:</b> pol % cake จากสูตร benchmark ของออสเตรเลีย (MSL, WWL) · น้ำล้างกลับเข้าน้ำอ้อยทาง filtrate</li>
+        <li><b>Undetermined loss</b> หักออกเป็น pol และ brix ก่อนถึง syrup (การสูญหายทางกายภาพ + inversion)</li>
+        <li><b>ระเหย:</b> น้ำที่ระเหย = น้ำใส − syrup · ไอ ≈ น้ำที่ระเหย ÷ จำนวน effect (หลัก Rillieux)</li>
+        <li><b>Final molasses purity</b> = target purity (Rein &amp; Smith: 33.9 − 13.4 log RS/Ash) + ส่วนต่างที่ exhaust ไม่ถึง</li>
+        <li><b>Boiling house:</b> สัดส่วน pol ใน syrup ที่ได้เป็นน้ำตาล = S(J − M) ÷ [J(S − M)] (SJM) · S, J, M = purity น้ำตาล syrup และ molasses</li>
+        <li><b>Molasses</b> = brix ที่เหลือ ÷ 0.85 (คิดที่ 85 °Bx) · <b>Overall recovery</b> = pol ในน้ำตาล ÷ pol ในอ้อย</li>
+      </ol>
+      <p class="lab-note">เป็นแบบจำลองสมดุลรายชั่วโมงแบบคงที่ (steady state) เพื่อการเรียนรู้ ใช้ apparent purity ไม่รวม recycle ภายในหม้อเคี่ยว (A/B/C) และไม่จำลองว่าน้ำพรมเปลี่ยน pol % ชานอย่างไร (ค่านี้ให้ใส่จากผลวิเคราะห์จริง)</p>
+    </details>
+  </div>
+</div>
+</section>
+
 <section class="stage" id="lab">
 <div class="lab-hero">
-  <div class="k">06 · CALCULATION LAB</div>
+  <div class="k">07 · CALCULATION LAB</div>
   <h2>ฝึกคำนวณตามกระบวนการ</h2>
   <p>สูตรจากหมวด Calculations ของ Technic Friend และจากสไลด์ QUT รวม 40 ตัว แยกตามขั้นตอน ใช้ได้ 2 แบบ คือกรอกค่าเองเพื่อคำนวณทันที หรือกด <b>สุ่มโจทย์</b> เพื่อฝึกทำ แล้วตรวจคำตอบพร้อมดูวิธีทำแบบแทนค่าทีละขั้น</p>
   <div class="score" aria-live="polite"><span>คะแนนฝึก</span><b id="sc-ok">0</b><span>ถูก จาก</span><b id="sc-all">0</b><span>ข้อ</span><button type="button" id="sc-reset" class="btn ghost sm">ล้างคะแนน</button></div>
@@ -19661,6 +19744,150 @@ let st='1'; try{st=localStorage.getItem('qutLabTab')||'1'}catch(e){}
 if(location.hash==='#lab') st=st||'1';
 setTab(st);
 document.querySelectorAll('[data-lab]').forEach(a=>a.addEventListener('click',()=>setTab(a.dataset.lab)));
+})();
+
+<\/script>
+<script>
+(function(){
+const box=document.getElementById('sim-ctl'); if(!box) return;
+/* [key, label, unit, default, min, max, step, help] */
+const G=[
+ {n:'1 อ้อย',c:'c1',p:[
+  ['cane','อัตราหีบ','t/h',1000,400,1500,10,'ปริมาณอ้อยเข้าลูกหีบ'],
+  ['fib','Fiber % cane','%',13,10,17,0.1,'ใยอ้อยมาก ชานมาก สูญเสีย pol ในชานมาก'],
+  ['pc','Pol % cane','%',14.5,11,17,0.1,'ความหวานในอ้อย'],
+  ['jp','Purity น้ำอ้อย','%',85,76,90,0.5,'อ้อยไฟไหม้/ค้าง/สิ่งปลอมปน ทำให้ต่ำลง']]},
+ {n:'2 ลูกหีบ',c:'c1',p:[
+  ['imf','Imbibition % fiber','%',240,150,400,5,'เป้า < 250 · มากขึ้น น้ำอ้อยเจือจาง ต้องระเหยมาก'],
+  ['pb','Pol % bagasse','%',1.8,1.0,3.5,0.05,'เป้า ≤ 1.85 · ใส่จากผลวิเคราะห์'],
+  ['mb','Moisture % bagasse','%',49,45,55,0.5,'เป้า < 49'],
+  ['bp','Purity น้ำในชาน','%',80,70,88,0.5,'ประมาณจาก last expressed juice']]},
+ {n:'3 ทำใส + RVF',c:'c2',p:[
+  ['ck','Filter cake','% cane',3,1.5,5,0.1,'ดินโคลนมาก cake มาก'],
+  ['ms','Mud solids ใน cake','% cake',15,10,18,0.5,''],
+  ['ww','น้ำล้าง cake','% cake',200,100,300,10,'QUT แนะนำ 150–250'],
+  ['fa','พื้นที่กรองรวม','m²',400,200,700,10,'พื้นที่มาก โหลดต่อพื้นที่ต่ำ ล้างได้ดี']]},
+ {n:'4 ระเหย',c:'c3',p:[
+  ['sb','Brix syrup','°Bx',68,60,72,0.5,''],
+  ['ne','จำนวน effect','',5,3,5,1,'']]},
+ {n:'5 เคี่ยว + ปั่น',c:'c4',p:[
+  ['ra','RS / Ash ใน molasses','',1.0,0.4,2.5,0.05,'สิ่งเจือปนกำหนด target purity'],
+  ['gap','Molasses purity เหนือ target','หน่วย',4,0,12,0.5,'0 = exhaust ได้เต็มที่'],
+  ['und','Undetermined loss','% pol cane',5,0,10,0.5,'เป้า ≤ 9.00'],
+  ['sp','Pol น้ำตาล','°Z',98.9,97.5,99.6,0.05,''],
+  ['sm','ความชื้นน้ำตาล','%',0.12,0.05,0.4,0.01,'']]}
+];
+const P={};G.forEach(g=>g.p.forEach(q=>P[q[0]]=q));
+const DEF={};Object.values(P).forEach(q=>DEF[q[0]]=q[3]);
+const PRE={base:{},mill:{pb:2.6,mb:52.5},cane:{pc:12.8,jp:80,fib:14.5,ra:1.6,ck:4.2},imb:{imf:360,pb:1.65},mol:{gap:9,und:7},best:{pb:1.4,mb:47.5,ww:230,fa:500,gap:1.5,und:3.5,imf:230}};
+const fmt=(x,d)=>!isFinite(x)?'—':Number(x).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const dec=s=>{const t=String(s);return t.includes('.')?t.split('.')[1].length:0;};
+
+box.innerHTML=G.map(g=>`<fieldset class="sg" style="--tc:var(--${g.c})"><legend>${g.n}</legend>${g.p.map(([k,l,u,d,mn,mx,st,h])=>`
+ <div class="sr"><label for="sim-${k}"><span>${l}</span><output id="sim-o-${k}">${fmt(d,dec(st))}</output><em>${u}</em></label>
+ <input type="range" id="sim-${k}" data-k="${k}" min="${mn}" max="${mx}" step="${st}" value="${d}">${h?`<small>${h}</small>`:''}</div>`).join('')}</fieldset>`).join('')
+ +`<button type="button" class="btn ghost" id="sim-reset" style="--tc:var(--ink)">คืนค่าเริ่มต้น</button>`;
+const rng=[...box.querySelectorAll('input[type=range]')];
+
+function model(v){
+  const r={};
+  r.polC=v.cane*v.pc/100; r.bxC=r.polC/(v.jp/100); r.nsC=r.bxC-r.polC; r.fibC=v.cane*v.fib/100;
+  r.imb=r.fibC*v.imf/100;
+  r.bxPctB=v.pb/(v.bp/100); r.fibPctB=100-v.mb-r.bxPctB; r.bag=r.fibC/(r.fibPctB/100);
+  r.polB=r.bag*v.pb/100; r.bxB=r.bag*r.bxPctB/100; r.nsB=r.bxB-r.polB;
+  r.ext=(r.polC-r.polB)/r.polC*100;
+  r.mj=v.cane+r.imb-r.bag; r.polMJ=r.polC-r.polB; r.bxMJ=r.bxC-r.bxB; r.nsMJ=r.bxMJ-r.polMJ; r.mjBx=r.bxMJ/r.mj*100; r.mjP=r.polMJ/r.bxMJ*100;
+  // filter cake benchmark
+  r.cake=v.cane*v.ck/100; r.msT=r.cake*v.ms/100; r.wwT=r.cake*v.ww/100;
+  r.msl=r.msT/v.fa*100; r.wwl=r.wwT/v.fa*100;
+  r.polMS=Math.max(0,1.265*Math.pow(r.msl,2.5)+30.78*Math.pow(r.wwl,-0.25)-12.43);
+  r.polCk=r.msT*r.polMS/100; r.polCkPct=r.polCk/r.cake*100; r.bxCk=r.polCk/(r.mjP/100);
+  r.cj=r.mj+r.wwT-r.cake; r.polCJ=r.polMJ-r.polCk; r.bxCJ=r.bxMJ-r.bxCk; r.cjBx=r.bxCJ/r.cj*100;
+  // undetermined
+  r.und=r.polC*v.und/100; r.polS=r.polCJ-r.und; r.bxS=r.bxCJ-r.und; r.nsS=r.bxS-r.polS; r.J=r.polS/r.bxS*100;
+  r.syr=r.bxS/(v.sb/100); r.evap=r.cj-r.syr; r.steam=r.evap/v.ne;
+  // boiling house
+  r.tp=33.9-13.4*Math.log10(v.ra); r.M=r.tp+v.gap; r.S=v.sp/(100-v.sm)*100;
+  r.R=r.S*(r.J-r.M)/(r.J*(r.S-r.M)); if(!(r.R>0)) r.R=0;
+  r.polSug=r.polS*r.R; r.sug=r.polSug/(v.sp/100); r.nsSug=r.polSug*(100/r.S-1);
+  r.polMol=r.polS-r.polSug; r.nsMol=r.nsS-r.nsSug; r.bxMol=r.polMol+r.nsMol; r.mol=r.bxMol/0.85; r.molP=r.polMol/r.bxMol*100;
+  r.rec=r.polSug/r.polC*100; r.bhr=r.polSug/r.polMJ*100;
+  r.lB=r.polB/r.polC*100; r.lC=r.polCk/r.polC*100; r.lM=r.polMol/r.polC*100; r.lU=v.und;
+  r.cmass=35*(100-r.tp)/97+r.tp+2;
+  r.sf=v.sm/(100-v.sp);
+  return r;
+}
+const read=()=>{const v={};rng.forEach(i=>v[i.dataset.k]=parseFloat(i.value));return v;};
+const BASE=model(DEF);
+
+function blk(x,y,w,h,title,lines,col,dark){
+  const tc=dark?'t-on':'';
+  return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9" style="fill:${dark?`var(--${col})`:`var(--${col}s)`};stroke:var(--${col});stroke-width:1.5"/>
+  <text x="${x+w/2}" y="${y+19}" text-anchor="middle" class="t-h ${tc}">${title}</text>
+  ${lines.map((t,i)=>`<text x="${x+w/2}" y="${y+38+i*16}" text-anchor="middle" class="t-m ${tc}">${t}</text>`).join('')}</g>`;
+}
+function flow(r,v){
+  const A=`<defs><marker id="sma" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ar"/></marker></defs>`;
+  const ar=(d,dash)=>`<path d="${d}" class="${dash?'steam':'ln'}" marker-end="url(#sma)"/>`;
+  const lab=(x,y,t,a)=>`<text x="${x}" y="${y}" ${a?`text-anchor="${a}"`:''} class="t-s">${t}</text>`;
+  const W=180,H=92;
+  return A+
+  blk(10,50,W,H,'อ้อย',[`${fmt(v.cane,0)} t/h`,`pol ${fmt(v.pc,1)}% · fib ${fmt(v.fib,1)}%`,`${fmt(r.bxC/v.cane*100,2)} Bx · purity ${fmt(v.jp,1)}`],'c1',true)+ar('M192 96 H218')+
+  blk(220,50,W,H,'ลูกหีบ',[`extraction ${fmt(r.ext,2)}%`,`MJ ${fmt(r.mj,0)} t/h`,`${fmt(r.mjBx,2)} Bx · ${fmt(r.mjP,2)}`],'c1',false)+ar('M402 96 H428')+
+  blk(430,50,W,H,'ทำใส + RVF',[`น้ำใส ${fmt(r.cj,0)} t/h`,`${fmt(r.cjBx,2)} Bx`,`pol cake ${fmt(r.polCkPct,2)}%`],'c2',false)+
+  ar('M310 12 V48')+lab(318,24,`น้ำพรม ${fmt(r.imb,0)} t/h`)+
+  ar('M520 12 V48')+lab(528,24,`น้ำล้าง +${fmt(r.wwT,0)}`)+
+  ar('M310 142 V170')+blk(220,172,W,58,'ชาน',[`${fmt(r.bag,0)} t/h · ${fmt(r.bag/v.cane*100,1)}% cane`,`pol ${fmt(v.pb,2)}% · ชื้น ${fmt(v.mb,1)}%`],'c1',false)+
+  ar('M520 142 V170')+blk(430,172,W,58,'Filter cake',[`${fmt(r.cake,0)} t/h`,`pol ${fmt(r.polCkPct,2)}% cake`],'c2',false)+
+  ar('M610 96 H628 V336 H612')+
+  blk(430,290,W,H,'ระเหย '+v.ne+' effect',[`syrup ${fmt(r.syr,0)} t/h`,`${fmt(v.sb,1)} Bx`,`purity J ${fmt(r.J,2)}`],'c3',false)+
+  lab(592,262,`ไอเข้า ≈ ${fmt(r.steam,0)} t/h (${fmt(r.steam/v.cane*100,1)}% cane)`,'end')+ar('M600 246 V288',true)+
+  ar('M520 382 V420',true)+lab(512,414,`น้ำระเหยออก ${fmt(r.evap,0)} t/h`,'end')+
+  ar('M428 336 H402')+
+  blk(220,290,W,H,'เคี่ยว + ปั่น',[`SJM ${fmt(r.R*100,1)}% ของ pol`,`TP ${fmt(r.tp,1)} → M ${fmt(r.M,1)}`,`undet. −${fmt(r.und,1)} t pol/h`],'c4',false)+
+  ar('M218 336 H192')+
+  blk(10,290,W,H,'น้ำตาลดิบ',[`${fmt(r.sug,1)} t/h`,`${fmt(r.sug/v.cane*100,2)}% cane`,`pol ${fmt(v.sp,2)} °Z`],'c5',true)+
+  ar('M310 382 V408')+blk(220,410,W,58,'Final molasses',[`${fmt(r.mol,1)} t/h @85 Bx`,`purity ${fmt(r.molP,1)} · ${fmt(r.mol/v.cane*100,2)}%c`],'c4',false);
+}
+function kpi(l,val,d,u,tgt,ok,base){
+  const dl=val-base; const ds=Math.abs(dl)<Math.pow(10,-d)/2?'':`<span class="dl">${dl>0?'+':''}${fmt(dl,d)} จากค่าเริ่มต้น</span>`;
+  return `<div class="kp ${ok===null?'':ok?'ok':'no'}"><div class="kl">${l}</div><div class="kv">${fmt(val,d)}<em>${u}</em></div><div class="kt">${tgt}${ok===null?'':ok?' · ผ่าน':' · ไม่ผ่าน'}</div>${ds}</div>`;
+}
+function render(){
+  const v=read(); rng.forEach(i=>{document.getElementById('sim-o-'+i.dataset.k).textContent=fmt(+i.value,dec(P[i.dataset.k][6]));});
+  const r=model(v), b=BASE;
+  document.getElementById('sim-flow').innerHTML=flow(r,v);
+  const dS=r.sug-b.sug;
+  document.getElementById('sim-sum').innerHTML=`<div class="big"><span>น้ำตาลดิบ</span><b>${fmt(r.sug,1)}</b><em>t/h</em></div>
+   <div class="big"><span>ต่อวัน (24 ชม.)</span><b>${fmt(r.sug*24,0)}</b><em>t</em></div>
+   <div class="big"><span>Overall recovery</span><b>${fmt(r.rec,2)}</b><em>%</em></div>
+   <div class="big ${Math.abs(dS)<0.05?'':dS>0?'up':'down'}"><span>เทียบค่าเริ่มต้น</span><b>${dS>=0?'+':''}${fmt(dS,1)}</b><em>t/h · ${dS>=0?'+':''}${fmt(dS*24,0)} t/วัน</em></div>`;
+  const seg=[['น้ำตาล',r.rec,'c1'],['ชาน',r.lB,'c3'],['Filter cake',r.lC,'c2'],['Molasses',r.lM,'c4'],['Undetermined',r.lU,'c5']];
+  document.getElementById('sim-polbar').innerHTML=seg.map(([n,x,c])=>`<i style="width:${Math.max(0,x)}%;background:var(--${c})" title="${n} ${fmt(x,2)}%"></i>`).join('');
+  document.getElementById('sim-pollegend').innerHTML=seg.map(([n,x,c])=>`<span><i style="background:var(--${c})"></i>${n} <b>${fmt(x,2)}%</b></span>`).join('');
+  document.getElementById('sim-kpi').innerHTML=[
+   kpi('Extraction % pol in cane',r.ext,2,'%','เป้า ≥ 96.25',r.ext>=96.25,b.ext),
+   kpi('Imbibition % fiber',v.imf,0,'%','เป้า < 250',v.imf<250,DEF.imf),
+   kpi('Pol % bagasse',v.pb,2,'%','เป้า ≤ 1.85',v.pb<=1.85,DEF.pb),
+   kpi('Mixed juice % cane',r.mj/v.cane*100,1,'%','report ~103–108',null,b.mj/DEF.cane*100),
+   kpi('Loss in bagasse',r.lB,2,'% pol','เป้า ≤ 3.40',r.lB<=3.40,b.lB),
+   kpi('Loss in filter cake',r.lC,2,'% pol','เป้า ≤ 0.38',r.lC<=0.38,b.lC),
+   kpi('Loss in final molasses',r.lM,2,'% pol','เป้า ≤ 8.80',r.lM<=8.80,b.lM),
+   kpi('Undetermined loss',r.lU,2,'% pol','เป้า ≤ 9.00',r.lU<=9,DEF.und),
+   kpi('Boiling house recovery',r.bhr,2,'%','เป้า ≥ 81.82',r.bhr>=81.82,b.bhr),
+   kpi('Overall recovery',r.rec,2,'%','เป้า ≥ 78.42',r.rec>=78.42,b.rec),
+   kpi('Syrup purity (J)',r.J,2,'','ผลต่อเนื่องจากทำใส',null,b.J),
+   kpi('Target purity molasses',r.tp,2,'','33.9 − 13.4 log(RS/Ash)',null,b.tp),
+   kpi('C-mass purity แนะนำ',r.cmass,1,'','CC 35%, 97 Bx',null,b.cmass),
+   kpi('น้ำที่ต้องระเหย',r.evap/v.cane*100,1,'% cane','ผลของน้ำพรม + brix syrup',null,b.evap/DEF.cane*100),
+   kpi('Safety factor น้ำตาล',r.sf,3,'','เป้า < 0.25',r.sf<0.25,b.sf)
+  ].join('');
+}
+rng.forEach(i=>i.addEventListener('input',render));
+const setVals=o=>{rng.forEach(i=>{const k=i.dataset.k;i.value=(k in o)?o[k]:DEF[k];});render();};
+document.getElementById('sim-reset').addEventListener('click',()=>setVals({}));
+document.querySelectorAll('#sim [data-preset]').forEach(b=>b.addEventListener('click',()=>setVals(PRE[b.dataset.preset])));
+render();
 })();
 
 <\/script>
