@@ -19279,16 +19279,19 @@ M/m = (L_end / L_start)³ × (CC_start / CC_end)
 <div class="lab-hero sim-hero">
   <div class="k">06 · MASS &amp; SOLIDS BALANCE</div>
   <h2>จำลองสมดุลมวลทั้งโรงงาน</h2>
-  <p>ปรับค่าที่แถบเลื่อนด้านซ้าย ผลจะส่งต่อกันทุกขั้น อ้อย → ลูกหีบ → ทำใส → ระเหย → เคี่ยวและปั่น แล้วเทียบกับเป้าใน Daily report ทันที ตัวเลขเริ่มต้นเป็นโรงงานตัวอย่าง 1,000 ตันอ้อยต่อชั่วโมง</p>
+  <p>ปรับค่าที่แถบเลื่อนด้านซ้าย ผลจะส่งต่อกันทุกขั้น อ้อย → ลูกหีบ → ทำใส → ระเหย → เคี่ยวและปั่น แล้วเทียบกับเป้าใน Daily report ทันที ค่าเริ่มต้นคือโรงงานมิตรลาวที่ทำได้ตามเป้าใน Daily report (หีบ 297 ตันอ้อยต่อชั่วโมง) กดปุ่มค่าโรงงานจริงเพื่อดูว่าตอนนี้ต่างจากเป้าตรงไหน</p>
   <div class="presets" role="group" aria-label="สถานการณ์ตัวอย่าง">
     <span>ลองสถานการณ์:</span>
-    <button type="button" class="btn ghost sm" data-preset="base">ค่าเริ่มต้น</button>
+    <button type="button" class="btn ghost sm" data-preset="base">ตามเป้าโรงงาน</button>
+    <button type="button" class="btn ghost sm" data-preset="plant" title="ใส่ค่าสะสมจริงจากรายงานประจำวันล่าสุด">ค่าโรงงานจริง (สะสม)</button>
     <button type="button" class="btn ghost sm" data-preset="mill">ลูกหีบสกัดไม่ดี</button>
     <button type="button" class="btn ghost sm" data-preset="cane">อ้อยคุณภาพต่ำ</button>
     <button type="button" class="btn ghost sm" data-preset="imb">พรมน้ำมากเกิน</button>
     <button type="button" class="btn ghost sm" data-preset="mol">กากน้ำตาลไม่ exhausted</button>
     <button type="button" class="btn ghost sm" data-preset="best">ปรับปรุงทุกจุด</button>
   </div>
+  <p id="sim-src" style="margin:10px 0 0;font-size:13px;opacity:.9">เป้าหมายใช้ตามรายงานประจำวันของโรงงาน</p>
+  <p id="sim-note" style="display:none;margin:6px 0 0;font-size:13px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.22)"></p>
 </div>
 <div class="sim">
   <div class="sim-ctl" id="sim-ctl"></div>
@@ -19299,7 +19302,7 @@ M/m = (L_end / L_start)³ × (CC_start / CC_end)
     <h5 class="sim-h">Pol ในอ้อย 100% ไปอยู่ที่ไหน</h5>
     <div class="polbar" id="sim-polbar"></div>
     <div class="pollegend" id="sim-pollegend"></div>
-    <h5 class="sim-h">เทียบเป้า Daily report</h5>
+    <h5 class="sim-h">เทียบเป้าโรงงาน (Daily report)</h5>
     <div class="kpis" id="sim-kpi"></div>
     <details class="cf sim-how"><summary>ความสัมพันธ์ที่ใช้ในแบบจำลอง</summary>
       <ol class="steps">
@@ -19753,36 +19756,56 @@ const box=document.getElementById('sim-ctl'); if(!box) return;
 /* [key, label, unit, default, min, max, step, help] */
 const G=[
  {n:'1 อ้อย',c:'c1',p:[
-  ['cane','อัตราหีบ','t/h',1000,400,1500,10,'ปริมาณอ้อยเข้าลูกหีบ'],
+  ['cane','อัตราหีบ','t/h',297,150,400,1,'เป้าโรงงาน 297 t/h (Daily report)'],
   ['fib','Fiber % cane','%',13,10,17,0.1,'ใยอ้อยมาก ชานมาก สูญเสีย pol ในชานมาก'],
-  ['pc','Pol % cane','%',14.5,11,17,0.1,'ความหวานในอ้อย'],
-  ['jp','Purity น้ำอ้อย','%',85,76,90,0.5,'อ้อยไฟไหม้/ค้าง/สิ่งปลอมปน ทำให้ต่ำลง']]},
+  ['pc','Pol % cane','%',15.3,11,17,0.1,'เป้าโรงงาน 15.3'],
+  ['jp','Purity น้ำอ้อย','%',86,76,92,0.5,'อ้อยไฟไหม้/ค้าง/สิ่งปลอมปน ทำให้ต่ำลง']]},
  {n:'2 ลูกหีบ',c:'c1',p:[
-  ['imf','Imbibition % fiber','%',240,150,400,5,'เป้า < 250 · มากขึ้น น้ำอ้อยเจือจาง ต้องระเหยมาก'],
-  ['pb','Pol % bagasse','%',1.8,1.0,3.5,0.05,'เป้า ≤ 1.85 · ใส่จากผลวิเคราะห์'],
-  ['mb','Moisture % bagasse','%',49,45,55,0.5,'เป้า < 49'],
+  ['imf','Imbibition % fiber','%',255,150,400,5,'ช่วงที่โรงงานใช้ 250–350 · มากขึ้น น้ำอ้อยเจือจาง ต้องระเหยมาก'],
+  ['pb','Pol % bagasse','%',1.5,1.0,3.5,0.01,'เป้าโรงงาน < 1.61'],
+  ['mb','Moisture % bagasse','%',47,43,55,0.5,'เป้าโรงงาน < 50'],
   ['bp','Purity น้ำในชาน','%',80,70,88,0.5,'ประมาณจาก last expressed juice']]},
  {n:'3 ทำใส + RVF',c:'c2',p:[
-  ['ck','Filter cake','% cane',3,1.5,5,0.1,'ดินโคลนมาก cake มาก'],
+  ['ck','Filter cake','% cane',3,1.5,5,0.1,'เป้าโรงงาน ≤ 4 · ดินโคลนมาก cake มาก'],
   ['ms','Mud solids ใน cake','% cake',15,10,18,0.5,''],
   ['ww','น้ำล้าง cake','% cake',200,100,300,10,'QUT แนะนำ 150–250'],
   ['fa','พื้นที่กรองรวม','m²',400,200,700,10,'พื้นที่มาก โหลดต่อพื้นที่ต่ำ ล้างได้ดี']]},
  {n:'4 ระเหย',c:'c3',p:[
-  ['sb','Brix syrup','°Bx',68,60,72,0.5,''],
-  ['ne','จำนวน effect','',5,3,5,1,'']]},
+  ['sb','Brix syrup','°Bx',66,55,72,0.5,'ช่วงที่โรงงานใช้ 62–70'],
+  ['ne','จำนวน effect','',5,3,5,1,'หม้อต้มระเหย 5 หม้อ']]},
  {n:'5 เคี่ยว + ปั่น',c:'c4',p:[
-  ['ra','RS / Ash ใน molasses','',1.0,0.4,2.5,0.05,'สิ่งเจือปนกำหนด target purity'],
-  ['gap','Molasses purity เหนือ target','หน่วย',4,0,12,0.5,'0 = exhaust ได้เต็มที่'],
-  ['und','Undetermined loss','% pol cane',5,0,10,0.5,'เป้า ≤ 9.00'],
-  ['sp','Pol น้ำตาล','°Z',98.9,97.5,99.6,0.05,''],
-  ['sm','ความชื้นน้ำตาล','%',0.12,0.05,0.4,0.01,'']]}
+  ['ra','RS / Ash ใน molasses','',1.33,0.4,2.5,0.01,'สิ่งเจือปนกำหนด target purity'],
+  ['gap','Molasses purity เหนือ target','หน่วย',0.5,0,25,0.5,'0 = exhaust ได้เต็มที่ · เป้า purity กากน้ำตาล < 33.1'],
+  ['und','Undetermined loss','% pol cane',5,0,40,0.5,'เป้าโรงงาน ≤ 5.49'],
+  ['sp','Pol น้ำตาล VHP','°Z',99.2,97.5,99.6,0.05,'เป้าโรงงาน > 99.2'],
+  ['sm','ความชื้นน้ำตาล','%',0.15,0.05,0.4,0.01,'เป้าโรงงาน < 0.18']]}
 ];
 const P={};G.forEach(g=>g.p.forEach(q=>P[q[0]]=q));
 const DEF={};Object.values(P).forEach(q=>DEF[q[0]]=q[3]);
-const PRE={base:{},mill:{pb:2.6,mb:52.5},cane:{pc:12.8,jp:80,fib:14.5,ra:1.6,ck:4.2},imb:{imf:360,pb:1.65},mol:{gap:9,und:7},best:{pb:1.4,mb:47.5,ww:230,fa:500,gap:1.5,und:3.5,imf:230}};
+const PRE={base:{},mill:{pb:2.6,mb:52.5},cane:{pc:12.8,jp:80,fib:14.5,ra:1.6,ck:4.2},imb:{imf:380,pb:1.65},mol:{gap:9,und:7},best:{pb:1.3,mb:45,ww:230,fa:500,gap:0.5,und:3.5,imf:260}};
 const fmt=(x,d)=>!isFinite(x)?'—':Number(x).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const dec=s=>{const t=String(s);return t.includes('.')?t.split('.')[1].length:0;};
 
+
+/* ---- Mitr Lao FAF1: targets of the daily report (fallback values = report of 23/12/2025) and the real season-to-date numbers ---- */
+const TG={ext:97,pb:1.61,mb:50,lB:3,lC:0.33,lM:7.72,und:5.49,bhr:86.04,rec:83.46,fmP:33.1,cane:297,sbLo:62,sbHi:70,imfLo:250,imfHi:350};
+let ACT=null, ACTDAY='', PRICE=18000;
+const tnum=t=>{const m=/(-?\d+(?:\.\d+)?)/.exec(String(t==null?'':t).replace(/,/g,'')); return m?+m[1]:null;};
+const fmtB=b=>!isFinite(b)?'—':Math.abs(b)>=1e6?fmt(b/1e6,1)+' ล้านบาท':fmt(b,0)+' บาท';
+const API=new URLSearchParams(location.search).get('api')||'';
+function loadPlant(){
+  return fetch(API+'/api/quality?keys=daily.cane_today,daily.cane_todate,daily.cane_target',{cache:'no-store'}).then(r=>{if(!r.ok) throw 0; return r.json();}).then(j=>{
+    const D=j&&j.data&&j.data.daily; if(!D) throw 0;
+    const t=(k,a)=>{const x=tnum(D[k+'_target']); if(x!=null) TG[a]=x;};
+    t('extpol','ext'); t('polbag','pb'); t('moistbag','mb'); t('loss_bag','lB'); t('loss_fc','lC'); t('loss_fm','lM'); t('loss_undet','und'); t('bhr','bhr'); t('recov','rec'); t('fm_purity','fmP'); t('tcph','cane');
+    const g=k=>{const x=D[k+'_todate']; return typeof x==='number'&&x!==0?x:null;};
+    ACT={cane:g('tcph'),fib:g('fiber'),pc:g('pol'),imf:g('imbfiber'),pb:g('polbag'),mb:g('moistbag'),ck:g('fc_pctcane'),und:g('loss_undet'),sm:g('vhp_moist'),sp:g('vhp_pol'),
+         ext:g('extpol'),lB:g('loss_bag'),lC:g('loss_fc'),lM:g('loss_fm'),bhr:g('bhr'),rec:g('recov'),fmP:g('fm_purity'),
+         jp:(typeof D.fej_purity==='number'&&D.fej_purity>0)?D.fej_purity:null,sb:(typeof D.rs_brix==='number'&&D.rs_brix>0)?D.rs_brix:null,
+         ra:(g('fm_rs')&&g('fm_ash'))?g('fm_rs')/g('fm_ash'):null};
+    ACTDAY=j.day||''; if(ACT.fmP!=null&&ACT.ra!=null) ACT.gap=Math.max(0,ACT.fmP-(33.9-13.4*Math.log10(ACT.ra)));
+    return true; }).catch(()=>false);
+}
 box.innerHTML=G.map(g=>`<fieldset class="sg" style="--tc:var(--${g.c})"><legend>${g.n}</legend>${g.p.map(([k,l,u,d,mn,mx,st,h])=>`
  <div class="sr"><label for="sim-${k}"><span>${l}</span><output id="sim-o-${k}">${fmt(d,dec(st))}</output><em>${u}</em></label>
  <input type="range" id="sim-${k}" data-k="${k}" min="${mn}" max="${mx}" step="${st}" value="${d}">${h?`<small>${h}</small>`:''}</div>`).join('')}</fieldset>`).join('')
@@ -19849,46 +19872,64 @@ function flow(r,v){
   blk(10,290,W,H,'น้ำตาลดิบ',[`${fmt(r.sug,1)} t/h`,`${fmt(r.sug/v.cane*100,2)}% cane`,`pol ${fmt(v.sp,2)} °Z`],'c5',true)+
   ar('M310 382 V408')+blk(220,410,W,58,'Final molasses',[`${fmt(r.mol,1)} t/h @85 Bx`,`purity ${fmt(r.molP,1)} · ${fmt(r.mol/v.cane*100,2)}%c`],'c4',false);
 }
-function kpi(l,val,d,u,tgt,ok,base){
-  const dl=val-base; const ds=Math.abs(dl)<Math.pow(10,-d)/2?'':`<span class="dl">${dl>0?'+':''}${fmt(dl,d)} จากค่าเริ่มต้น</span>`;
-  return `<div class="kp ${ok===null?'':ok?'ok':'no'}"><div class="kl">${l}</div><div class="kv">${fmt(val,d)}<em>${u}</em></div><div class="kt">${tgt}${ok===null?'':ok?' · ผ่าน':' · ไม่ผ่าน'}</div>${ds}</div>`;
+function kpi(l,val,d,u,tgt,ok,base,act){
+  const dl=val-base; const ds=Math.abs(dl)<Math.pow(10,-d)/2?'':`<span class="dl">${dl>0?'+':''}${fmt(dl,d)} จากเป้าโรงงาน</span>`;
+  const ac=(act!=null&&isFinite(act))?`<span class="dl" style="color:var(--ink)">โรงงานจริง (สะสม) <b>${fmt(act,d)}</b></span>`:'';
+  return `<div class="kp ${ok===null?'':ok?'ok':'no'}"><div class="kl">${l}</div><div class="kv">${fmt(val,d)}<em>${u}</em></div><div class="kt">${tgt}${ok===null?'':ok?' · ผ่าน':' · ไม่ผ่าน'}</div>${ds}${ac}</div>`;
 }
 function render(){
   const v=read(); rng.forEach(i=>{document.getElementById('sim-o-'+i.dataset.k).textContent=fmt(+i.value,dec(P[i.dataset.k][6]));});
   const r=model(v), b=BASE;
   document.getElementById('sim-flow').innerHTML=flow(r,v);
-  const dS=r.sug-b.sug;
+  const dS=r.sug-b.sug, dB=dS*24*PRICE;
   document.getElementById('sim-sum').innerHTML=`<div class="big"><span>น้ำตาลดิบ</span><b>${fmt(r.sug,1)}</b><em>t/h</em></div>
    <div class="big"><span>ต่อวัน (24 ชม.)</span><b>${fmt(r.sug*24,0)}</b><em>t</em></div>
-   <div class="big"><span>Overall recovery</span><b>${fmt(r.rec,2)}</b><em>%</em></div>
-   <div class="big ${Math.abs(dS)<0.05?'':dS>0?'up':'down'}"><span>เทียบค่าเริ่มต้น</span><b>${dS>=0?'+':''}${fmt(dS,1)}</b><em>t/h · ${dS>=0?'+':''}${fmt(dS*24,0)} t/วัน</em></div>`;
+   <div class="big"><span>Overall recovery</span><b>${fmt(r.rec,2)}</b><em>% · เป้า ${fmt(TG.rec,2)}</em></div>
+   <div class="big ${Math.abs(dS)<0.05?'':dS>0?'up':'down'}"><span>เทียบตามเป้าโรงงาน</span><b>${dS>=0?'+':''}${fmt(dS,1)}</b><em>t/h · ${dS>=0?'+':''}${fmt(dS*24,0)} t/วัน</em></div>
+   <div class="big ${Math.abs(dS)<0.05?'':dS>0?'up':'down'}"><span>มูลค่าที่ต่างจากเป้า/วัน</span><b style="font-size:20px">${dB>=0?'+':'−'}${fmtB(Math.abs(dB))}</b><em>ราคาอ้างอิง ${fmt(PRICE,0)} บาท/ตัน</em></div>`;
   const seg=[['น้ำตาล',r.rec,'c1'],['ชาน',r.lB,'c3'],['Filter cake',r.lC,'c2'],['Molasses',r.lM,'c4'],['Undetermined',r.lU,'c5']];
   document.getElementById('sim-polbar').innerHTML=seg.map(([n,x,c])=>`<i style="width:${Math.max(0,x)}%;background:var(--${c})" title="${n} ${fmt(x,2)}%"></i>`).join('');
   document.getElementById('sim-pollegend').innerHTML=seg.map(([n,x,c])=>`<span><i style="background:var(--${c})"></i>${n} <b>${fmt(x,2)}%</b></span>`).join('');
   document.getElementById('sim-kpi').innerHTML=[
-   kpi('Extraction % pol in cane',r.ext,2,'%','เป้า ≥ 96.25',r.ext>=96.25,b.ext),
-   kpi('Imbibition % fiber',v.imf,0,'%','เป้า < 250',v.imf<250,DEF.imf),
-   kpi('Pol % bagasse',v.pb,2,'%','เป้า ≤ 1.85',v.pb<=1.85,DEF.pb),
-   kpi('Mixed juice % cane',r.mj/v.cane*100,1,'%','report ~103–108',null,b.mj/DEF.cane*100),
-   kpi('Loss in bagasse',r.lB,2,'% pol','เป้า ≤ 3.40',r.lB<=3.40,b.lB),
-   kpi('Loss in filter cake',r.lC,2,'% pol','เป้า ≤ 0.38',r.lC<=0.38,b.lC),
-   kpi('Loss in final molasses',r.lM,2,'% pol','เป้า ≤ 8.80',r.lM<=8.80,b.lM),
-   kpi('Undetermined loss',r.lU,2,'% pol','เป้า ≤ 9.00',r.lU<=9,DEF.und),
-   kpi('Boiling house recovery',r.bhr,2,'%','เป้า ≥ 81.82',r.bhr>=81.82,b.bhr),
-   kpi('Overall recovery',r.rec,2,'%','เป้า ≥ 78.42',r.rec>=78.42,b.rec),
-   kpi('Syrup purity (J)',r.J,2,'','ผลต่อเนื่องจากทำใส',null,b.J),
-   kpi('Target purity molasses',r.tp,2,'','33.9 − 13.4 log(RS/Ash)',null,b.tp),
-   kpi('C-mass purity แนะนำ',r.cmass,1,'','CC 35%, 97 Bx',null,b.cmass),
-   kpi('น้ำที่ต้องระเหย',r.evap/v.cane*100,1,'% cane','ผลของน้ำพรม + brix syrup',null,b.evap/DEF.cane*100),
-   kpi('Safety factor น้ำตาล',r.sf,3,'','เป้า < 0.25',r.sf<0.25,b.sf)
+   kpi('อัตราหีบ',v.cane,0,'t/h','เป้าโรงงาน ≥ '+fmt(TG.cane,0),v.cane>=TG.cane,DEF.cane,ACT&&ACT.cane),
+   kpi('Extraction % pol in cane',r.ext,2,'%','เป้าโรงงาน > '+fmt(TG.ext,2),r.ext>=TG.ext,b.ext,ACT&&ACT.ext),
+   kpi('Imbibition % fiber',v.imf,0,'%','ช่วงโรงงาน '+TG.imfLo+'–'+TG.imfHi,v.imf>=TG.imfLo&&v.imf<=TG.imfHi,DEF.imf,ACT&&ACT.imf),
+   kpi('Pol % bagasse',v.pb,2,'%','เป้าโรงงาน < '+fmt(TG.pb,2),v.pb<TG.pb,DEF.pb,ACT&&ACT.pb),
+   kpi('Moisture % bagasse',v.mb,1,'%','เป้าโรงงาน < '+fmt(TG.mb,0),v.mb<TG.mb,DEF.mb,ACT&&ACT.mb),
+   kpi('Mixed juice % cane',r.mj/v.cane*100,1,'%','ผลจากน้ำพรมและชาน',null,b.mj/DEF.cane*100,null),
+   kpi('Loss in bagasse',r.lB,2,'% pol','เป้าโรงงาน ≤ '+fmt(TG.lB,2),r.lB<=TG.lB,b.lB,ACT&&ACT.lB),
+   kpi('Loss in filter cake',r.lC,2,'% pol','เป้าโรงงาน ≤ '+fmt(TG.lC,2),r.lC<=TG.lC,b.lC,ACT&&ACT.lC),
+   kpi('Loss in final molasses',r.lM,2,'% pol','เป้าโรงงาน ≤ '+fmt(TG.lM,2),r.lM<=TG.lM,b.lM,ACT&&ACT.lM),
+   kpi('Undetermined loss',r.lU,2,'% pol','เป้าโรงงาน ≤ '+fmt(TG.und,2),r.lU<=TG.und,DEF.und,ACT&&ACT.und),
+   kpi('Boiling house recovery',r.bhr,2,'%','เป้าโรงงาน ≥ '+fmt(TG.bhr,2),r.bhr>=TG.bhr,b.bhr,ACT&&ACT.bhr),
+   kpi('Overall recovery',r.rec,2,'%','เป้าโรงงาน ≥ '+fmt(TG.rec,2),r.rec>=TG.rec,b.rec,ACT&&ACT.rec),
+   kpi('Brix syrup',v.sb,1,'°Bx','ช่วงโรงงาน '+TG.sbLo+'–'+TG.sbHi,v.sb>=TG.sbLo&&v.sb<=TG.sbHi,DEF.sb,ACT&&ACT.sb),
+   kpi('Syrup purity (J)',r.J,2,'','ผลต่อเนื่องจากทำใส',null,b.J,null),
+   kpi('Purity final molasses',r.molP,2,'','เป้าโรงงาน < '+fmt(TG.fmP,1),r.molP<TG.fmP,b.molP,ACT&&ACT.fmP),
+   kpi('Target purity molasses',r.tp,2,'','33.9 − 13.4 log(RS/Ash)',null,b.tp,null),
+   kpi('C-mass purity แนะนำ',r.cmass,1,'','CC 35%, 97 Bx · เป้าโรงงาน 56–59',null,b.cmass,null),
+   kpi('น้ำที่ต้องระเหย',r.evap/v.cane*100,1,'% cane','ผลของน้ำพรม + brix syrup',null,b.evap/DEF.cane*100,null),
+   kpi('Safety factor น้ำตาล',r.sf,3,'','เป้า < 0.25',r.sf<0.25,b.sf,null)
   ].join('');
 }
 rng.forEach(i=>i.addEventListener('input',render));
 const setVals=o=>{rng.forEach(i=>{const k=i.dataset.k;i.value=(k in o)?o[k]:DEF[k];});render();};
 document.getElementById('sim-reset').addEventListener('click',()=>setVals({}));
-document.querySelectorAll('#sim [data-preset]').forEach(b=>b.addEventListener('click',()=>setVals(PRE[b.dataset.preset])));
+document.querySelectorAll('#sim [data-preset]').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.preset;
+  if(k!=='plant'){ setVals(PRE[k]); setNote(''); return; }
+  const go=()=>{ if(!ACT){ setNote('อ่านรายงานของโรงงานไม่ได้ในตอนนี้ (ต้องเปิดผ่านระบบ M.O.I.S ที่เชื่อมต่อรายงาน)',true); return; }
+    const o={},out=[]; ['cane','fib','pc','jp','imf','pb','mb','ck','sb','ra','gap','und','sp','sm'].forEach(x=>{ if(ACT[x]!=null) o[x]=ACT[x]; });
+    setVals(o); Object.keys(o).forEach(k2=>{ if(o[k2]<P[k2][4]||o[k2]>P[k2][5]) out.push(P[k2][1]+' '+fmt(o[k2],dec(P[k2][6]))); });
+    setNote('ใช้ค่าสะสมของโรงงานจากรายงาน วันที่ '+(ACTDAY?ACTDAY.slice(8)+'/'+ACTDAY.slice(5,7)+'/'+ACTDAY.slice(0,4):'ล่าสุด')+' — แต่ละการ์ดด้านล่างแสดงค่าจริงเทียบกับแบบจำลอง'
+      +(out.length?' · ค่าที่เกินช่วงแถบเลื่อน (ถูกปรับเข้าช่วง): '+out.join(', '):'')); };
+  if(ACT) go(); else loadPlant().then(go);
+}));
+function setNote(t,warn){ const n=document.getElementById('sim-note'); if(n){ n.textContent=t; n.style.display=t?'':'none'; n.style.color=warn?'#ffd7cf':''; } }
+loadPlant().then(ok=>{ if(ok){ render(); const n=document.getElementById('sim-src'); if(n) n.textContent='เป้าหมายทุกตัวอ่านจาก Daily report ของโรงงานมิตรลาว (วันที่ '+(ACTDAY?ACTDAY.slice(8)+'/'+ACTDAY.slice(5,7)+'/'+ACTDAY.slice(0,4):'ล่าสุด')+')'; } });
 render();
 })();
+
 
 <\/script>
 
