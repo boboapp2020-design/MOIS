@@ -53,6 +53,40 @@ a.hs:hover,a.hs:focus-visible,button.hs:hover,button.hs:focus-visible{background
 @keyframes ripple{from{transform:scale(1);opacity:.9}to{transform:scale(1.9);opacity:0}}
 .btspot{position:absolute;border-radius:50%;z-index:4;cursor:pointer;outline:none}
 @media (prefers-reduced-motion:reduce){ .bt.on,.bt.hot,.bt.hot::after{animation:none} }
+/* ===== portal effects (cfg.fx): light, steam, particles, lifting cards — the picture itself stays as designed ===== */
+.fx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.fx-sun{position:absolute;right:-12%;top:-30%;width:70%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,236,190,.55),rgba(255,214,150,.18) 35%,transparent 65%);mix-blend-mode:screen;animation:fxSun 9s ease-in-out infinite}
+.fx-rays{position:absolute;right:-30%;top:-75%;width:110%;aspect-ratio:1;background:repeating-conic-gradient(from 0deg,rgba(255,240,205,.16) 0deg 3deg,transparent 3deg 14deg);
+  -webkit-mask:radial-gradient(circle,#000 8%,transparent 62%);mask:radial-gradient(circle,#000 8%,transparent 62%);mix-blend-mode:screen;animation:fxRays 70s linear infinite}
+@keyframes fxSun{50%{opacity:.6;transform:scale(1.08)}}
+@keyframes fxRays{to{transform:rotate(360deg)}}
+.fx-steam{position:absolute;width:5.5cqw;height:5.5cqw;margin:-2.75cqw 0 0 -2.75cqw;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.85),rgba(240,244,248,.45) 45%,transparent 70%);filter:blur(.35cqw);opacity:0;animation:fxSteam 7s ease-out infinite}
+@keyframes fxSteam{0%{transform:translate(0,0) scale(.35);opacity:0}15%{opacity:.75}100%{transform:translate(2.2cqw,-7cqw) scale(1.9);opacity:0}}
+.fx-dot{position:absolute;bottom:-2%;width:.32cqw;height:.32cqw;border-radius:50%;background:#fff;box-shadow:0 0 .7cqw .2cqw rgba(255,255,255,.75);opacity:0;animation:fxDot linear infinite}
+@keyframes fxDot{0%{transform:translate(0,0);opacity:0}10%{opacity:.9}85%{opacity:.6}100%{transform:translate(var(--dx),-62cqw);opacity:0}}
+.fx-water{position:absolute;left:0;right:0;bottom:0;height:16%;background:repeating-linear-gradient(90deg,transparent 0 6%,rgba(255,255,255,.07) 8%,transparent 12%);background-size:200% 100%;
+  -webkit-mask:linear-gradient(transparent,#000 40%);mask:linear-gradient(transparent,#000 40%);animation:fxWater 14s linear infinite}
+@keyframes fxWater{to{background-position:-200% 0}}
+.fx-logo{position:absolute;overflow:hidden;z-index:2;pointer-events:none;-webkit-mask:var(--plate) no-repeat;mask:none}
+.fx-logo::after{content:"";position:absolute;top:-20%;bottom:-20%;width:28%;left:-40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);mix-blend-mode:overlay;animation:fxLogo 6.5s ease-in-out infinite}
+@keyframes fxLogo{0%,70%{transform:translateX(0)}100%{transform:translateX(560%)}}
+/* lifting cards: a copy of the card's patch of the picture tilts toward the mouse; its numbers, subtitle and arrow ride on it */
+.lift{position:absolute;z-index:2;background-repeat:no-repeat;transform-style:preserve-3d;will-change:transform;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,0)) scale(var(--sc,1))}
+.lift.up{--ty:-.9cqw;--sc:1.025;box-shadow:0 2.2cqw 3.6cqw -1.2cqw color-mix(in srgb,var(--c) 70%,rgba(0,0,0,.5)),0 0 0 .14cqw color-mix(in srgb,var(--c) 60%,#fff)}
+.lift::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at var(--mx,50%) var(--my,30%),rgba(255,255,255,.28),transparent 45%);opacity:0;transition:opacity .3s}
+.lift.up::before{opacity:1}
+.lift::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 .12cqw color-mix(in srgb,var(--c) 55%,transparent),0 0 1.6cqw color-mix(in srgb,var(--c) 45%,transparent);animation:fxEdge 3.2s ease-in-out infinite}
+@keyframes fxEdge{50%{box-shadow:inset 0 0 0 .14cqw color-mix(in srgb,var(--c) 85%,#fff),0 0 2.6cqw color-mix(in srgb,var(--c) 70%,transparent)}}
+a.hs.card.lifted{z-index:3;transition:transform .35s cubic-bezier(.2,.8,.2,1);transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,0)) scale(var(--sc,1))}
+a.hs.card.lifted.up{--ty:-.9cqw;--sc:1.025;background:transparent;box-shadow:none}
+.lift .ico{position:absolute;border-radius:22%;background-repeat:no-repeat;animation:fxFloat 3.6s ease-in-out infinite;box-shadow:0 .8cqw 1.6cqw -.6cqw rgba(0,0,0,.35)}
+.lift .ico::before{content:"";position:absolute;inset:-35%;border-radius:50%;z-index:-1;background:radial-gradient(circle,color-mix(in srgb,var(--c) 75%,#fff),transparent 65%);opacity:.55;animation:fxHalo 3.6s ease-in-out infinite}
+@keyframes fxFloat{50%{transform:translateY(-.55cqw)}}
+@keyframes fxHalo{50%{opacity:.95;transform:scale(1.15)}}
+.lift .bt{pointer-events:none}
+@media (prefers-reduced-motion:reduce){ .fx *,.fx-logo::after,.lift,.lift::after,.lift .ico,.lift .ico::before{animation:none!important;transition:none!important} }
+
 button.hs{border:0;background:none;padding:0;font:inherit}
 /* live cards: soft breathing glow + a shine that sweeps across */
 a.hs.card{overflow:hidden;animation:breathe 3.4s ease-in-out infinite}
@@ -274,7 +308,7 @@ body.entering .hs.card,body.entering .tools,body.entering .pclk,body.entering .c
 <\/script>
 <script>
 (function(){
-  var CFG={"w":1672,"h":934,"alt":"M.O.I.S — เลือกระบบ: Process Monitoring · Process Monitoring Plus · Process Analytical","stats":[{"at":[112,300],"c":"#22c55e","api":"/api/milling","items":[{"k":"a","l":"อ้อยวันนี้ (ตัน)"},{"k":"b","l":"หีบ (ตัน/ชม.)"}],"pick":"j=>({a:Math.round(j.totals.cane_t).toLocaleString('en-US'),b:Math.round(j.totals.crush_tph)})"},{"at":[636,300],"c":"#f59e0b","api":"/api/summary","items":[{"k":"a","l":"จุดวัดมีสัญญาณ"},{"k":"b","l":"เฝ้าระวัง"},{"k":"c","l":"ผิดปกติ"}],"pick":"j=>{let g=0,t=0,w=0,a=0;Object.values(j.pages||{}).forEach(x=>{g+=x.good||0;t+=x.tags||0;w+=x.warn||0;a+=x.alarm||0});return{a:g+'/'+t,b:w,c:a}}"},{"at":[1132,300],"c":"#3b82f6","api":"/api/recovery","items":[{"k":"a","l":"Recovery (%)"},{"k":"b","l":"CCS"}],"pick":"j=>j.exec&&j.exec.has_data?{a:j.exec.head.recov.todate.toFixed(2),b:j.exec.head.ccs.todate.toFixed(2)}:{}"}],"verBox":[1490,905,1630,905],"texts":[{"at":[116,640],"t":"ติดตามสถานะการเดินเครื่องแบบ Real-time"},{"at":[637,640],"t":"ติดตาม วิเคราะห์ และเพิ่มประสิทธิภาพ"},{"at":[1135,640],"t":"วิเคราะห์ประสิทธิภาพและคุณภาพการผลิต"}],"spots":[{"box":[69,248,585,771],"r":26,"c":"#22c55e","card":true,"href":"?p=pm","btn":[524,714,36],"label":"Process Monitoring — ติดตามสถานะการเดินเครื่อง"},{"box":[601,248,1078,771],"r":26,"c":"#f59e0b","card":true,"href":"?p=hub","btn":[1016,712,36],"label":"Process Monitoring Plus — ติดตาม วิเคราะห์ และเพิ่มประสิทธิภาพ"},{"box":[1091,245,1603,777],"r":26,"c":"#3b82f6","card":true,"href":"?p=recovery","btn":[1538,715,36],"label":"Process Analytical — วิเคราะห์ข้อมูลประสิทธิภาพและคุณภาพการผลิต"},{"box":[1243,32,1494,94],"r":14,"c":"#93c5fd","user":true,"label":"ผู้ใช้ — ออกจากระบบ"},{"box":[1513,32,1633,94],"r":14,"clock":true,"label":"เวลาโรงงาน"}],"ver":"1.1.0","built":"2026-10-28"}, $=function(id){ return document.getElementById(id); };
+  var CFG={"w":1672,"h":934,"alt":"M.O.I.S — เลือกระบบ: Process Monitoring · Process Monitoring Plus · Process Analytical","stats":[{"at":[112,300],"c":"#22c55e","api":"/api/milling","items":[{"k":"a","l":"อ้อยวันนี้ (ตัน)"},{"k":"b","l":"หีบ (ตัน/ชม.)"}],"pick":"j=>({a:Math.round(j.totals.cane_t).toLocaleString('en-US'),b:Math.round(j.totals.crush_tph)})"},{"at":[636,300],"c":"#f59e0b","api":"/api/summary","items":[{"k":"a","l":"จุดวัดมีสัญญาณ"},{"k":"b","l":"เฝ้าระวัง"},{"k":"c","l":"ผิดปกติ"}],"pick":"j=>{let g=0,t=0,w=0,a=0;Object.values(j.pages||{}).forEach(x=>{g+=x.good||0;t+=x.tags||0;w+=x.warn||0;a+=x.alarm||0});return{a:g+'/'+t,b:w,c:a}}"},{"at":[1132,300],"c":"#3b82f6","api":"/api/recovery","items":[{"k":"a","l":"Recovery (%)"},{"k":"b","l":"CCS"}],"pick":"j=>j.exec&&j.exec.has_data?{a:j.exec.head.recov.todate.toFixed(2),b:j.exec.head.ccs.todate.toFixed(2)}:{}"}],"verBox":[1490,905,1630,905],"fx":{"steam":[[730,52],[812,118],[963,65],[1092,24],[1176,114],[1306,127]],"logo":[122,36,474,147],"icons":[[163,470,50],[686,467,50],[1185,467,50]]},"texts":[{"at":[116,640],"t":"ติดตามสถานะการเดินเครื่องแบบ Real-time"},{"at":[637,640],"t":"ติดตาม วิเคราะห์ และเพิ่มประสิทธิภาพ"},{"at":[1135,640],"t":"วิเคราะห์ประสิทธิภาพและคุณภาพการผลิต"}],"spots":[{"box":[69,248,585,771],"r":26,"c":"#22c55e","card":true,"href":"?p=pm","btn":[524,714,36],"label":"Process Monitoring — ติดตามสถานะการเดินเครื่อง"},{"box":[601,248,1078,771],"r":26,"c":"#f59e0b","card":true,"href":"?p=hub","btn":[1016,712,36],"label":"Process Monitoring Plus — ติดตาม วิเคราะห์ และเพิ่มประสิทธิภาพ"},{"box":[1091,245,1603,777],"r":26,"c":"#3b82f6","card":true,"href":"?p=recovery","btn":[1538,715,36],"label":"Process Analytical — วิเคราะห์ข้อมูลประสิทธิภาพและคุณภาพการผลิต"},{"box":[1243,32,1494,94],"r":14,"c":"#93c5fd","user":true,"label":"ผู้ใช้ — ออกจากระบบ"},{"box":[1513,32,1633,94],"r":14,"clock":true,"label":"เวลาโรงงาน"}],"ver":"1.1.0","built":"2026-10-28"}, $=function(id){ return document.getElementById(id); };
   try{ if(sessionStorage.getItem('mois.morph')){ sessionStorage.removeItem('mois.morph'); document.body.classList.add('entering'); setTimeout(function(){ document.body.classList.remove('entering'); },2200); } }catch(e){}
   var W=CFG.w, H=CFG.h, st=$('stage'), img=$('plate');
   document.documentElement.style.setProperty('--ar',W+'/'+H); document.documentElement.style.setProperty('--w',W);
@@ -347,6 +381,53 @@ body.entering .hs.card,body.entering .tools,body.entering .pclk,body.entering .c
       if(done){ el.classList.add('on'); MoisCount(el,'b',1100,true); }
     }).catch(function(){});
   });
+
+  /* ===== portal effects (cfg.fx) ===== */
+  if(CFG.fx){ var FX=CFG.fx;
+    var fx=document.createElement('div'); fx.className='fx'; fx.setAttribute('aria-hidden','true');
+    fx.innerHTML='<div class="fx-sun"></div><div class="fx-rays"></div><div class="fx-water"></div>'
+      +(FX.steam||[]).map(function(p,i){ return [0,1,2].map(function(k){ return '<i class="fx-steam" style="left:'+(p[0]/W*100)+'%;top:'+(p[1]/H*100)+'%;animation-delay:'+(-(i*1.3+k*2.3)%7).toFixed(2)+'s"></i>'; }).join(''); }).join('');
+    for(var n=0;n<26;n++){ var d=document.createElement('i'); d.className='fx-dot';
+      d.style.cssText='left:'+(Math.random()*100).toFixed(1)+'%;--dx:'+((Math.random()-.5)*8).toFixed(1)+'cqw;animation-duration:'+(9+Math.random()*9).toFixed(1)+'s;animation-delay:'+(-Math.random()*18).toFixed(1)+'s;transform:scale('+(.5+Math.random()).toFixed(2)+')';
+      fx.appendChild(d); }
+    st.insertBefore(fx,img.nextSibling);
+    if(FX.logo){ var lb=FX.logo, lg=document.createElement('div'); lg.className='fx-logo';
+      lg.style.cssText='left:'+(lb[0]/W*100)+'%;top:'+(lb[1]/H*100)+'%;width:'+((lb[2]-lb[0])/W*100)+'%;height:'+((lb[3]-lb[1])/H*100)+'%'; st.appendChild(lg); }
+    var crop=function(el,b){ var w=b[2]-b[0], h=b[3]-b[1];                 // a patch of the picture as a background
+      el.style.backgroundImage='var(--plate)'; el.style.backgroundSize=(W/w*100)+'% '+(H/h*100)+'%';
+      el.style.backgroundPosition=(b[0]/(W-w)*100)+'% '+(b[1]/(H-h)*100)+'%'; };
+    var inBox=function(x,y,b){ return x>=b[0]&&x<=b[2]&&y>=b[1]&&y<=b[3]; };
+    var stats=[].slice.call(st.querySelectorAll('.pstat,.ptxt')), bts=[].slice.call(st.querySelectorAll('.bt'));
+    CFG.spots.forEach(function(s,si){
+      if(!s.card||!s.href) return;
+      var b=s.box, bw=b[2]-b[0], bh=b[3]-b[1], hs=[].slice.call(st.querySelectorAll('a.hs.card')).find(function(a){ return a.getAttribute('aria-label')===s.label; });
+      if(!hs) return;
+      var L=document.createElement('div'); L.className='lift';
+      L.style.cssText='left:'+(b[0]/W*100)+'%;top:'+(b[1]/H*100)+'%;width:'+(bw/W*100)+'%;height:'+(bh/H*100)+'%;border-radius:calc('+(s.r||12)+' * 100cqw / '+W+');--c:'+(s.c||'#3b82f6');
+      crop(L,b); st.insertBefore(L,hs); hs.classList.add('lifted');
+      var ic=(FX.icons||[])[si];                                         // the card's icon floats, with a halo of its colour
+      if(ic){ var ib=[ic[0]-ic[2],ic[1]-ic[2],ic[0]+ic[2],ic[1]+ic[2]], I=document.createElement('i'); I.className='ico';
+        I.style.cssText='left:'+((ib[0]-b[0])/bw*100)+'%;top:'+((ib[1]-b[1])/bh*100)+'%;width:'+(2*ic[2]/bw*100)+'%;height:'+(2*ic[2]/bh*100)+'%';
+        crop(I,ib); L.appendChild(I); }
+      var move=function(el,host){                                        // stage-level overlay → child of the lifting card
+        var x=parseFloat(el.style.left)/100*W, y=parseFloat(el.style.top)/100*H;
+        if(!inBox(x+1,y+1,b)) return;
+        el.style.left=((x-b[0])/bw*100)+'%'; el.style.top=((y-b[1])/bh*100)+'%';
+        if(el.style.width&&el.style.width.indexOf('%')>0) el.style.width=(parseFloat(el.style.width)/100*W/bw*100)+'%';
+        if(el.style.height&&el.style.height.indexOf('%')>0) el.style.height=(parseFloat(el.style.height)/100*H/bh*100)+'%';
+        if(el.classList.contains('bt')){ el.style.backgroundSize=''; crop(el,[x,y,x+parseFloat(el.style.width)/100*bw,y+parseFloat(el.style.height)/100*bh]); }
+        host.appendChild(el); };
+      stats.forEach(function(e){ move(e,hs); }); bts.forEach(function(e){ move(e,L); });
+      var set=function(rx,ry,mx,my){ [L,hs].forEach(function(e){ e.style.setProperty('--rx',rx+'deg'); e.style.setProperty('--ry',ry+'deg'); });
+        L.style.setProperty('--mx',mx+'%'); L.style.setProperty('--my',my+'%'); };
+      hs.addEventListener('mousemove',function(e){ var r=hs.getBoundingClientRect(), px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+        set(((.5-py)*7).toFixed(2),((px-.5)*9).toFixed(2),(px*100).toFixed(0),(py*100).toFixed(0)); });
+      var up=function(){ L.classList.add('up'); hs.classList.add('up'); }, down=function(){ L.classList.remove('up'); hs.classList.remove('up'); set(0,0,50,30); };
+      hs.addEventListener('mouseenter',up); hs.addEventListener('mouseleave',down); hs.addEventListener('focus',up); hs.addEventListener('blur',down);
+    });
+    document.addEventListener('mousemove',function(e){                   // the light layer drifts a little with the mouse
+      var x=(e.clientX/innerWidth-.5), y=(e.clientY/innerHeight-.5); fx.style.transform='translate('+(x*-1.2).toFixed(2)+'cqw,'+(y*-.8).toFixed(2)+'cqw)'; });
+  }
   if(/[?&]dbg=1/.test(location.search)) Array.prototype.forEach.call(document.querySelectorAll('.hs'),function(e){ e.style.outline='2px solid magenta'; });
 })();
 <\/script>
@@ -398,6 +479,40 @@ a.hs:hover,a.hs:focus-visible,button.hs:hover,button.hs:focus-visible{background
 @keyframes ripple{from{transform:scale(1);opacity:.9}to{transform:scale(1.9);opacity:0}}
 .btspot{position:absolute;border-radius:50%;z-index:4;cursor:pointer;outline:none}
 @media (prefers-reduced-motion:reduce){ .bt.on,.bt.hot,.bt.hot::after{animation:none} }
+/* ===== portal effects (cfg.fx): light, steam, particles, lifting cards — the picture itself stays as designed ===== */
+.fx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.fx-sun{position:absolute;right:-12%;top:-30%;width:70%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,236,190,.55),rgba(255,214,150,.18) 35%,transparent 65%);mix-blend-mode:screen;animation:fxSun 9s ease-in-out infinite}
+.fx-rays{position:absolute;right:-30%;top:-75%;width:110%;aspect-ratio:1;background:repeating-conic-gradient(from 0deg,rgba(255,240,205,.16) 0deg 3deg,transparent 3deg 14deg);
+  -webkit-mask:radial-gradient(circle,#000 8%,transparent 62%);mask:radial-gradient(circle,#000 8%,transparent 62%);mix-blend-mode:screen;animation:fxRays 70s linear infinite}
+@keyframes fxSun{50%{opacity:.6;transform:scale(1.08)}}
+@keyframes fxRays{to{transform:rotate(360deg)}}
+.fx-steam{position:absolute;width:5.5cqw;height:5.5cqw;margin:-2.75cqw 0 0 -2.75cqw;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.85),rgba(240,244,248,.45) 45%,transparent 70%);filter:blur(.35cqw);opacity:0;animation:fxSteam 7s ease-out infinite}
+@keyframes fxSteam{0%{transform:translate(0,0) scale(.35);opacity:0}15%{opacity:.75}100%{transform:translate(2.2cqw,-7cqw) scale(1.9);opacity:0}}
+.fx-dot{position:absolute;bottom:-2%;width:.32cqw;height:.32cqw;border-radius:50%;background:#fff;box-shadow:0 0 .7cqw .2cqw rgba(255,255,255,.75);opacity:0;animation:fxDot linear infinite}
+@keyframes fxDot{0%{transform:translate(0,0);opacity:0}10%{opacity:.9}85%{opacity:.6}100%{transform:translate(var(--dx),-62cqw);opacity:0}}
+.fx-water{position:absolute;left:0;right:0;bottom:0;height:16%;background:repeating-linear-gradient(90deg,transparent 0 6%,rgba(255,255,255,.07) 8%,transparent 12%);background-size:200% 100%;
+  -webkit-mask:linear-gradient(transparent,#000 40%);mask:linear-gradient(transparent,#000 40%);animation:fxWater 14s linear infinite}
+@keyframes fxWater{to{background-position:-200% 0}}
+.fx-logo{position:absolute;overflow:hidden;z-index:2;pointer-events:none;-webkit-mask:var(--plate) no-repeat;mask:none}
+.fx-logo::after{content:"";position:absolute;top:-20%;bottom:-20%;width:28%;left:-40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);mix-blend-mode:overlay;animation:fxLogo 6.5s ease-in-out infinite}
+@keyframes fxLogo{0%,70%{transform:translateX(0)}100%{transform:translateX(560%)}}
+/* lifting cards: a copy of the card's patch of the picture tilts toward the mouse; its numbers, subtitle and arrow ride on it */
+.lift{position:absolute;z-index:2;background-repeat:no-repeat;transform-style:preserve-3d;will-change:transform;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,0)) scale(var(--sc,1))}
+.lift.up{--ty:-.9cqw;--sc:1.025;box-shadow:0 2.2cqw 3.6cqw -1.2cqw color-mix(in srgb,var(--c) 70%,rgba(0,0,0,.5)),0 0 0 .14cqw color-mix(in srgb,var(--c) 60%,#fff)}
+.lift::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at var(--mx,50%) var(--my,30%),rgba(255,255,255,.28),transparent 45%);opacity:0;transition:opacity .3s}
+.lift.up::before{opacity:1}
+.lift::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 .12cqw color-mix(in srgb,var(--c) 55%,transparent),0 0 1.6cqw color-mix(in srgb,var(--c) 45%,transparent);animation:fxEdge 3.2s ease-in-out infinite}
+@keyframes fxEdge{50%{box-shadow:inset 0 0 0 .14cqw color-mix(in srgb,var(--c) 85%,#fff),0 0 2.6cqw color-mix(in srgb,var(--c) 70%,transparent)}}
+a.hs.card.lifted{z-index:3;transition:transform .35s cubic-bezier(.2,.8,.2,1);transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,0)) scale(var(--sc,1))}
+a.hs.card.lifted.up{--ty:-.9cqw;--sc:1.025;background:transparent;box-shadow:none}
+.lift .ico{position:absolute;border-radius:22%;background-repeat:no-repeat;animation:fxFloat 3.6s ease-in-out infinite;box-shadow:0 .8cqw 1.6cqw -.6cqw rgba(0,0,0,.35)}
+.lift .ico::before{content:"";position:absolute;inset:-35%;border-radius:50%;z-index:-1;background:radial-gradient(circle,color-mix(in srgb,var(--c) 75%,#fff),transparent 65%);opacity:.55;animation:fxHalo 3.6s ease-in-out infinite}
+@keyframes fxFloat{50%{transform:translateY(-.55cqw)}}
+@keyframes fxHalo{50%{opacity:.95;transform:scale(1.15)}}
+.lift .bt{pointer-events:none}
+@media (prefers-reduced-motion:reduce){ .fx *,.fx-logo::after,.lift,.lift::after,.lift .ico,.lift .ico::before{animation:none!important;transition:none!important} }
+
 button.hs{border:0;background:none;padding:0;font:inherit}
 /* live cards: soft breathing glow + a shine that sweeps across */
 a.hs.card{overflow:hidden;animation:breathe 3.4s ease-in-out infinite}
@@ -692,6 +807,53 @@ body.entering .hs.card,body.entering .tools,body.entering .pclk,body.entering .c
       if(done){ el.classList.add('on'); MoisCount(el,'b',1100,true); }
     }).catch(function(){});
   });
+
+  /* ===== portal effects (cfg.fx) ===== */
+  if(CFG.fx){ var FX=CFG.fx;
+    var fx=document.createElement('div'); fx.className='fx'; fx.setAttribute('aria-hidden','true');
+    fx.innerHTML='<div class="fx-sun"></div><div class="fx-rays"></div><div class="fx-water"></div>'
+      +(FX.steam||[]).map(function(p,i){ return [0,1,2].map(function(k){ return '<i class="fx-steam" style="left:'+(p[0]/W*100)+'%;top:'+(p[1]/H*100)+'%;animation-delay:'+(-(i*1.3+k*2.3)%7).toFixed(2)+'s"></i>'; }).join(''); }).join('');
+    for(var n=0;n<26;n++){ var d=document.createElement('i'); d.className='fx-dot';
+      d.style.cssText='left:'+(Math.random()*100).toFixed(1)+'%;--dx:'+((Math.random()-.5)*8).toFixed(1)+'cqw;animation-duration:'+(9+Math.random()*9).toFixed(1)+'s;animation-delay:'+(-Math.random()*18).toFixed(1)+'s;transform:scale('+(.5+Math.random()).toFixed(2)+')';
+      fx.appendChild(d); }
+    st.insertBefore(fx,img.nextSibling);
+    if(FX.logo){ var lb=FX.logo, lg=document.createElement('div'); lg.className='fx-logo';
+      lg.style.cssText='left:'+(lb[0]/W*100)+'%;top:'+(lb[1]/H*100)+'%;width:'+((lb[2]-lb[0])/W*100)+'%;height:'+((lb[3]-lb[1])/H*100)+'%'; st.appendChild(lg); }
+    var crop=function(el,b){ var w=b[2]-b[0], h=b[3]-b[1];                 // a patch of the picture as a background
+      el.style.backgroundImage='var(--plate)'; el.style.backgroundSize=(W/w*100)+'% '+(H/h*100)+'%';
+      el.style.backgroundPosition=(b[0]/(W-w)*100)+'% '+(b[1]/(H-h)*100)+'%'; };
+    var inBox=function(x,y,b){ return x>=b[0]&&x<=b[2]&&y>=b[1]&&y<=b[3]; };
+    var stats=[].slice.call(st.querySelectorAll('.pstat,.ptxt')), bts=[].slice.call(st.querySelectorAll('.bt'));
+    CFG.spots.forEach(function(s,si){
+      if(!s.card||!s.href) return;
+      var b=s.box, bw=b[2]-b[0], bh=b[3]-b[1], hs=[].slice.call(st.querySelectorAll('a.hs.card')).find(function(a){ return a.getAttribute('aria-label')===s.label; });
+      if(!hs) return;
+      var L=document.createElement('div'); L.className='lift';
+      L.style.cssText='left:'+(b[0]/W*100)+'%;top:'+(b[1]/H*100)+'%;width:'+(bw/W*100)+'%;height:'+(bh/H*100)+'%;border-radius:calc('+(s.r||12)+' * 100cqw / '+W+');--c:'+(s.c||'#3b82f6');
+      crop(L,b); st.insertBefore(L,hs); hs.classList.add('lifted');
+      var ic=(FX.icons||[])[si];                                         // the card's icon floats, with a halo of its colour
+      if(ic){ var ib=[ic[0]-ic[2],ic[1]-ic[2],ic[0]+ic[2],ic[1]+ic[2]], I=document.createElement('i'); I.className='ico';
+        I.style.cssText='left:'+((ib[0]-b[0])/bw*100)+'%;top:'+((ib[1]-b[1])/bh*100)+'%;width:'+(2*ic[2]/bw*100)+'%;height:'+(2*ic[2]/bh*100)+'%';
+        crop(I,ib); L.appendChild(I); }
+      var move=function(el,host){                                        // stage-level overlay → child of the lifting card
+        var x=parseFloat(el.style.left)/100*W, y=parseFloat(el.style.top)/100*H;
+        if(!inBox(x+1,y+1,b)) return;
+        el.style.left=((x-b[0])/bw*100)+'%'; el.style.top=((y-b[1])/bh*100)+'%';
+        if(el.style.width&&el.style.width.indexOf('%')>0) el.style.width=(parseFloat(el.style.width)/100*W/bw*100)+'%';
+        if(el.style.height&&el.style.height.indexOf('%')>0) el.style.height=(parseFloat(el.style.height)/100*H/bh*100)+'%';
+        if(el.classList.contains('bt')){ el.style.backgroundSize=''; crop(el,[x,y,x+parseFloat(el.style.width)/100*bw,y+parseFloat(el.style.height)/100*bh]); }
+        host.appendChild(el); };
+      stats.forEach(function(e){ move(e,hs); }); bts.forEach(function(e){ move(e,L); });
+      var set=function(rx,ry,mx,my){ [L,hs].forEach(function(e){ e.style.setProperty('--rx',rx+'deg'); e.style.setProperty('--ry',ry+'deg'); });
+        L.style.setProperty('--mx',mx+'%'); L.style.setProperty('--my',my+'%'); };
+      hs.addEventListener('mousemove',function(e){ var r=hs.getBoundingClientRect(), px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+        set(((.5-py)*7).toFixed(2),((px-.5)*9).toFixed(2),(px*100).toFixed(0),(py*100).toFixed(0)); });
+      var up=function(){ L.classList.add('up'); hs.classList.add('up'); }, down=function(){ L.classList.remove('up'); hs.classList.remove('up'); set(0,0,50,30); };
+      hs.addEventListener('mouseenter',up); hs.addEventListener('mouseleave',down); hs.addEventListener('focus',up); hs.addEventListener('blur',down);
+    });
+    document.addEventListener('mousemove',function(e){                   // the light layer drifts a little with the mouse
+      var x=(e.clientX/innerWidth-.5), y=(e.clientY/innerHeight-.5); fx.style.transform='translate('+(x*-1.2).toFixed(2)+'cqw,'+(y*-.8).toFixed(2)+'cqw)'; });
+  }
   if(/[?&]dbg=1/.test(location.search)) Array.prototype.forEach.call(document.querySelectorAll('.hs'),function(e){ e.style.outline='2px solid magenta'; });
 })();
 <\/script>
