@@ -14096,20 +14096,30 @@ function tags(list,ctx){
       return '<div class="tg '+cls+'" data-k="'+esc(p.k)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — ดูแนวโน้มและบันทึกย้อนหลัง" '+pos+' title="'+esc((p.full||p.n)+(p.note?' · '+p.note:''))+'">'
         +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b>'+(L?N(L.v,ctx.dec(p.k)):'–')+'</b><small>'+(L?esc(ctx.unit(p.k)):'')+'</small></div>';
     }
-    var s=ST[p.st]||ST.nopi;
+    if(p.calc&&ctx.calc){                                        // computed from PI points (average of the pans, strikes from levels …)
+      var c=ctx.calc(p), has=c&&c.v!=null&&isFinite(c.v);
+      return '<div class="tg '+(has?'info':'na')+'" data-p="'+esc(p.id)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — คำนวณจาก PI" '+pos+' title="'+esc((p.full||p.n)+' · คำนวณจาก PI')+'">'
+        +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b>'+(has?N(c.v,c.d):'–')+'</b><small>'+(has?esc(c.u||''):'')+'</small></div>';
+    }
+    var s=ST[p.st]||ST.nopi, ev=p.e&&ctx.entered?ctx.entered(p.e):null;
+    if(ev) return '<div class="tg np '+ow+'" data-p="'+esc(p.id)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — ค่าที่กรอก" '+pos+' style="--sc:#0f172a" title="'+esc((p.full||p.n)+' · ค่าที่กรอก ครั้งที่ '+ev.slot)+'">'
+      +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b style="font-size:1em!important">'+N(ev.v,p.dd==null?2:p.dd)+'</b><small>'+esc(p.u||'')+' · กรอก</small></div>';
     return '<div class="tg np '+ow+'" data-p="'+esc(p.id)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — '+s[0]+'" '+pos+' style="--sc:'+s[1]+'" title="'+esc((p.full||p.n)+' · '+s[0])+'">'
       +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b>'+(ow==='own'?'✎ ':'')+s[0]+'</b></div>';
   }).join('');
 }
 function info(p,ctx){
-  var s=ST[p.st]||ST.nopi, ow=owned(p,ctx), bg=document.createElement('div'); bg.className='mf-bg';
+  var s=p.calc?['คำนวณจาก PI','#2563eb']:(ST[p.st]||ST.nopi), ow=owned(p,ctx), bg=document.createElement('div'); bg.className='mf-bg';
+  var c=p.calc&&ctx.calc?ctx.calc(p):null, ev=p.e&&ctx.entered?ctx.entered(p.e):null;
+  var val=c?'<dt>ค่าตอนนี้</dt><dd><b>'+(c.v!=null&&isFinite(c.v)?N(c.v,c.d)+' '+esc(c.u||''):'–')+'</b>'+(c.detail&&c.detail.length?'<br><small style="color:#64748b">'+c.detail.map(esc).join(' · ')+'</small>':'')+'</dd>'
+    :ev?'<dt>ค่าที่กรอกล่าสุด</dt><dd><b>'+N(ev.v,p.dd==null?2:p.dd)+' '+esc(p.u||'')+'</b> <small style="color:#64748b">ครั้งที่ '+ev.slot+(ev.by?' · '+esc(ev.by):'')+'</small></dd>':'';
   var who=p.owner?OWN[p.owner]:'หม้อต้มระเหย';
   var act=ow==='lk'?'<div class="lock">🔒 ค่านี้เป็นของ<b>'+OWN[p.owner]+'</b> — กรอกได้จากหน้า '+OWN[p.owner]+' เท่านั้น หน้านี้ดูได้อย่างเดียว</div>'
-    :(p.st==='manual'||p.st==='lab'||p.st==='nopi'||p.st==='ai')&&ctx.entry?'<a class="go" href="'+ctx.entry+'">✎ ไปหน้าบันทึกของ'+who+'</a>':'';
+    :(p.e||p.st==='manual'||p.st==='lab'||p.st==='nopi'||p.st==='ai')&&ctx.entry?'<a class="go" href="'+ctx.entry+'">✎ ไปหน้าบันทึกของ'+who+'</a>':'';
   bg.innerHTML='<section class="mf" role="dialog" aria-modal="true" aria-label="'+esc(p.full||p.n)+'"><header><div><h3>'+esc(p.full||p.n)+'</h3><small>'+esc(who)+(p.k?' · PI '+esc(p.k):'')+'</small></div><button type="button" class="x" aria-label="ปิด">✕</button></header>'
     +'<div class="bd"><div><span class="chip" style="background:'+s[1]+'">'+s[0]+'</span></div><dl>'
-    +(p.note?'<dt>วิธีเก็บข้อมูล</dt><dd>'+esc(p.note)+'</dd>':'')+(p.freq?'<dt>ความถี่</dt><dd>'+esc(p.freq)+'</dd>':'')
-    +'<dt>ผู้บันทึก</dt><dd>'+esc(who)+'</dd><dt>สถานะในระบบ</dt><dd>'+(p.st==='tag'?'มีจุดวัดแล้ว รอระบุ Tag PI เพื่อดึงค่าอัตโนมัติ':'ยังไม่มีค่าในระบบ — ตามรายการ Parameter Top5 (RPA)')+'</dd></dl>'+act+'</div></section>';
+    +val+(p.note?'<dt>วิธีเก็บข้อมูล</dt><dd>'+esc(p.note)+'</dd>':'')+(p.freq?'<dt>ความถี่</dt><dd>'+esc(p.freq)+'</dd>':'')
+    +'<dt>ผู้บันทึก</dt><dd>'+esc(who)+'</dd><dt>สถานะในระบบ</dt><dd>'+(p.calc?'คำนวณอัตโนมัติจากจุดวัด PI':ev?'ใช้ค่าที่กรอกในหน้าบันทึก (วันผลิตนี้)':p.st==='tag'?'มีจุดวัดแล้ว รอระบุ Tag PI เพื่อดึงค่าอัตโนมัติ':'ยังไม่มีค่าในระบบ — กรอกได้ที่หน้าบันทึก')+'</dd></dl>'+act+'</div></section>';
   document.body.appendChild(bg);
   var close=function(){ bg.remove(); document.removeEventListener('keydown',key); };
   var key=function(e){ if(e.key==='Escape') close(); };
@@ -14418,12 +14428,12 @@ const CARDS=[
 const PIPES=[];
 const PUFFS=[];
 /* vessels that shake while running (picture pixels: x0,y0,x1,y1) and steam plumes [x,y,drift,delay] */
-const VIBS=[];
+const VIBS=[[149,113,218,243,''],[261,113,332,243,'b'],[373,113,443,243,'c'],[475,113,542,243,''],[796,111,870,245,'b'],[902,111,974,245,'c'],[1009,111,1077,245,''],[1110,111,1178,245,'b'],[1212,111,1280,245,'c'],[1329,54,1450,245,'big'],[439,647,520,791,''],[580,647,659,791,'b'],[718,647,798,791,'c'],[857,647,937,791,''],[1003,647,1084,791,'b'],[1795,577,1918,688,'c']];
 const JETS=[];
 const SMOKE=[];
 const VENTS=[];          // [x, y, drift, rise] — steam rises from the vapour pipes
 const PLUMES=VENTS.flatMap(([x,y,dx,rise],v)=>[0,1].map(i=>[x+(i*2-1)*4,y,dx*(1+i*.25),(i*1.0+v*.37)%3,rise]));
-const GEARS=[];
+const GEARS=[[1726,760,58]];      // the RVF drum turns
 const BUBS=[];
 const TRENDS=[['evbxi_a001','Brix น้ำเชื่อม'],['evpic_a004','สุญญากาศหม้อ 5'],['mjflow','น้ำอ้อยรวมเข้า'],['evtic_a012','น้ำอ้อยหลังอุ่น'],['evpic_a003','แรงดันไอหม้อ 1'],['evphi_a004','pH น้ำอ้อยใส่ปูน']];
 const BX_IN=15;            // QUT 09: quintuple effect, juice in ~15 Brix (until the lab value for clear juice is typed on บันทึก)
@@ -14433,21 +14443,21 @@ const TAGS=[];      // replaced by FLOW (the Dashboard_Process diagram)
 /* Dashboard_Process (slide "ต้ม") + Parameter_Top5_RPA (slide "หม้อต้ม") — positions in diagram pixels 2067 × 1000 */
 const FLOW=[
  {id:'mj', x:205, y:300, n:'น้ำอ้อยรวมเข้า', full:'Mixed juice เข้าหม้อต้ม (มิเตอร์ 1+2)', k:'mjflow'},
- {id:'tp', x:340, y:88,  n:'Temp Primary', full:'อุณหภูมิ Primary heater', st:'nopi', note:'ดู Temp ในการผสมน้ำยา'},
+ {id:'tp',x:340, y:88, n:'Temp Primary', full:'อุณหภูมิน้ำอ้อยหลัง Primary heater', k:'evtic_a012', note:'ใช้ HEATER JUICE TEMP (EVTIC-A012) — ตรวจว่าเป็นจุด Primary'},
  {id:'phl',x:628, y:372, n:'pH Lime Juice', full:'pH น้ำอ้อยใส่ปูน (Lime juice)', k:'evphi_a004'},
- {id:'flj',x:700, y:600, n:'Flow Lime Juice', full:'Flow น้ำอ้อยใส่ปูน (Lime juice)', st:'nopi'},
- {id:'lft',x:1389,y:205, n:'Level Flash Tank', full:'ระดับ Flash tank', st:'nopi'},
- {id:'tur', x:1530, y:630, n:'Turbidity', full:'Turbidity น้ำใส', st:'lab', freq:'6 ชม. / ครั้ง', note:'ถ่ายรูปใส่หลอดแก้วที่ส่องประจำ แล้วให้ AI image เก็บข้อมูล'},
+ {id:'flj',x:700, y:600, n:'Flow Lime Juice', full:'Flow น้ำอ้อยใส่ปูน (Lime juice)', k:'evfi_a004', note:'ใช้ FLASH TANK FLOW (EVFI-A004) — น้ำอ้อยใส่ปูนที่ผ่าน heater ชุด 2 เข้า Flash tank'},
+ {id:'lft',x:1389, y:205, n:'Level Flash Tank', full:'ระดับ Flash tank', st:'nopi', e:'evap:flash_lvl', u:'%', dd:0},
+ {id:'tur',x:1530, y:630, n:'Turbidity', full:'Turbidity น้ำใส', st:'lab', e:'evap:turb', u:'NTU', dd:1, freq:'6 ชม. / ครั้ง', note:'ถ่ายรูปใส่หลอดแก้วที่ส่องประจำ แล้วให้ AI image เก็บข้อมูล'},
  {id:'pex', x:1260, y:480, n:'แรงดัน Exhaust', full:'แรงดันไอ Exhaust เข้าหม้อ 1', k:'evpic_a005'},
  {id:'pv1', x:1110, y:600, n:'แรงดัน V1', full:'แรงดันไอหม้อ 1 (V1)', k:'evpic_a003'},
  {id:'e5', x:560, y:575, n:'สุญญากาศ E5', full:'สุญญากาศหม้อ 5', k:'evpic_a004'},
  {id:'bsy', x:150, y:760, n:'Brix น้ำเชื่อม', full:'Brix น้ำเชื่อม (หม้อสุดท้าย)', k:'evbxi_a001'},
- {id:'fsy', x:150, y:850, n:'Flow น้ำเชื่อม', full:'Flow rate น้ำเชื่อม', st:'tag', note:'คำนวณปริมาณน้ำตาลก่อนเข้าหม้อเคี่ยว'},
+ {id:'fsy',x:150, y:850, n:'Flow น้ำเชื่อม', full:'Flow rate น้ำเชื่อม', st:'tag', e:'evap:syr_flow', u:'m³/h', dd:1, note:'คำนวณปริมาณน้ำตาลก่อนเข้าหม้อเคี่ยว'},
  {id:'rst', x:150, y:940, n:'ถังน้ำเชื่อมดิบ', full:'ระดับถังน้ำเชื่อมดิบ (Raw syrup tank)', k:'bpli_a001'},
- {id:'phf', x:1500, y:700, n:'pH Filtrate', full:'pH น้ำกรอง (Mud filtrate)', st:'lab', note:'ไม่มีใน DCS — ผลแล็บ · ดู Impurity ที่วนในระบบ'},
- {id:'rvv', x:1500, y:780, n:'Vacuum หม้อกรอง', full:'Vacuum Low / High ของหม้อกรองแต่ละลูก', st:'nopi'},
- {id:'rvr', x:1500, y:860, n:'รอบหม้อกรอง', full:'รอบหม้อกรอง (รอบ/นาที แต่ละลูก)', st:'nopi', note:'ก่อน Run: เก็บข้อมูลแต่ละรอบเพื่อดูเวลา'},
- {id:'rvw', x:1965, y:650, n:'น้ำพรม % Cake', full:'ปริมาณน้ำพรมหม้อกรอง % Cake', st:'nopi', note:'ต้องมี Flow น้ำพรม และปริมาณ Cake ชั่งออก'}];
+ {id:'phf',x:1500, y:700, n:'pH Filtrate', full:'pH น้ำกรอง (Mud filtrate)', st:'lab', e:'evap:filt_ph', u:'', dd:2, note:'ไม่มีใน DCS — ผลแล็บ · ดู Impurity ที่วนในระบบ'},
+ {id:'rvv',x:1500, y:780, n:'Vacuum หม้อกรอง', full:'Vacuum Low / High ของหม้อกรองแต่ละลูก', st:'nopi', e:'evap:rvf_vac_lo', u:'mmHg (low)', dd:0},
+ {id:'rvr',x:1500, y:860, n:'รอบหม้อกรอง', full:'รอบหม้อกรอง (รอบ/นาที แต่ละลูก)', st:'nopi', e:'evap:rvf_rpm', u:'รอบ/นาที', dd:2, note:'ก่อน Run: เก็บข้อมูลแต่ละรอบเพื่อดูเวลา'},
+ {id:'rvw',x:1965, y:650, n:'น้ำพรม % Cake', full:'ปริมาณน้ำพรมหม้อกรอง % Cake', st:'nopi', e:'evap:rvf_wash', u:'% cake', dd:0, note:'ต้องมี Flow น้ำพรม และปริมาณ Cake ชั่งออก'}];
 const LANE_OFF=LANE.filter(id=>!TAGS.some(t=>t[0]===id));      // strip under the picture: only what is not already a tag on it
 let S=null, REP=null, COUNTED=false;
 function series(k){ if(!S) return []; const rows=S.readings||[];
@@ -14488,6 +14498,20 @@ const FCTX={page:'evap', X0, CW, H, entry:'?p=evapentry', latest:k=>latest(k), l
 const openFlow=t=>{ const p=FLOW.find(q=>q.id===t.dataset.p); if(p&&window.MoisFlow) MoisFlow.info(p,FCTX); };
 document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.tg[data-p]'); if(t) openFlow(t); });
 document.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('.tg[data-p]')){ e.preventDefault(); openFlow(e.target); } });
+/* values typed on the entry pages (today's production day) — shown on the diagram for parameters that are not in PI */
+let LAB={};
+async function loadLab(){ for(const s0 of ['evap']){ try{ const r=await fetch(`${API}/api/${s0}/lab`,{cache:'no-store'}); if(r.ok){ const j=await r.json(); LAB[s0]=j.values||{}; } }catch(e){} } if(S) renderTags(); }
+FCTX.entered=e=>{ const [s0,item]=e.split(':'), v=(LAB[s0]||{})[item]; if(!v) return null; let best=null;
+  Object.keys(v).forEach(k=>{ const o=v[k], val=o&&typeof o==='object'?o.value:o; if(val!=null&&(!best||+k>best.slot)) best={slot:+k, v:val, by:o&&o.by}; }); return best; };
+/* computed from PI: average of the pans · strikes = a crystalliser level rising through 60 % */
+FCTX.calc=p=>{ const rows=(S&&S.readings)||[];
+  if(p.calc==='avg'){ const vs=p.keys.map(k=>{ const L=latest(k); return L?L.v:null; }), ok=vs.filter(v=>v!=null);
+    return {v:ok.length?ok.reduce((a,b)=>a+b,0)/ok.length:null, u:p.u, d:p.dd==null?1:p.dd, detail:p.keys.map((k,i)=>(p.names?p.names[i]:k)+' '+(vs[i]==null?'–':N(vs[i],p.dd==null?1:p.dd)))}; }
+  if(p.calc==='stk'){ let tot=0, any=false; const det=p.keys.map((k,i)=>{ let n=0, prev=null; rows.forEach(r=>{ const v=r[k]; if(v==null) return; any=true; if(prev!=null&&prev<60&&v>=60) n++; prev=v; }); tot+=n; return (p.names?p.names[i]:k)+' '+n; });
+    return {v:any?tot:null, u:'STK / 8 ชม.', d:0, detail:det}; }
+  return null; };
+loadLab(); setInterval(loadLab,300000);
+
 /* push overlapping tags apart (downwards, then upwards at the bottom edge) — a few passes */
 function untangle(){ const pic=$('stage').querySelector('.pic'); if(!pic) return; const PW=pic.clientWidth, PH=pic.clientHeight; if(!PW) return;
   const els=[...pic.querySelectorAll('.tg')], pad=6;
@@ -15716,20 +15740,30 @@ function tags(list,ctx){
       return '<div class="tg '+cls+'" data-k="'+esc(p.k)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — ดูแนวโน้มและบันทึกย้อนหลัง" '+pos+' title="'+esc((p.full||p.n)+(p.note?' · '+p.note:''))+'">'
         +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b>'+(L?N(L.v,ctx.dec(p.k)):'–')+'</b><small>'+(L?esc(ctx.unit(p.k)):'')+'</small></div>';
     }
-    var s=ST[p.st]||ST.nopi;
+    if(p.calc&&ctx.calc){                                        // computed from PI points (average of the pans, strikes from levels …)
+      var c=ctx.calc(p), has=c&&c.v!=null&&isFinite(c.v);
+      return '<div class="tg '+(has?'info':'na')+'" data-p="'+esc(p.id)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — คำนวณจาก PI" '+pos+' title="'+esc((p.full||p.n)+' · คำนวณจาก PI')+'">'
+        +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b>'+(has?N(c.v,c.d):'–')+'</b><small>'+(has?esc(c.u||''):'')+'</small></div>';
+    }
+    var s=ST[p.st]||ST.nopi, ev=p.e&&ctx.entered?ctx.entered(p.e):null;
+    if(ev) return '<div class="tg np '+ow+'" data-p="'+esc(p.id)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — ค่าที่กรอก" '+pos+' style="--sc:#0f172a" title="'+esc((p.full||p.n)+' · ค่าที่กรอก ครั้งที่ '+ev.slot)+'">'
+      +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b style="font-size:1em!important">'+N(ev.v,p.dd==null?2:p.dd)+'</b><small>'+esc(p.u||'')+' · กรอก</small></div>';
     return '<div class="tg np '+ow+'" data-p="'+esc(p.id)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — '+s[0]+'" '+pos+' style="--sc:'+s[1]+'" title="'+esc((p.full||p.n)+' · '+s[0])+'">'
       +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b>'+(ow==='own'?'✎ ':'')+s[0]+'</b></div>';
   }).join('');
 }
 function info(p,ctx){
-  var s=ST[p.st]||ST.nopi, ow=owned(p,ctx), bg=document.createElement('div'); bg.className='mf-bg';
+  var s=p.calc?['คำนวณจาก PI','#2563eb']:(ST[p.st]||ST.nopi), ow=owned(p,ctx), bg=document.createElement('div'); bg.className='mf-bg';
+  var c=p.calc&&ctx.calc?ctx.calc(p):null, ev=p.e&&ctx.entered?ctx.entered(p.e):null;
+  var val=c?'<dt>ค่าตอนนี้</dt><dd><b>'+(c.v!=null&&isFinite(c.v)?N(c.v,c.d)+' '+esc(c.u||''):'–')+'</b>'+(c.detail&&c.detail.length?'<br><small style="color:#64748b">'+c.detail.map(esc).join(' · ')+'</small>':'')+'</dd>'
+    :ev?'<dt>ค่าที่กรอกล่าสุด</dt><dd><b>'+N(ev.v,p.dd==null?2:p.dd)+' '+esc(p.u||'')+'</b> <small style="color:#64748b">ครั้งที่ '+ev.slot+(ev.by?' · '+esc(ev.by):'')+'</small></dd>':'';
   var who=p.owner?OWN[p.owner]:'หม้อต้มระเหย';
   var act=ow==='lk'?'<div class="lock">🔒 ค่านี้เป็นของ<b>'+OWN[p.owner]+'</b> — กรอกได้จากหน้า '+OWN[p.owner]+' เท่านั้น หน้านี้ดูได้อย่างเดียว</div>'
-    :(p.st==='manual'||p.st==='lab'||p.st==='nopi'||p.st==='ai')&&ctx.entry?'<a class="go" href="'+ctx.entry+'">✎ ไปหน้าบันทึกของ'+who+'</a>':'';
+    :(p.e||p.st==='manual'||p.st==='lab'||p.st==='nopi'||p.st==='ai')&&ctx.entry?'<a class="go" href="'+ctx.entry+'">✎ ไปหน้าบันทึกของ'+who+'</a>':'';
   bg.innerHTML='<section class="mf" role="dialog" aria-modal="true" aria-label="'+esc(p.full||p.n)+'"><header><div><h3>'+esc(p.full||p.n)+'</h3><small>'+esc(who)+(p.k?' · PI '+esc(p.k):'')+'</small></div><button type="button" class="x" aria-label="ปิด">✕</button></header>'
     +'<div class="bd"><div><span class="chip" style="background:'+s[1]+'">'+s[0]+'</span></div><dl>'
-    +(p.note?'<dt>วิธีเก็บข้อมูล</dt><dd>'+esc(p.note)+'</dd>':'')+(p.freq?'<dt>ความถี่</dt><dd>'+esc(p.freq)+'</dd>':'')
-    +'<dt>ผู้บันทึก</dt><dd>'+esc(who)+'</dd><dt>สถานะในระบบ</dt><dd>'+(p.st==='tag'?'มีจุดวัดแล้ว รอระบุ Tag PI เพื่อดึงค่าอัตโนมัติ':'ยังไม่มีค่าในระบบ — ตามรายการ Parameter Top5 (RPA)')+'</dd></dl>'+act+'</div></section>';
+    +val+(p.note?'<dt>วิธีเก็บข้อมูล</dt><dd>'+esc(p.note)+'</dd>':'')+(p.freq?'<dt>ความถี่</dt><dd>'+esc(p.freq)+'</dd>':'')
+    +'<dt>ผู้บันทึก</dt><dd>'+esc(who)+'</dd><dt>สถานะในระบบ</dt><dd>'+(p.calc?'คำนวณอัตโนมัติจากจุดวัด PI':ev?'ใช้ค่าที่กรอกในหน้าบันทึก (วันผลิตนี้)':p.st==='tag'?'มีจุดวัดแล้ว รอระบุ Tag PI เพื่อดึงค่าอัตโนมัติ':'ยังไม่มีค่าในระบบ — กรอกได้ที่หน้าบันทึก')+'</dd></dl>'+act+'</div></section>';
   document.body.appendChild(bg);
   var close=function(){ bg.remove(); document.removeEventListener('keydown',key); };
   var key=function(e){ if(e.key==='Escape') close(); };
@@ -16047,7 +16081,7 @@ const RPT={vhpm:['vhpm_purity','vhpm_brix'], bm:['bm_purity','bm_brix'], cm:['cm
 const PIPES=[];
 const PUFFS=[];
 /* vessels that shake while running (picture pixels: x0,y0,x1,y1) and steam / smoke */
-const VIBS=[];
+const VIBS=[[243,72,333,215,'big'],[430,5,522,145,'b big'],[648,5,740,148,'c big'],[763,90,850,230,'big'],[1172,0,1260,140,'b big'],[1314,70,1404,212,'c big'],[354,385,476,508,''],[791,380,913,505,'b'],[1236,395,1320,516,'c'],[1510,505,1650,572,''],[1405,325,1445,455,'b'],[152,513,216,595,'c']];
 const JETS=[];
 const SMOKE=[];
 const VENTS=[];          // [x, y, drift, rise] — steam rises from the vapour pipes
@@ -16065,23 +16099,23 @@ const TAGS=[];      // replaced by FLOW (the Dashboard_Process diagram)
 /* Dashboard_Process (slide "เคี่ยว_ปั่น") + Parameter_Top5_RPA (slide "หม้อเคี่ยว & ปั่น") — the same diagram on the Vacuum Pan and the
    Centrifugal page (diagram pixels 1650 × 762). owner: who records the value — the other page shows it locked. */
 const FLOW=[
- {id:'amc',x:1215,y:18,  n:'A-Mass % Cane', st:'tag', owner:'pan', note:'นับจำนวนหม้อ (strike) ตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'bmc',x:693, y:18,  n:'B-Mass % Cane', st:'tag', owner:'pan', note:'นับจำนวนหม้อ (strike) ตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'cmc',x:476, y:18,  n:'C-Mass % Cane', st:'tag', owner:'pan', note:'นับจำนวนหม้อ (strike) ตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'bxa',x:1530, y:100, n:'Brix A-Mass', st:'lab', owner:'pan', note:'ช่วงแรกเก็บตัวอย่างวัด Brix เทียบกระแสรางกวน (เช็คว่ามีกระแสรางกวนใน DCS หรือไม่)'},
- {id:'bxb',x:560, y:180, n:'Brix B-Mass', st:'lab', owner:'pan', note:'ช่วงแรกเก็บตัวอย่างวัด Brix เทียบกระแสรางกวน (เช็คว่ามีกระแสรางกวนใน DCS หรือไม่)'},
- {id:'bxc',x:120, y:110, n:'Brix C-Mass', full:'Brix C-Mass (หม้อ C2)', k:'bpdic_c211', owner:'pan'},
- {id:'asd',x:1357,y:250, n:'A-Seed/A-Mass', st:'tag', owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'bsd',x:807, y:255, n:'B-Seed/B-Mass', st:'tag', owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'csd',x:288, y:240, n:'C-Seed/C-Mass', st:'tag', owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'sls',x:110, y:250, n:'Slurry Seed/Stk.', full:'ปริมาณ Slurry Seed ต่อ Strike', st:'manual', owner:'pan', note:'คนกรอก (คอนเฟิร์มจาก Stock Slurry)'},
- {id:'csz',x:600, y:300, n:'ขนาดเม็ด A,B,C', full:'ขนาดเม็ดน้ำตาล A, B, C', st:'ai', owner:'pan', note:'โปรแกรม AI วัดเม็ดด้วยกล้อง Dino'},
- {id:'stk',x:40,  y:330, n:'Stock', full:'Stock — รวม Level วัตถุดิบ', st:'tag', owner:'cf', note:'รวม Level วัตถุดิบ'},
- {id:'fmc',x:415, y:540, n:'Final Mol. % Cane', full:'Final Molasses % Cane', st:'tag', owner:'cf'},
- {id:'wtr',x:852, y:540, n:'Water % Mass', full:'Water % Mass A, B, C', st:'calc', owner:'cf', note:'นำมิเตอร์น้ำ A, B, C เทียบกับจำนวน Mass'},
- {id:'kgm',x:1278,y:545, n:'Kgs/m³ Mass A', st:'calc', owner:'cf', note:'สรุปน้ำตาล 8 ชั่วโมง ÷ จำนวน A-Mass'},
- {id:'col',x:1580,y:610, n:'สีน้ำตาล A,B,C', full:'ค่าสีน้ำตาล A, B, C', st:'ai', owner:'cf', note:'ถ่ายรูปจากกองน้ำตาลรายชั่วโมงอยู่แล้ว (อนาคตใช้ AI วัดเหมือนขนาดเม็ด)'},
- {id:'tsh',x:1300,y:700, n:'Ton Sugar/ชม.', full:'Ton Sugar รายชั่วโมง', st:'tag', owner:'cf'}];
+ {id:'amc',x:1215, y:18, n:'A-Mass (STK)', full:'A-Mass — จำนวน strike (8 ชม.)', calc:'stk', keys:['bpli_a109','bpli_a209','bpli_a309','bpli_a409'], names:['รางกวน A1','A2','A3','A4'], e:'pan:a_stk', owner:'pan', note:'นับครั้งที่ Level รางกวนขึ้นถึง 60% = 1 STK (ตามข้อเสนอใน Top5) · ต้องใช้ปริมาตรต่อหม้อและอ้อยเพื่อคิด % Cane'},
+ {id:'bmc',x:693, y:18, n:'B-Mass (STK)', full:'B-Mass — จำนวน strike (8 ชม.)', calc:'stk', keys:['bpli_b109','bpli_b209'], names:['รางกวน B1','B2'], e:'pan:b_stk', owner:'pan', note:'นับครั้งที่ Level รางกวนขึ้นถึง 60% = 1 STK · ต้องใช้ปริมาตรต่อหม้อและอ้อยเพื่อคิด % Cane'},
+ {id:'cmc',x:476, y:18, n:'C-Mass (STK)', full:'C-Mass — จำนวน strike (8 ชม.)', calc:'stk', keys:['bpli_c109','bpli_c110','bpli_c111','bpli_c112','bpli_c113','bpli_c114'], names:['รางกวน C1','C2','C3','C4','C5','C6'], e:'pan:c_stk', owner:'pan', note:'นับครั้งที่ Level รางกวนขึ้นถึง 60% = 1 STK · ต้องใช้ปริมาตรต่อหม้อและอ้อยเพื่อคิด % Cane'},
+ {id:'bxa',x:1530, y:100, n:'Brix A-Mass', full:'Brix A (VHP) massecuite', st:'lab', e:'pan:vhpm_brix', u:'Brix', dd:2, owner:'pan', note:'ใน PI มีจุด A1–A4 MESSECUITE BRIX แต่ยังไม่มีข้อมูล — ใช้ผลแล็บที่กรอก (Brix VHP massecuite) · ช่วงแรกเก็บตัวอย่างวัด Brix เทียบกระแสรางกวน'},
+ {id:'bxb',x:560, y:180, n:'Brix B-Mass', full:'Brix B massecuite', st:'lab', e:'pan:bm_brix', u:'Brix', dd:2, owner:'pan', note:'ใน PI มีจุด B1–B3 MESSECUITE BRIX แต่ยังไม่มีข้อมูล — ใช้ผลแล็บที่กรอก (Brix B massecuite) · ช่วงแรกเก็บตัวอย่างวัด Brix เทียบกระแสรางกวน'},
+ {id:'bxc',x:120, y:110, n:'Brix C-Mass', full:'Brix C massecuite (เฉลี่ยหม้อ C1–C3)', calc:'avg', keys:['bpdic_c203','bpdic_c211','bpdic_c312'], names:['C1','C2','C3'], u:'Brix', dd:1, owner:'pan', note:'PI: C1–C3 MESSECUITE BRIX'},
+ {id:'asd',x:1357, y:250, n:'A-Seed/A-Mass', st:'tag', e:'pan:a_seed', u:'%', dd:1, owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
+ {id:'bsd',x:807, y:255, n:'B-Seed/B-Mass', st:'tag', e:'pan:b_seed', u:'%', dd:1, owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
+ {id:'csd',x:288, y:240, n:'C-Seed/C-Mass', st:'tag', e:'pan:c_seed', u:'%', dd:1, owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
+ {id:'sls',x:110, y:250, n:'Slurry Seed/Stk.', full:'ปริมาณ Slurry Seed ต่อ Strike', st:'manual', e:'pan:slurry', u:'mL', dd:0, owner:'pan', note:'คนกรอก (คอนเฟิร์มจาก Stock Slurry)'},
+ {id:'csz',x:600, y:300, n:'ขนาดเม็ด A,B,C', full:'ขนาดเม็ดน้ำตาล A, B, C', st:'ai', e:'pan:size_a', u:'mm (A)', dd:2, owner:'pan', note:'โปรแกรม AI วัดเม็ดด้วยกล้อง Dino'},
+ {id:'stk',x:40, y:330, n:'Stock', full:'Stock — ระดับถังวัตถุดิบ (เฉลี่ย)', calc:'avg', keys:['bpli_a001','bpli_a002','bpli_b001','bpli_c001','bpli_c002','bpli_c003','cfli_a002','cfli_b002'], names:['น้ำเชื่อม','Mol A (pan)','B-Magma','C-Magma','C-Seed','C-Remelt','Mol A (ปั่น)','Mol B (ปั่น)'], u:'%', dd:0, owner:'cf', note:'รวม Level วัตถุดิบ — เฉลี่ยระดับถัง 8 ใบจาก PI'},
+ {id:'fmc',x:415, y:540, n:'Final Mol. % Cane', full:'Final Molasses % Cane', st:'tag', e:'cf:fm_pct', u:'%', dd:2, owner:'cf'},
+ {id:'wtr',x:852, y:540, n:'Water % Mass', full:'Water % Mass A, B, C', st:'calc', e:'cf:water_a', u:'% (A)', dd:1, owner:'cf', note:'นำมิเตอร์น้ำ A, B, C เทียบกับจำนวน Mass'},
+ {id:'kgm',x:1278, y:545, n:'Kgs/m³ Mass A', st:'calc', e:'cf:kgm3_a', u:'kg/m³', dd:0, owner:'cf', note:'สรุปน้ำตาล 8 ชั่วโมง ÷ จำนวน A-Mass'},
+ {id:'col',x:1580, y:610, n:'สีน้ำตาล A,B,C', full:'ค่าสีน้ำตาล A, B, C', st:'ai', e:'cf:vhp_colour', u:'IU (A)', dd:0, owner:'cf', note:'ถ่ายรูปจากกองน้ำตาลรายชั่วโมงอยู่แล้ว (อนาคตใช้ AI วัดเหมือนขนาดเม็ด)'},
+ {id:'tsh',x:1300, y:700, n:'Ton Sugar/ชม.', full:'Ton Sugar รายชั่วโมง', st:'tag', e:'cf:sugar_th', u:'t/h', dd:1, owner:'cf'}];
 const LANE_OFF=LANE.filter(id=>!TAGS.some(t=>t[0]===id));      // strip under the picture: only what is not already a tag on it
 let S=null, REP=null, COUNTED=false;
 function series(k){ if(!S) return []; const rows=S.readings||[];
@@ -16131,6 +16165,20 @@ const FCTX={page:'pan', X0, CW, H, entry:'?p=panentry', latest:k=>latest(k), lev
 const openFlow=t=>{ const p=FLOW.find(q=>q.id===t.dataset.p); if(p&&window.MoisFlow) MoisFlow.info(p,FCTX); };
 document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.tg[data-p]'); if(t) openFlow(t); });
 document.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('.tg[data-p]')){ e.preventDefault(); openFlow(e.target); } });
+/* values typed on the entry pages (today's production day) — shown on the diagram for parameters that are not in PI */
+let LAB={};
+async function loadLab(){ for(const s0 of ['pan','cf']){ try{ const r=await fetch(`${API}/api/${s0}/lab`,{cache:'no-store'}); if(r.ok){ const j=await r.json(); LAB[s0]=j.values||{}; } }catch(e){} } if(S) renderTags(); }
+FCTX.entered=e=>{ const [s0,item]=e.split(':'), v=(LAB[s0]||{})[item]; if(!v) return null; let best=null;
+  Object.keys(v).forEach(k=>{ const o=v[k], val=o&&typeof o==='object'?o.value:o; if(val!=null&&(!best||+k>best.slot)) best={slot:+k, v:val, by:o&&o.by}; }); return best; };
+/* computed from PI: average of the pans · strikes = a crystalliser level rising through 60 % */
+FCTX.calc=p=>{ const rows=(S&&S.readings)||[];
+  if(p.calc==='avg'){ const vs=p.keys.map(k=>{ const L=latest(k); return L?L.v:null; }), ok=vs.filter(v=>v!=null);
+    return {v:ok.length?ok.reduce((a,b)=>a+b,0)/ok.length:null, u:p.u, d:p.dd==null?1:p.dd, detail:p.keys.map((k,i)=>(p.names?p.names[i]:k)+' '+(vs[i]==null?'–':N(vs[i],p.dd==null?1:p.dd)))}; }
+  if(p.calc==='stk'){ let tot=0, any=false; const det=p.keys.map((k,i)=>{ let n=0, prev=null; rows.forEach(r=>{ const v=r[k]; if(v==null) return; any=true; if(prev!=null&&prev<60&&v>=60) n++; prev=v; }); tot+=n; return (p.names?p.names[i]:k)+' '+n; });
+    return {v:any?tot:null, u:'STK / 8 ชม.', d:0, detail:det}; }
+  return null; };
+loadLab(); setInterval(loadLab,300000);
+
 /* push overlapping tags apart (downwards, then upwards at the bottom edge) — a few passes */
 function untangle(){ const pic=$('stage').querySelector('.pic'); if(!pic) return; const PW=pic.clientWidth, PH=pic.clientHeight; if(!PW) return;
   const els=[...pic.querySelectorAll('.tg')], pad=6;
@@ -17368,20 +17416,30 @@ function tags(list,ctx){
       return '<div class="tg '+cls+'" data-k="'+esc(p.k)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — ดูแนวโน้มและบันทึกย้อนหลัง" '+pos+' title="'+esc((p.full||p.n)+(p.note?' · '+p.note:''))+'">'
         +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b>'+(L?N(L.v,ctx.dec(p.k)):'–')+'</b><small>'+(L?esc(ctx.unit(p.k)):'')+'</small></div>';
     }
-    var s=ST[p.st]||ST.nopi;
+    if(p.calc&&ctx.calc){                                        // computed from PI points (average of the pans, strikes from levels …)
+      var c=ctx.calc(p), has=c&&c.v!=null&&isFinite(c.v);
+      return '<div class="tg '+(has?'info':'na')+'" data-p="'+esc(p.id)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — คำนวณจาก PI" '+pos+' title="'+esc((p.full||p.n)+' · คำนวณจาก PI')+'">'
+        +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b>'+(has?N(c.v,c.d):'–')+'</b><small>'+(has?esc(c.u||''):'')+'</small></div>';
+    }
+    var s=ST[p.st]||ST.nopi, ev=p.e&&ctx.entered?ctx.entered(p.e):null;
+    if(ev) return '<div class="tg np '+ow+'" data-p="'+esc(p.id)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — ค่าที่กรอก" '+pos+' style="--sc:#0f172a" title="'+esc((p.full||p.n)+' · ค่าที่กรอก ครั้งที่ '+ev.slot)+'">'
+      +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b style="font-size:1em!important">'+N(ev.v,p.dd==null?2:p.dd)+'</b><small>'+esc(p.u||'')+' · กรอก</small></div>';
     return '<div class="tg np '+ow+'" data-p="'+esc(p.id)+'" tabindex="0" role="button" aria-label="'+esc(p.full||p.n)+' — '+s[0]+'" '+pos+' style="--sc:'+s[1]+'" title="'+esc((p.full||p.n)+' · '+s[0])+'">'
       +'<i>'+no+'</i><span>'+esc(p.n)+'</span><b>'+(ow==='own'?'✎ ':'')+s[0]+'</b></div>';
   }).join('');
 }
 function info(p,ctx){
-  var s=ST[p.st]||ST.nopi, ow=owned(p,ctx), bg=document.createElement('div'); bg.className='mf-bg';
+  var s=p.calc?['คำนวณจาก PI','#2563eb']:(ST[p.st]||ST.nopi), ow=owned(p,ctx), bg=document.createElement('div'); bg.className='mf-bg';
+  var c=p.calc&&ctx.calc?ctx.calc(p):null, ev=p.e&&ctx.entered?ctx.entered(p.e):null;
+  var val=c?'<dt>ค่าตอนนี้</dt><dd><b>'+(c.v!=null&&isFinite(c.v)?N(c.v,c.d)+' '+esc(c.u||''):'–')+'</b>'+(c.detail&&c.detail.length?'<br><small style="color:#64748b">'+c.detail.map(esc).join(' · ')+'</small>':'')+'</dd>'
+    :ev?'<dt>ค่าที่กรอกล่าสุด</dt><dd><b>'+N(ev.v,p.dd==null?2:p.dd)+' '+esc(p.u||'')+'</b> <small style="color:#64748b">ครั้งที่ '+ev.slot+(ev.by?' · '+esc(ev.by):'')+'</small></dd>':'';
   var who=p.owner?OWN[p.owner]:'หม้อต้มระเหย';
   var act=ow==='lk'?'<div class="lock">🔒 ค่านี้เป็นของ<b>'+OWN[p.owner]+'</b> — กรอกได้จากหน้า '+OWN[p.owner]+' เท่านั้น หน้านี้ดูได้อย่างเดียว</div>'
-    :(p.st==='manual'||p.st==='lab'||p.st==='nopi'||p.st==='ai')&&ctx.entry?'<a class="go" href="'+ctx.entry+'">✎ ไปหน้าบันทึกของ'+who+'</a>':'';
+    :(p.e||p.st==='manual'||p.st==='lab'||p.st==='nopi'||p.st==='ai')&&ctx.entry?'<a class="go" href="'+ctx.entry+'">✎ ไปหน้าบันทึกของ'+who+'</a>':'';
   bg.innerHTML='<section class="mf" role="dialog" aria-modal="true" aria-label="'+esc(p.full||p.n)+'"><header><div><h3>'+esc(p.full||p.n)+'</h3><small>'+esc(who)+(p.k?' · PI '+esc(p.k):'')+'</small></div><button type="button" class="x" aria-label="ปิด">✕</button></header>'
     +'<div class="bd"><div><span class="chip" style="background:'+s[1]+'">'+s[0]+'</span></div><dl>'
-    +(p.note?'<dt>วิธีเก็บข้อมูล</dt><dd>'+esc(p.note)+'</dd>':'')+(p.freq?'<dt>ความถี่</dt><dd>'+esc(p.freq)+'</dd>':'')
-    +'<dt>ผู้บันทึก</dt><dd>'+esc(who)+'</dd><dt>สถานะในระบบ</dt><dd>'+(p.st==='tag'?'มีจุดวัดแล้ว รอระบุ Tag PI เพื่อดึงค่าอัตโนมัติ':'ยังไม่มีค่าในระบบ — ตามรายการ Parameter Top5 (RPA)')+'</dd></dl>'+act+'</div></section>';
+    +val+(p.note?'<dt>วิธีเก็บข้อมูล</dt><dd>'+esc(p.note)+'</dd>':'')+(p.freq?'<dt>ความถี่</dt><dd>'+esc(p.freq)+'</dd>':'')
+    +'<dt>ผู้บันทึก</dt><dd>'+esc(who)+'</dd><dt>สถานะในระบบ</dt><dd>'+(p.calc?'คำนวณอัตโนมัติจากจุดวัด PI':ev?'ใช้ค่าที่กรอกในหน้าบันทึก (วันผลิตนี้)':p.st==='tag'?'มีจุดวัดแล้ว รอระบุ Tag PI เพื่อดึงค่าอัตโนมัติ':'ยังไม่มีค่าในระบบ — กรอกได้ที่หน้าบันทึก')+'</dd></dl>'+act+'</div></section>';
   document.body.appendChild(bg);
   var close=function(){ bg.remove(); document.removeEventListener('keydown',key); };
   var key=function(e){ if(e.key==='Escape') close(); };
@@ -17692,7 +17750,7 @@ const RPT={vhp:['vhp_pol','vhp_colour'], cmag:['cmagma_purity','cmol3_prise']};
 /* pipes (massecuite to each machine), the machines that shake, the spinning motors and baskets, halo steam (QUT 18) */
 const PIPES=[];
 const PUFFS=[];
-const VIBS=[];
+const VIBS=[[243,72,333,215,'big'],[430,5,522,145,'b big'],[648,5,740,148,'c big'],[763,90,850,230,'big'],[1172,0,1260,140,'b big'],[1314,70,1404,212,'c big'],[354,385,476,508,''],[791,380,913,505,'b'],[1236,395,1320,516,'c'],[1510,505,1650,572,''],[1405,325,1445,455,'b'],[152,513,216,595,'c']];
 const JETS=[];
 const SMOKE=[];
 const VENTS=[];          // [x, y, drift, rise] — steam rises from the vapour pipes
@@ -17711,23 +17769,23 @@ const TAGS=[];      // replaced by FLOW (the Dashboard_Process diagram)
 /* Dashboard_Process (slide "เคี่ยว_ปั่น") + Parameter_Top5_RPA (slide "หม้อเคี่ยว & ปั่น") — the same diagram on the Vacuum Pan and the
    Centrifugal page (diagram pixels 1650 × 762). owner: who records the value — the other page shows it locked. */
 const FLOW=[
- {id:'amc',x:1215,y:18,  n:'A-Mass % Cane', st:'tag', owner:'pan', note:'นับจำนวนหม้อ (strike) ตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'bmc',x:693, y:18,  n:'B-Mass % Cane', st:'tag', owner:'pan', note:'นับจำนวนหม้อ (strike) ตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'cmc',x:476, y:18,  n:'C-Mass % Cane', st:'tag', owner:'pan', note:'นับจำนวนหม้อ (strike) ตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'bxa',x:1530, y:100, n:'Brix A-Mass', st:'lab', owner:'pan', note:'ช่วงแรกเก็บตัวอย่างวัด Brix เทียบกระแสรางกวน (เช็คว่ามีกระแสรางกวนใน DCS หรือไม่)'},
- {id:'bxb',x:560, y:180, n:'Brix B-Mass', st:'lab', owner:'pan', note:'ช่วงแรกเก็บตัวอย่างวัด Brix เทียบกระแสรางกวน (เช็คว่ามีกระแสรางกวนใน DCS หรือไม่)'},
- {id:'bxc',x:120, y:110, n:'Brix C-Mass', full:'Brix C-Mass (หม้อ C2)', k:'bpdic_c211', owner:'pan'},
- {id:'asd',x:1357,y:250, n:'A-Seed/A-Mass', st:'tag', owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'bsd',x:807, y:255, n:'B-Seed/B-Mass', st:'tag', owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'csd',x:288, y:240, n:'C-Seed/C-Mass', st:'tag', owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
- {id:'sls',x:110, y:250, n:'Slurry Seed/Stk.', full:'ปริมาณ Slurry Seed ต่อ Strike', st:'manual', owner:'pan', note:'คนกรอก (คอนเฟิร์มจาก Stock Slurry)'},
- {id:'csz',x:600, y:300, n:'ขนาดเม็ด A,B,C', full:'ขนาดเม็ดน้ำตาล A, B, C', st:'ai', owner:'pan', note:'โปรแกรม AI วัดเม็ดด้วยกล้อง Dino'},
- {id:'stk',x:40,  y:330, n:'Stock', full:'Stock — รวม Level วัตถุดิบ', st:'tag', owner:'cf', note:'รวม Level วัตถุดิบ'},
- {id:'fmc',x:415, y:540, n:'Final Mol. % Cane', full:'Final Molasses % Cane', st:'tag', owner:'cf'},
- {id:'wtr',x:852, y:540, n:'Water % Mass', full:'Water % Mass A, B, C', st:'calc', owner:'cf', note:'นำมิเตอร์น้ำ A, B, C เทียบกับจำนวน Mass'},
- {id:'kgm',x:1278,y:545, n:'Kgs/m³ Mass A', st:'calc', owner:'cf', note:'สรุปน้ำตาล 8 ชั่วโมง ÷ จำนวน A-Mass'},
- {id:'col',x:1580,y:610, n:'สีน้ำตาล A,B,C', full:'ค่าสีน้ำตาล A, B, C', st:'ai', owner:'cf', note:'ถ่ายรูปจากกองน้ำตาลรายชั่วโมงอยู่แล้ว (อนาคตใช้ AI วัดเหมือนขนาดเม็ด)'},
- {id:'tsh',x:1300,y:700, n:'Ton Sugar/ชม.', full:'Ton Sugar รายชั่วโมง', st:'tag', owner:'cf'}];
+ {id:'amc',x:1215, y:18, n:'A-Mass (STK)', full:'A-Mass — จำนวน strike (8 ชม.)', calc:'stk', keys:['bpli_a109','bpli_a209','bpli_a309','bpli_a409'], names:['รางกวน A1','A2','A3','A4'], e:'pan:a_stk', owner:'pan', note:'นับครั้งที่ Level รางกวนขึ้นถึง 60% = 1 STK (ตามข้อเสนอใน Top5) · ต้องใช้ปริมาตรต่อหม้อและอ้อยเพื่อคิด % Cane'},
+ {id:'bmc',x:693, y:18, n:'B-Mass (STK)', full:'B-Mass — จำนวน strike (8 ชม.)', calc:'stk', keys:['bpli_b109','bpli_b209'], names:['รางกวน B1','B2'], e:'pan:b_stk', owner:'pan', note:'นับครั้งที่ Level รางกวนขึ้นถึง 60% = 1 STK · ต้องใช้ปริมาตรต่อหม้อและอ้อยเพื่อคิด % Cane'},
+ {id:'cmc',x:476, y:18, n:'C-Mass (STK)', full:'C-Mass — จำนวน strike (8 ชม.)', calc:'stk', keys:['bpli_c109','bpli_c110','bpli_c111','bpli_c112','bpli_c113','bpli_c114'], names:['รางกวน C1','C2','C3','C4','C5','C6'], e:'pan:c_stk', owner:'pan', note:'นับครั้งที่ Level รางกวนขึ้นถึง 60% = 1 STK · ต้องใช้ปริมาตรต่อหม้อและอ้อยเพื่อคิด % Cane'},
+ {id:'bxa',x:1530, y:100, n:'Brix A-Mass', full:'Brix A (VHP) massecuite', st:'lab', e:'pan:vhpm_brix', u:'Brix', dd:2, owner:'pan', note:'ใน PI มีจุด A1–A4 MESSECUITE BRIX แต่ยังไม่มีข้อมูล — ใช้ผลแล็บที่กรอก (Brix VHP massecuite) · ช่วงแรกเก็บตัวอย่างวัด Brix เทียบกระแสรางกวน'},
+ {id:'bxb',x:560, y:180, n:'Brix B-Mass', full:'Brix B massecuite', st:'lab', e:'pan:bm_brix', u:'Brix', dd:2, owner:'pan', note:'ใน PI มีจุด B1–B3 MESSECUITE BRIX แต่ยังไม่มีข้อมูล — ใช้ผลแล็บที่กรอก (Brix B massecuite) · ช่วงแรกเก็บตัวอย่างวัด Brix เทียบกระแสรางกวน'},
+ {id:'bxc',x:120, y:110, n:'Brix C-Mass', full:'Brix C massecuite (เฉลี่ยหม้อ C1–C3)', calc:'avg', keys:['bpdic_c203','bpdic_c211','bpdic_c312'], names:['C1','C2','C3'], u:'Brix', dd:1, owner:'pan', note:'PI: C1–C3 MESSECUITE BRIX'},
+ {id:'asd',x:1357, y:250, n:'A-Seed/A-Mass', st:'tag', e:'pan:a_seed', u:'%', dd:1, owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
+ {id:'bsd',x:807, y:255, n:'B-Seed/B-Mass', st:'tag', e:'pan:b_seed', u:'%', dd:1, owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
+ {id:'csd',x:288, y:240, n:'C-Seed/C-Mass', st:'tag', e:'pan:c_seed', u:'%', dd:1, owner:'pan', note:'นับจำนวนหม้อตามหม้อเคี่ยว Run — อาจนับครั้งที่ Level รางกวนเต็ม 60% เป็น 1 STK'},
+ {id:'sls',x:110, y:250, n:'Slurry Seed/Stk.', full:'ปริมาณ Slurry Seed ต่อ Strike', st:'manual', e:'pan:slurry', u:'mL', dd:0, owner:'pan', note:'คนกรอก (คอนเฟิร์มจาก Stock Slurry)'},
+ {id:'csz',x:600, y:300, n:'ขนาดเม็ด A,B,C', full:'ขนาดเม็ดน้ำตาล A, B, C', st:'ai', e:'pan:size_a', u:'mm (A)', dd:2, owner:'pan', note:'โปรแกรม AI วัดเม็ดด้วยกล้อง Dino'},
+ {id:'stk',x:40, y:330, n:'Stock', full:'Stock — ระดับถังวัตถุดิบ (เฉลี่ย)', calc:'avg', keys:['bpli_a001','bpli_a002','bpli_b001','bpli_c001','bpli_c002','bpli_c003','cfli_a002','cfli_b002'], names:['น้ำเชื่อม','Mol A (pan)','B-Magma','C-Magma','C-Seed','C-Remelt','Mol A (ปั่น)','Mol B (ปั่น)'], u:'%', dd:0, owner:'cf', note:'รวม Level วัตถุดิบ — เฉลี่ยระดับถัง 8 ใบจาก PI'},
+ {id:'fmc',x:415, y:540, n:'Final Mol. % Cane', full:'Final Molasses % Cane', st:'tag', e:'cf:fm_pct', u:'%', dd:2, owner:'cf'},
+ {id:'wtr',x:852, y:540, n:'Water % Mass', full:'Water % Mass A, B, C', st:'calc', e:'cf:water_a', u:'% (A)', dd:1, owner:'cf', note:'นำมิเตอร์น้ำ A, B, C เทียบกับจำนวน Mass'},
+ {id:'kgm',x:1278, y:545, n:'Kgs/m³ Mass A', st:'calc', e:'cf:kgm3_a', u:'kg/m³', dd:0, owner:'cf', note:'สรุปน้ำตาล 8 ชั่วโมง ÷ จำนวน A-Mass'},
+ {id:'col',x:1580, y:610, n:'สีน้ำตาล A,B,C', full:'ค่าสีน้ำตาล A, B, C', st:'ai', e:'cf:vhp_colour', u:'IU (A)', dd:0, owner:'cf', note:'ถ่ายรูปจากกองน้ำตาลรายชั่วโมงอยู่แล้ว (อนาคตใช้ AI วัดเหมือนขนาดเม็ด)'},
+ {id:'tsh',x:1300, y:700, n:'Ton Sugar/ชม.', full:'Ton Sugar รายชั่วโมง', st:'tag', e:'cf:sugar_th', u:'t/h', dd:1, owner:'cf'}];
 const LANE_OFF=LANE.filter(id=>!TAGS.some(t=>t[0]===id));      // strip under the picture: only what is not already a tag on it
 let S=null, REP=null, COUNTED=false;
 function series(k){ if(!S) return []; const rows=S.readings||[];
@@ -17780,6 +17838,20 @@ const FCTX={page:'cf', X0, CW, H, entry:'?p=centrientry', latest:k=>latest(k), l
 const openFlow=t=>{ const p=FLOW.find(q=>q.id===t.dataset.p); if(p&&window.MoisFlow) MoisFlow.info(p,FCTX); };
 document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.tg[data-p]'); if(t) openFlow(t); });
 document.addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('.tg[data-p]')){ e.preventDefault(); openFlow(e.target); } });
+/* values typed on the entry pages (today's production day) — shown on the diagram for parameters that are not in PI */
+let LAB={};
+async function loadLab(){ for(const s0 of ['pan','cf']){ try{ const r=await fetch(`${API}/api/${s0}/lab`,{cache:'no-store'}); if(r.ok){ const j=await r.json(); LAB[s0]=j.values||{}; } }catch(e){} } if(S) renderTags(); }
+FCTX.entered=e=>{ const [s0,item]=e.split(':'), v=(LAB[s0]||{})[item]; if(!v) return null; let best=null;
+  Object.keys(v).forEach(k=>{ const o=v[k], val=o&&typeof o==='object'?o.value:o; if(val!=null&&(!best||+k>best.slot)) best={slot:+k, v:val, by:o&&o.by}; }); return best; };
+/* computed from PI: average of the pans · strikes = a crystalliser level rising through 60 % */
+FCTX.calc=p=>{ const rows=(S&&S.readings)||[];
+  if(p.calc==='avg'){ const vs=p.keys.map(k=>{ const L=latest(k); return L?L.v:null; }), ok=vs.filter(v=>v!=null);
+    return {v:ok.length?ok.reduce((a,b)=>a+b,0)/ok.length:null, u:p.u, d:p.dd==null?1:p.dd, detail:p.keys.map((k,i)=>(p.names?p.names[i]:k)+' '+(vs[i]==null?'–':N(vs[i],p.dd==null?1:p.dd)))}; }
+  if(p.calc==='stk'){ let tot=0, any=false; const det=p.keys.map((k,i)=>{ let n=0, prev=null; rows.forEach(r=>{ const v=r[k]; if(v==null) return; any=true; if(prev!=null&&prev<60&&v>=60) n++; prev=v; }); tot+=n; return (p.names?p.names[i]:k)+' '+n; });
+    return {v:any?tot:null, u:'STK / 8 ชม.', d:0, detail:det}; }
+  return null; };
+loadLab(); setInterval(loadLab,300000);
+
 /* push overlapping tags apart (downwards, then upwards at the bottom edge) — a few passes */
 function untangle(){ const pic=$('stage').querySelector('.pic'); if(!pic) return; const PW=pic.clientWidth, PH=pic.clientHeight; if(!PW) return;
   const els=[...pic.querySelectorAll('.tg')], pad=6;
